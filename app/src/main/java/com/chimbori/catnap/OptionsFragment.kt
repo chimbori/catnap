@@ -38,7 +38,7 @@ class OptionsFragment : Fragment(), OnSeekBarChangeListener, CompoundButton.OnCh
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     mUiState = (activity as MainActivity?)!!.uIState
-    val ph = mUiState!!.getPhonon()
+    val ph = mUiState!!.phonon!!
     mMinVolText!!.text = ph.getMinVolText()
     mMinVolSeek!!.progress = ph.getMinVol()
     mMinVolSeek!!.setOnSeekBarChangeListener(this)
@@ -48,9 +48,9 @@ class OptionsFragment : Fragment(), OnSeekBarChangeListener, CompoundButton.OnCh
     mPeriodSeek!!.setEnabled(ph.getMinVol() != 100)
     mPeriodSeek!!.setMax(PhononMutable.PERIOD_MAX)
     mPeriodSeek!!.setOnSeekBarChangeListener(this)
-    mAutoPlayCheck!!.setChecked(mUiState!!.getAutoPlay())
+    mAutoPlayCheck!!.setChecked(mUiState!!.autoPlay)
     mAutoPlayCheck!!.setOnCheckedChangeListener(this)
-    mIgnoreAudioFocusCheck!!.setChecked(mUiState!!.getIgnoreAudioFocus())
+    mIgnoreAudioFocusCheck!!.setChecked(mUiState!!.ignoreAudioFocus)
     mIgnoreAudioFocusCheck!!.setOnCheckedChangeListener(this)
     mVolumeLimitCheck!!.setOnCheckedChangeListener(this)
     mVolumeLimitSeek!!.setMax(UIState.MAX_VOLUME)
@@ -71,10 +71,10 @@ class OptionsFragment : Fragment(), OnSeekBarChangeListener, CompoundButton.OnCh
       return
     }
     if (seekBar === mVolumeLimitSeek) {
-      mUiState!!.setVolumeLimit(progress)
+      mUiState!!.volumeLimit = progress
       redrawVolumeLimit()
     } else {
-      val phm = mUiState!!.getPhononMutable()
+      val phm = mUiState!!.phononMutable!!
       if (seekBar === mMinVolSeek) {
         phm.setMinVol(progress)
         mMinVolText!!.text = phm.minVolText
@@ -91,9 +91,9 @@ class OptionsFragment : Fragment(), OnSeekBarChangeListener, CompoundButton.OnCh
     if (buttonView === mAutoPlayCheck) {
       mUiState!!.setAutoPlay(isChecked, true)
     } else if (buttonView === mIgnoreAudioFocusCheck) {
-      mUiState!!.setIgnoreAudioFocus(isChecked)
+      mUiState!!.ignoreAudioFocus = isChecked
     } else if (buttonView === mVolumeLimitCheck) {
-      mUiState!!.setVolumeLimitEnabled(isChecked)
+      mUiState!!.volumeLimitEnabled = isChecked
       redrawVolumeLimit()
     }
     mUiState!!.sendIfDirty()

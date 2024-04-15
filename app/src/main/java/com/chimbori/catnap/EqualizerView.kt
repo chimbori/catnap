@@ -73,7 +73,7 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   }
 
   override fun onDraw(canvas: Canvas) {
-    val ph = if (mUiState != null) mUiState!!.getPhonon() else null
+    val ph = if (mUiState != null) mUiState!!.phonon else null
     val isLocked = if (mUiState != null) mUiState!!.locked else false
     val p = Path()
     for (i in 0 until BAND_COUNT) {
@@ -116,11 +116,11 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
     if (mUiState!!.locked) {
       when (event.action) {
         MotionEvent.ACTION_DOWN -> {
-          mUiState!!.setLockBusy(true)
+          mUiState!!.lockBusy = true
           return true
         }
         MotionEvent.ACTION_UP -> {
-          mUiState!!.setLockBusy(false)
+          mUiState!!.lockBusy = false
           return true
         }
         MotionEvent.ACTION_MOVE -> return true
@@ -135,7 +135,7 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
       MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {}
       else -> return false
     }
-    val phm = mUiState!!.getPhononMutable()
+    val phm = mUiState!!.phononMutable!!
     for (i in 0 until event.historySize) {
       touchLine(phm, event.getHistoricalX(i), event.getHistoricalY(i))
     }

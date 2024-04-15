@@ -35,7 +35,7 @@ class MainFragment : Fragment(), PercentListener {
     super.onResume()
     // Start receiving progress events.
     NoiseService.addPercentListener(this)
-    mUiState!!.addLockListener(mEqualizer)
+    mUiState!!.addLockListener(mEqualizer!!)
     (activity as MainActivity?)!!.setFragmentId(FragmentIndex.ID_MAIN)
   }
 
@@ -43,7 +43,7 @@ class MainFragment : Fragment(), PercentListener {
     super.onPause()
     // Stop receiving progress events.
     NoiseService.removePercentListener(this)
-    mUiState!!.removeLockListener(mEqualizer)
+    mUiState!!.removeLockListener(mEqualizer!!)
   }
 
   override fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int) {

@@ -31,7 +31,7 @@ class MemoryFragment : ListFragment(), OnItemClickListener, DropListener, Remove
     val v = inflater.inflate(R.layout.memory_list_item_top, null)
     val button = v.findViewById<View>(R.id.save_button)
     button.setOnClickListener { // Clicked the "Save" button.
-      val ph: Phonon = mUiState!!.mScratchPhonon.makeMutableCopy()
+      val ph: Phonon = mUiState!!.mScratchPhonon!!.makeMutableCopy()
       mAdapter!!.insert(ph, 0)
       // Gray out the header row.
       setScratchPosAndDraw(findScratchCopy())
@@ -126,8 +126,8 @@ class MemoryFragment : ListFragment(), OnItemClickListener, DropListener, Remove
   // copy's index within mArray.
   private fun findScratchCopy(): Int {
     val scratch = mUiState!!.mScratchPhonon
-    for (i in mUiState!!.mSavedPhonons.indices) {
-      if (mUiState!!.mSavedPhonons[i].fastEquals(scratch)) {
+    for (i in mUiState!!.mSavedPhonons!!.indices) {
+      if (mUiState!!.mSavedPhonons!![i].fastEquals(scratch)) {
         return i
       }
     }
