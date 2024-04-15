@@ -1,14 +1,15 @@
+import static org.gradle.api.JavaVersion.VERSION_17
+
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
   compileSdk 34
-
   defaultConfig {
     applicationId 'com.chimbori.catnap'
     minSdkVersion 28
     targetSdkVersion 34
   }
-
   buildTypes {
     release {
       minifyEnabled true
@@ -16,10 +17,19 @@ android {
     }
   }
   namespace 'net.pmarks.chromadoze'
+  kotlinOptions {
+    jvmTarget = '17'
+  }
+  compileOptions {
+    sourceCompatibility = VERSION_17
+    targetCompatibility = VERSION_17
+  }
 }
 
 dependencies {
   implementation project(':dslv')
   implementation project(':jtransforms')
+
   implementation 'androidx.appcompat:appcompat:1.6.1'
+  implementation 'androidx.core:core-ktx:1.12.0'
 }
