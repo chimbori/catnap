@@ -26,7 +26,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import net.pmarks.chromadoze.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
