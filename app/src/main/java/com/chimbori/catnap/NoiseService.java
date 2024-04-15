@@ -51,7 +51,7 @@ public class NoiseService extends Service {
   // Save the reason for the most recent stop/restart.  In theory, it would
   // be more correct to use persistent storage, but the values should stick
   // around in RAM long enough for practical purposes.
-  private static Date sStopTimestamp = null;
+  private static Date sStopTimestamp = new Date();
   private static int sStopReasonId = 0;
   private SampleShuffler mSampleShuffler;
   private SampleGenerator mSampleGenerator;
