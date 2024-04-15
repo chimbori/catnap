@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
 
     // If the equalizer is silent, stop the service.
     // This makes it harder to leave running accidentally.
-    if (mServiceActive && uIState!!.phonon!!.isSilent()) {
+    if (mServiceActive && uIState!!.phonon!!.isSilent) {
       NoiseService.stopNow(application, R.string.stop_reason_silent)
     }
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit()

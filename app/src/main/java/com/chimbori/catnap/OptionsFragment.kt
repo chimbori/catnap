@@ -39,13 +39,13 @@ class OptionsFragment : Fragment(), OnSeekBarChangeListener, CompoundButton.OnCh
     super.onViewCreated(view, savedInstanceState)
     mUiState = (activity as MainActivity?)!!.uIState
     val ph = mUiState!!.phonon!!
-    mMinVolText!!.text = ph.getMinVolText()
-    mMinVolSeek!!.progress = ph.getMinVol()
+    mMinVolText!!.text = ph.minVolText
+    mMinVolSeek!!.progress = ph.minVol
     mMinVolSeek!!.setOnSeekBarChangeListener(this)
-    mPeriodText!!.text = ph.getPeriodText()
-    mPeriodSeek!!.progress = ph.getPeriod()
+    mPeriodText!!.text = ph.periodText
+    mPeriodSeek!!.progress = ph.period
     // When the volume is at 100%, disable the period bar.
-    mPeriodSeek!!.setEnabled(ph.getMinVol() != 100)
+    mPeriodSeek!!.setEnabled(ph.minVol != 100)
     mPeriodSeek!!.setMax(PhononMutable.PERIOD_MAX)
     mPeriodSeek!!.setOnSeekBarChangeListener(this)
     mAutoPlayCheck!!.setChecked(mUiState!!.autoPlay)
@@ -76,12 +76,12 @@ class OptionsFragment : Fragment(), OnSeekBarChangeListener, CompoundButton.OnCh
     } else {
       val phm = mUiState!!.phononMutable!!
       if (seekBar === mMinVolSeek) {
-        phm.setMinVol(progress)
+        phm.minVol = progress
         mMinVolText!!.text = phm.minVolText
         mPeriodSeek!!.setEnabled(progress != 100)
       } else if (seekBar === mPeriodSeek) {
-        phm.setPeriod(progress)
-        mPeriodText!!.text = phm.getPeriodText()
+        phm.period = progress
+        mPeriodText!!.text = phm.periodText
       }
     }
     mUiState!!.sendIfDirty()

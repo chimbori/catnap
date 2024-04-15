@@ -17,10 +17,10 @@ class MemoryArrayAdapter(context: Context?, objects: List<Phonon?>?) : ArrayAdap
 
   fun initListItem(view: View, ph: Phonon?, saved: Saved) {
     val buf = StringBuilder()
-    if (ph!!.getMinVol() != 100) {
-      buf.append(ph.getMinVolText())
+    if (ph!!.minVol != 100) {
+      buf.append(ph.minVolText)
       buf.append('\n')
-      buf.append(ph.getPeriodText())
+      buf.append(ph.periodText)
       if (saved != Saved.NONE) {
         buf.append('\n')
       }

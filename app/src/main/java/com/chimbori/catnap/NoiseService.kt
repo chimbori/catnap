@@ -37,7 +37,7 @@ class NoiseService : Service() {
     mPercentHandler = PercentHandler()
     val params = AudioParams()
     mSampleShuffler = SampleShuffler(params)
-    mSampleGenerator = SampleGenerator(this, params, mSampleShuffler)
+    mSampleGenerator = SampleGenerator(this, params, mSampleShuffler!!)
     val pm = getSystemService(POWER_SERVICE) as PowerManager
     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "catnap:NoiseService")
     mWakeLock!!.acquire()
