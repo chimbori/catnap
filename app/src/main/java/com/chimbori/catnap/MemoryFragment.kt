@@ -91,7 +91,7 @@ class MemoryFragment : ListFragment(), OnItemClickListener, DropListener, Remove
       // Move it to scratch, so it can keep playing.
       mUiState!!.mScratchPhonon = deleted!!.makeMutableCopy()
       setScratchPosAndDraw(-1)
-      mUiState!!.mActivePos.setPos(-1)
+      mUiState!!.mActivePos.pos = -1
       syncActiveItem(true)
       return
     }
@@ -114,12 +114,11 @@ class MemoryFragment : ListFragment(), OnItemClickListener, DropListener, Remove
 
   // Header row should be grayed out whenever the scratch is redundant.
   private fun setScratchPosAndDraw(pos: Int) {
-    mScratchPos.setPos(pos)
+    mScratchPos.pos = pos
     val enabled = pos == -1
     mHeaderView!!.setEnabled(enabled)
     mAdapter!!.initListItem(
-      mHeaderView, mUiState!!.mScratchPhonon,
-      if (enabled) Saved.NO else Saved.YES
+      mHeaderView!!, mUiState!!.mScratchPhonon, if (enabled) Saved.NO else Saved.YES
     )
   }
 
@@ -140,7 +139,7 @@ class MemoryFragment : ListFragment(), OnItemClickListener, DropListener, Remove
     var index = mUiState!!.mActivePos.pos
     if (index == -1) {
       index = mScratchPos.pos
-      mUiState!!.mActivePos.setPos(index)
+      mUiState!!.mActivePos.pos = index
     }
 
     // Convert the index to a list row.
