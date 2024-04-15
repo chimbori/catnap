@@ -202,7 +202,7 @@ public class NoiseService extends Service {
     // Create an icon for the notification bar.
     private Notification makeNotify() {
         NotificationCompat.Builder b = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_stat_bars)
+                .setSmallIcon(R.drawable.power_sleep)
                 .setWhen(0)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(PendingIntent.getActivity(

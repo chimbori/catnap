@@ -10,13 +10,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Chroma Doze" />
+        android:text="@string/app_name" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Noise spectrum generator for Android" />
+        android:text="@string/app_description" />
 
     <TextView
         android:id="@+id/VersionText"
@@ -30,19 +30,19 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:paddingBottom="10sp"
-        android:text="© 2024 Paul Marks" />
+        android:text="" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:autoLink="web"
-        android:text="https://github.com/pmarks-net/chromadoze" />
+        android:text="@string/source_url" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="10sp"
-        android:text="JTransforms © 2015 Piotr Wendykier\nDragSortListView © 2013 Carl Bauer" />
+        android:text="@string/dependencies" />
 
 
     <TextView
@@ -50,6 +50,6 @@
         android:layout_height="wrap_content"
         android:paddingBottom="10sp"
         android:paddingTop="10sp"
-        android:text="This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version." />
+        android:text="@string/license_gnu_gpl" />
 
 </LinearLayout>

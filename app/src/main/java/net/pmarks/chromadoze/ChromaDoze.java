@@ -99,7 +99,7 @@ public class ChromaDoze extends AppCompatActivity implements
             int height = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
             // This originally used a scaled-down launcher icon, but I don't feel like figuring
             // out how to render R.mipmap.chromadoze_icon correctly.
-            mToolbarIcon = ContextCompat.getDrawable(this, R.drawable.toolbar_icon);
+            mToolbarIcon = ContextCompat.getDrawable(this, R.drawable.icon);
         }
 
         // When this Activity is first created, set up the initial fragment.
@@ -158,8 +158,7 @@ public class ChromaDoze extends AppCompatActivity implements
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(MENU_PLAY_STOP).setIcon(
-                mServiceActive ? R.drawable.av_stop : R.drawable.av_play);
+        menu.findItem(MENU_PLAY_STOP).setIcon(mServiceActive ? R.drawable.stop : R.drawable.play);
         MenuItem mi = menu.findItem(MENU_LOCK);
         if (mi != null) {
             mi.setIcon(getLockIcon());
@@ -185,7 +184,7 @@ public class ChromaDoze extends AppCompatActivity implements
     // Get the lock icon which reflects the current action.
     private Drawable getLockIcon() {
         Drawable d = ContextCompat.getDrawable(this, mUiState.getLocked() ?
-                R.drawable.action_unlock : R.drawable.action_lock);
+                R.drawable.lock : R.drawable.lock_open);
         if (mUiState.getLockBusy()) {
             setColorFilterCompat(d, 0xFFFF4444, Mode.SRC_IN);
         } else {

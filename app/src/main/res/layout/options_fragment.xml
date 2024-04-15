@@ -32,7 +32,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:paddingRight="5dp"
-                    android:src="@drawable/wave_amplitude" />
+                    android:src="@drawable/amplitude" />
 
                 <SeekBar
                     android:id="@+id/MinVolSeek"
@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:paddingRight="5dp"
-                    android:src="@drawable/wave_period" />
+                    android:src="@drawable/frequency" />
 
                 <SeekBar
                     android:id="@+id/PeriodSeek"
