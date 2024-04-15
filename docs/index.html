@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Catnap</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://chimbori.com/gen.css">
+  <script src="https://chimbori.com/media/htmx.min.js" defer></script>
+</head>
+
+<body>
+  <header class="background-blue py-8">
+    <div class="width-limit">
+      <h1 class="text-5xl my-8">Catnap</h1>
+      <h2 class="text-xl my-8">White Noise Generator for Android</h2>
+    </div>
+  </header>
+
+  <article class="width-limit prose-lite my-12">
+    <p>Catnap is an Android app that dynamically generates white/colored noise according to a
+    frequency/amplitude spectrum sketched by the user.</p>
+
+    <p>It is intended to be used as a sleep sound generator. It provides rapid feedback to adjustments
+    in the spectrum, and is designed to minimize CPU usage in the steady state.</p>
+
+    <p>It works by running shaped white noise through an Inverse Discrete Cosine Transform, generating
+    a few megabytes of distinct audio blocks. The steady-state behavior selects blocks at random, and
+    smoothly crossfades between them.</p>
+
+    <p>This app is a fork of the original app, Chroma Doze, by Paul Marks.</p>
+
+    <ul>
+      <li>Copyright © Paul Marks, <a href="https://github.com/pmarks-net/chromadoze">original source</a>.</li>
+      <li>Copyright © Chimbori, <a href="https://github.com/chimbori/catnap">modifications</a>.</li>
+    </ul>
+
+    <p>Licensed under the GNU GPL License v3.0</p>
+  </article>
+</body>
+</html>
