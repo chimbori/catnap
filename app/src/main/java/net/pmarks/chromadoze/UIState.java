@@ -20,225 +20,219 @@ package net.pmarks.chromadoze;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-
 import androidx.core.content.ContextCompat;
-
 import java.util.ArrayList;
 
 public class UIState {
 
-    private final Context mContext;
+  public static final int MAX_VOLUME = 100;
+  public final TrackedPosition mActivePos = new TrackedPosition();
+  private final Context mContext;
+  private final ArrayList<LockListener> mLockListeners = new ArrayList<>();
+  public PhononMutable mScratchPhonon;
+  public ArrayList<Phonon> mSavedPhonons;
+  private boolean mLocked = false;
+  private boolean mLockBusy = false;
+  private boolean mDirty = false;
+  private boolean mAutoPlay;
+  private boolean mIgnoreAudioFocus;
+  private boolean mVolumeLimitEnabled;
+  private int mVolumeLimit;
+  public UIState(Context context) {
+    mContext = context;
+  }
 
-    private boolean mLocked = false;
-    private boolean mLockBusy = false;
-    private final ArrayList<LockListener> mLockListeners = new ArrayList<>();
+  public void saveState(SharedPreferences.Editor pref) {
+    pref.putBoolean("locked", mLocked);
+    pref.putBoolean("autoPlay", mAutoPlay);
+    pref.putBoolean("ignoreAudioFocus", mIgnoreAudioFocus);
+    pref.putInt("volumeLimit", getVolumeLimit());
+    pref.putString("phononS", mScratchPhonon.toJSON());
+    for (int i = 0; i < mSavedPhonons.size(); i++) {
+      pref.putString("phonon" + i, mSavedPhonons.get(i).toJSON());
+      mSavedPhonons.get(i);
+    }
+    pref.putInt("activePhonon", mActivePos.getPos());
+  }
 
-    public final TrackedPosition mActivePos = new TrackedPosition();
-    public PhononMutable mScratchPhonon;
-    public ArrayList<Phonon> mSavedPhonons;
+  public void loadState(SharedPreferences pref) {
+    mLocked = pref.getBoolean("locked", false);
+    setAutoPlay(pref.getBoolean("autoPlay", false), false);
+    setIgnoreAudioFocus(pref.getBoolean("ignoreAudioFocus", false));
+    setVolumeLimit(pref.getInt("volumeLimit", MAX_VOLUME));
+    setVolumeLimitEnabled(mVolumeLimit != MAX_VOLUME);
 
-    public UIState(Context context) {
-        mContext = context;
+    // Load the scratch phonon.
+    mScratchPhonon = new PhononMutable();
+    if (mScratchPhonon.loadFromJSON(pref.getString("phononS", null))) {
+    } else if (mScratchPhonon.loadFromLegacyPrefs(pref)) {
+    } else {
+      mScratchPhonon.resetToDefault();
     }
 
-    private boolean mDirty = false;
-    private boolean mAutoPlay;
-    private boolean mIgnoreAudioFocus;
-    private boolean mVolumeLimitEnabled;
-    private int mVolumeLimit;
-    public static final int MAX_VOLUME = 100;
-
-    public void saveState(SharedPreferences.Editor pref) {
-        pref.putBoolean("locked", mLocked);
-        pref.putBoolean("autoPlay", mAutoPlay);
-        pref.putBoolean("ignoreAudioFocus", mIgnoreAudioFocus);
-        pref.putInt("volumeLimit", getVolumeLimit());
-        pref.putString("phononS", mScratchPhonon.toJSON());
-        for (int i = 0; i < mSavedPhonons.size(); i++) {
-            pref.putString("phonon" + i, mSavedPhonons.get(i).toJSON());
-            mSavedPhonons.get(i);
-        }
-        pref.putInt("activePhonon", mActivePos.getPos());
+    // Load the saved phonons.
+    mSavedPhonons = new ArrayList<>();
+    for (int i = 0; i < TrackedPosition.NOWHERE; i++) {
+      PhononMutable phm = new PhononMutable();
+      if (!phm.loadFromJSON(pref.getString("phonon" + i, null))) {
+        break;
+      }
+      mSavedPhonons.add(phm);
     }
 
-    public void loadState(SharedPreferences pref) {
-        mLocked = pref.getBoolean("locked", false);
-        setAutoPlay(pref.getBoolean("autoPlay", false), false);
-        setIgnoreAudioFocus(pref.getBoolean("ignoreAudioFocus", false));
-        setVolumeLimit(pref.getInt("volumeLimit", MAX_VOLUME));
-        setVolumeLimitEnabled(mVolumeLimit != MAX_VOLUME);
+    // Load the currently-selected phonon.
+    final int active = pref.getInt("activePhonon", -1);
+    mActivePos.setPos(-1 <= active && active < mSavedPhonons.size() ?
+        active : -1);
+  }
 
-        // Load the scratch phonon.
-        mScratchPhonon = new PhononMutable();
-        if (mScratchPhonon.loadFromJSON(pref.getString("phononS", null))) {
-        } else if (mScratchPhonon.loadFromLegacyPrefs(pref)) {
-        } else {
-            mScratchPhonon.resetToDefault();
-        }
+  public void addLockListener(LockListener l) {
+    mLockListeners.add(l);
+  }
 
-        // Load the saved phonons.
-        mSavedPhonons = new ArrayList<>();
-        for (int i = 0; i < TrackedPosition.NOWHERE; i++) {
-            PhononMutable phm = new PhononMutable();
-            if (!phm.loadFromJSON(pref.getString("phonon" + i, null))) {
-                break;
-            }
-            mSavedPhonons.add(phm);
-        }
-
-        // Load the currently-selected phonon.
-        final int active = pref.getInt("activePhonon", -1);
-        mActivePos.setPos(-1 <= active && active < mSavedPhonons.size() ?
-                active : -1);
+  public void removeLockListener(LockListener l) {
+    if (!mLockListeners.remove(l)) {
+      throw new IllegalStateException();
     }
+  }
 
-    public void addLockListener(LockListener l) {
-        mLockListeners.add(l);
+  private void notifyLockListeners(LockListener.LockEvent e) {
+    for (LockListener l : mLockListeners) {
+      l.onLockStateChange(e);
     }
+  }
 
-    public void removeLockListener(LockListener l) {
-        if (!mLockListeners.remove(l)) {
-            throw new IllegalStateException();
-        }
+  public void sendToService() {
+    Intent intent = new Intent(mContext, NoiseService.class);
+    getPhonon().writeIntent(intent);
+    intent.putExtra("volumeLimit", (float) getVolumeLimit() / MAX_VOLUME);
+    intent.putExtra("ignoreAudioFocus", mIgnoreAudioFocus);
+    ContextCompat.startForegroundService(mContext, intent);
+    mDirty = false;
+  }
+
+  public boolean sendIfDirty() {
+    if (mDirty || (mActivePos.getPos() == -1 && mScratchPhonon.isDirty())) {
+      sendToService();
+      return true;
     }
+    return false;
+  }
 
-    private void notifyLockListeners(LockListener.LockEvent e) {
-        for (LockListener l : mLockListeners) {
-            l.onLockStateChange(e);
-        }
+  public void toggleLocked() {
+    mLocked = !mLocked;
+    if (!mLocked) {
+      mLockBusy = false;
     }
+    notifyLockListeners(LockListener.LockEvent.TOGGLE);
+  }
 
-    public void sendToService() {
-        Intent intent = new Intent(mContext, NoiseService.class);
-        getPhonon().writeIntent(intent);
-        intent.putExtra("volumeLimit", (float) getVolumeLimit() / MAX_VOLUME);
-        intent.putExtra("ignoreAudioFocus", mIgnoreAudioFocus);
-        ContextCompat.startForegroundService(mContext, intent);
-        mDirty = false;
+  public boolean getLocked() {
+    return mLocked;
+  }
+
+  public boolean getLockBusy() {
+    return mLockBusy;
+  }
+
+  public void setLockBusy(boolean busy) {
+    if (!mLocked) throw new AssertionError("Expected mLocked");
+    if (mLockBusy != busy) {
+      mLockBusy = busy;
+      notifyLockListeners(LockListener.LockEvent.BUSY);
     }
+  }
 
-    public boolean sendIfDirty() {
-        if (mDirty || (mActivePos.getPos() == -1 && mScratchPhonon.isDirty())) {
-            sendToService();
-            return true;
-        }
-        return false;
+  public Phonon getPhonon() {
+    if (mActivePos.getPos() == -1) {
+      return mScratchPhonon;
     }
+    return mSavedPhonons.get(mActivePos.getPos());
+  }
 
-    public void toggleLocked() {
-        mLocked = !mLocked;
-        if (!mLocked) {
-            mLockBusy = false;
-        }
-        notifyLockListeners(LockListener.LockEvent.TOGGLE);
+  public PhononMutable getPhononMutable() {
+    if (mActivePos.getPos() != -1) {
+      mScratchPhonon = mSavedPhonons.get(mActivePos.getPos()).makeMutableCopy();
+      mActivePos.setPos(-1);
     }
+    return mScratchPhonon;
+  }
 
-    public boolean getLocked() {
-        return mLocked;
+  // -1 or 0..n
+  public void setActivePhonon(int index) {
+    if (!(-1 <= index && index < mSavedPhonons.size())) {
+      throw new ArrayIndexOutOfBoundsException();
     }
+    mActivePos.setPos(index);
+    sendToService();
+  }
 
-    public void setLockBusy(boolean busy) {
-        if (!mLocked) throw new AssertionError("Expected mLocked");
-        if (mLockBusy != busy) {
-            mLockBusy = busy;
-            notifyLockListeners(LockListener.LockEvent.BUSY);
-        }
-    }
-
-    public boolean getLockBusy() {
-        return mLockBusy;
-    }
-
-    public Phonon getPhonon() {
-        if (mActivePos.getPos() == -1) {
-            return mScratchPhonon;
-        }
-        return mSavedPhonons.get(mActivePos.getPos());
-    }
-
-    public PhononMutable getPhononMutable() {
-        if (mActivePos.getPos() != -1) {
-            mScratchPhonon = mSavedPhonons.get(mActivePos.getPos()).makeMutableCopy();
-            mActivePos.setPos(-1);
-        }
-        return mScratchPhonon;
-    }
-
-    // -1 or 0..n
-    public void setActivePhonon(int index) {
-        if (!(-1 <= index && index < mSavedPhonons.size())) {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-        mActivePos.setPos(index);
+  public void setAutoPlay(boolean enabled, boolean fromUser) {
+    mAutoPlay = enabled;
+    if (fromUser) {
+      // Demonstrate AutoPlay by acting like the Play/Stop button.
+      if (enabled) {
         sendToService();
+      } else {
+        NoiseService.stopNow(mContext, R.string.stop_reason_autoplay);
+      }
     }
+  }
 
-    // This interface is for receiving a callback when the state
-    // of the Input Lock has changed.
-    public interface LockListener {
-        enum LockEvent {TOGGLE, BUSY}
+  public boolean getAutoPlay() {
+    return mAutoPlay;
+  }
 
-        void onLockStateChange(LockEvent e);
+  public boolean getIgnoreAudioFocus() {
+    return mIgnoreAudioFocus;
+  }
+
+  public void setIgnoreAudioFocus(boolean enabled) {
+    if (mIgnoreAudioFocus == enabled) {
+      return;
     }
+    mIgnoreAudioFocus = enabled;
+    mDirty = true;
+  }
 
-    public void setAutoPlay(boolean enabled, boolean fromUser) {
-        mAutoPlay = enabled;
-        if (fromUser) {
-            // Demonstrate AutoPlay by acting like the Play/Stop button.
-            if (enabled) {
-                sendToService();
-            } else {
-                NoiseService.stopNow(mContext, R.string.stop_reason_autoplay);
-            }
-        }
-    }
+  public boolean getVolumeLimitEnabled() {
+    return mVolumeLimitEnabled;
+  }
 
-    public boolean getAutoPlay() {
-        return mAutoPlay;
+  public void setVolumeLimitEnabled(boolean enabled) {
+    if (mVolumeLimitEnabled == enabled) {
+      return;
     }
+    mVolumeLimitEnabled = enabled;
+    if (mVolumeLimit != MAX_VOLUME) {
+      mDirty = true;
+    }
+  }
 
-    public void setIgnoreAudioFocus(boolean enabled) {
-        if (mIgnoreAudioFocus == enabled) {
-            return;
-        }
-        mIgnoreAudioFocus = enabled;
-        mDirty = true;
-    }
+  public int getVolumeLimit() {
+    return mVolumeLimitEnabled ? mVolumeLimit : MAX_VOLUME;
+  }
 
-    public boolean getIgnoreAudioFocus() {
-        return mIgnoreAudioFocus;
+  public void setVolumeLimit(int limit) {
+    if (limit < 0) {
+      limit = 0;
+    } else if (limit > MAX_VOLUME) {
+      limit = MAX_VOLUME;
     }
+    if (mVolumeLimit == limit) {
+      return;
+    }
+    mVolumeLimit = limit;
+    if (mVolumeLimitEnabled) {
+      mDirty = true;
+    }
+  }
 
-    public void setVolumeLimitEnabled(boolean enabled) {
-        if (mVolumeLimitEnabled == enabled) {
-            return;
-        }
-        mVolumeLimitEnabled = enabled;
-        if (mVolumeLimit != MAX_VOLUME) {
-            mDirty = true;
-        }
-    }
+  // This interface is for receiving a callback when the state
+  // of the Input Lock has changed.
+  public interface LockListener {
+    void onLockStateChange(LockEvent e);
 
-    public void setVolumeLimit(int limit) {
-        if (limit < 0) {
-            limit = 0;
-        } else if (limit > MAX_VOLUME) {
-            limit = MAX_VOLUME;
-        }
-        if (mVolumeLimit == limit) {
-            return;
-        }
-        mVolumeLimit = limit;
-        if (mVolumeLimitEnabled) {
-            mDirty = true;
-        }
-    }
-
-    public boolean getVolumeLimitEnabled() {
-        return mVolumeLimitEnabled;
-    }
-
-    public int getVolumeLimit() {
-        return mVolumeLimitEnabled ? mVolumeLimit : MAX_VOLUME;
-    }
+    enum LockEvent {TOGGLE, BUSY}
+  }
 }

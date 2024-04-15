@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="29"
-    android:versionName="4.3">
+  android:versionCode="29"
+  android:versionName="4.3">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
-    <!-- In theory this permission isn't required, because the service appears
-         in FGS task manager, but I like the stop button. -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.WAKE_LOCK"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+  <!-- In theory this permission isn't required, because the service appears
+       in FGS task manager, but I like the stop button. -->
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
-    <!-- Note: We explicitly do NOT want fullBackupOnly="true" here.
-         Android 6.0 should use our backupAgent instead of the service-killing
-         full backup system. -->
-    <application
-        android:allowBackup="true"
-        android:backupAgent=".TheBackupAgent"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/Theme.ChromaDozeTheme">
-        <activity
-            android:name=".ChromaDoze"
-            android:launchMode="singleTask"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+  <!-- Note: We explicitly do NOT want fullBackupOnly="true" here.
+       Android 6.0 should use our backupAgent instead of the service-killing
+       full backup system. -->
+  <application
+    android:allowBackup="true"
+    android:backupAgent=".TheBackupAgent"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:theme="@style/Theme.ChromaDozeTheme">
+    <activity
+      android:name=".ChromaDoze"
+      android:exported="true"
+      android:launchMode="singleTask">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
 
-        <service
-            android:name=".NoiseService"
-            android:foregroundServiceType="mediaPlayback" />
-        <meta-data
-            android:name="com.google.android.backup.api_key"
-            android:value="AEdPqrEAAAAISXaOEWnqsGHIpO7oONbmE9wULxVx_vswtaPpGA" />
-    </application>
+    <service
+      android:name=".NoiseService"
+      android:foregroundServiceType="mediaPlayback"/>
+    <meta-data
+      android:name="com.google.android.backup.api_key"
+      android:value="AEdPqrEAAAAISXaOEWnqsGHIpO7oONbmE9wULxVx_vswtaPpGA"/>
+  </application>
 </manifest>

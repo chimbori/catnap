@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Catnap</string>
-    <string name="app_description">Noise spectrum generator for Android</string>
-    <string name="copyright_owners">© 2024 Paul Marks</string>
-    <string name="source_url">https://catnap.chimbori.com/</string>
-    <string name="license_gnu_gpl">This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</string>
-    <string name="dependencies">JTransforms © 2015 Piotr Wendykier\\nDragSortListView © 2013 Carl Bauer</string>
+  <string name="app_name">Catnap</string>
+  <string name="app_description">Noise spectrum generator for Android</string>
+  <string name="copyright_owners">© 2024 Paul Marks</string>
+  <string name="source_url">https://catnap.chimbori.com/</string>
+  <string name="license_gnu_gpl">This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</string>
+  <string name="dependencies">JTransforms © 2015 Piotr Wendykier\\nDragSortListView © 2013 Carl Bauer</string>
 
-    <string name="notification_text">Catnap is running</string>
-    <string name="about_menu">About</string>
-    <string name="options">Options</string>
-    <string name="generating">Generating IDCT blocks:&#160;</string>
-    <string name="play_stop">Play/Stop</string>
-    <string name="lock_unlock">Lock/Unlock Input</string>
-    <string name="memory">Memory</string>
-    <string name="unsaved">(unsaved)</string>
+  <string name="notification_text">Catnap is running</string>
+  <string name="about_menu">About</string>
+  <string name="options">Options</string>
+  <string name="generating">Generating IDCT blocks:&#160;</string>
+  <string name="play_stop">Play/Stop</string>
+  <string name="lock_unlock">Lock/Unlock Input</string>
+  <string name="memory">Memory</string>
+  <string name="unsaved">(unsaved)</string>
 
-    <string name="channel_name">Default</string>
-    <string name="channel_description">This notification appears when Catnap is generating noise</string>
+  <string name="channel_name">Default</string>
+  <string name="channel_description">This notification appears when Catnap is generating noise</string>
 
-    <string name="stop_reason_autoplay">Stopped by auto-play option</string>
-    <string name="stop_reason_audiofocus">Lost audio focus</string>
-    <string name="stop_reason_notification">Stopped from notification bar</string>
-    <string name="stop_reason_toolbar">Stopped from toolbar</string>
-    <string name="stop_reason_mediabutton">Stopped by media button</string>
-    <string name="stop_reason_silent">Exited while silent</string>
-    <string name="stop_reason_mysterious">Stopped mysteriously</string>
-    <string name="stop_reason_restarted">Restarted by the OS</string>
+  <string name="stop_reason_autoplay">Stopped by auto-play option</string>
+  <string name="stop_reason_audiofocus">Lost audio focus</string>
+  <string name="stop_reason_notification">Stopped from notification bar</string>
+  <string name="stop_reason_toolbar">Stopped from toolbar</string>
+  <string name="stop_reason_mediabutton">Stopped by media button</string>
+  <string name="stop_reason_silent">Exited while silent</string>
+  <string name="stop_reason_mysterious">Stopped mysteriously</string>
+  <string name="stop_reason_restarted">Restarted by the OS</string>
 
 </resources>

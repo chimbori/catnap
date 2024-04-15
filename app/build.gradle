@@ -1,25 +1,25 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 34
+  compileSdk 34
 
-    defaultConfig {
-        applicationId 'com.chimbori.catnap'
-        minSdkVersion 28
-        targetSdkVersion 34
-    }
+  defaultConfig {
+    applicationId 'com.chimbori.catnap'
+    minSdkVersion 28
+    targetSdkVersion 34
+  }
 
-    buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
+  buildTypes {
+    release {
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
     }
-    namespace 'net.pmarks.chromadoze'
+  }
+  namespace 'net.pmarks.chromadoze'
 }
 
 dependencies {
-    implementation project(':dslv')
-    implementation project(':jtransforms')
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+  implementation project(':dslv')
+  implementation project(':jtransforms')
+  implementation 'androidx.appcompat:appcompat:1.6.1'
 }

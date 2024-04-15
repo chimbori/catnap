@@ -33,96 +33,96 @@ import android.util.TypedValue;
 import android.view.View;
 
 public class EqualizerViewLite extends View {
-    private static final int BAND_COUNT = SpectrumData.BAND_COUNT;
+  private static final int BAND_COUNT = SpectrumData.BAND_COUNT;
 
-    private Phonon mPhonon;
+  private Phonon mPhonon;
 
-    private int mWidth;
-    private int mHeight;
-    private float mBarWidth;
+  private int mWidth;
+  private int mHeight;
+  private float mBarWidth;
 
-    private Bitmap mBitmap = null;
+  private Bitmap mBitmap = null;
 
-    public EqualizerViewLite(Context context, AttributeSet attrs) {
-        super(context, attrs);
+  public EqualizerViewLite(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
+
+  public void setPhonon(Phonon ph) {
+    if (mPhonon != ph) {
+      mPhonon = ph;
+      mBitmap = null;
+      invalidate();
     }
+  }
 
-    public void setPhonon(Phonon ph) {
-        if (mPhonon != ph) {
-            mPhonon = ph;
-            mBitmap = null;
-            invalidate();
-        }
+  private Bitmap makeBitmap() {
+    Bitmap bmp = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas(bmp);
+
+    // Draw a white line
+    Paint whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    whitePaint.setColor(Color.WHITE);
+    whitePaint.setAlpha(isEnabled() ? 250 : 94);
+    whitePaint.setStyle(Paint.Style.STROKE);
+    whitePaint.setStrokeWidth(dpToPixels(3));
+
+    Path path = new Path();
+    boolean first = true;
+    for (int i = 0; i < BAND_COUNT; i++) {
+      float bar = mPhonon != null ? mPhonon.getBar(i) : .5f;
+      float x = mBarWidth * (i + 0.5f);
+      float y = barToY(bar);
+
+      if (first) {
+        first = false;
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
     }
+    canvas.drawPath(path, whitePaint);
 
-    private Bitmap makeBitmap() {
-        Bitmap bmp = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmp);
+    // Overlay the spectrum bitmap to add color.
+    Bitmap colorBmp = BitmapFactory.decodeResource(getResources(), R.drawable.spectrum);
+    Rect src = new Rect(0, 0, colorBmp.getWidth(), colorBmp.getHeight());
+    Rect dst = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+    Paint alphaPaint = new Paint();
+    alphaPaint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+    canvas.drawBitmap(colorBmp, src, dst, alphaPaint);
 
-        // Draw a white line
-        Paint whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        whitePaint.setColor(Color.WHITE);
-        whitePaint.setAlpha(isEnabled() ? 250 : 94);
-        whitePaint.setStyle(Paint.Style.STROKE);
-        whitePaint.setStrokeWidth(dpToPixels(3));
+    return bmp;
+  }
 
-        Path path = new Path();
-        boolean first = true;
-        for (int i = 0; i < BAND_COUNT; i++) {
-            float bar = mPhonon != null ? mPhonon.getBar(i) : .5f;
-            float x = mBarWidth * (i + 0.5f);
-            float y = barToY(bar);
-
-            if (first) {
-                first = false;
-                path.moveTo(x, y);
-            } else {
-                path.lineTo(x, y);
-            }
-        }
-        canvas.drawPath(path, whitePaint);
-
-        // Overlay the spectrum bitmap to add color.
-        Bitmap colorBmp = BitmapFactory.decodeResource(getResources(), R.drawable.spectrum);
-        Rect src = new Rect(0, 0, colorBmp.getWidth(), colorBmp.getHeight());
-        Rect dst = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        Paint alphaPaint = new Paint();
-        alphaPaint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
-        canvas.drawBitmap(colorBmp, src, dst, alphaPaint);
-
-        return bmp;
+  @Override
+  protected void onDraw(Canvas canvas) {
+    if (mBitmap == null) {
+      mBitmap = makeBitmap();
     }
+    canvas.drawBitmap(mBitmap, 0, 0, null);
+  }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        if (mBitmap == null) {
-            mBitmap = makeBitmap();
-        }
-        canvas.drawBitmap(mBitmap, 0, 0, null);
-    }
+  @Override
+  protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    mWidth = getWidth();
+    mHeight = getHeight();
+    mBarWidth = (float) mWidth / BAND_COUNT;
+    mBitmap = null;
+  }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mWidth = getWidth();
-        mHeight = getHeight();
-        mBarWidth = (float) mWidth / BAND_COUNT;
-        mBitmap = null;
-    }
+  private float barToY(float barHeight) {
+    return (1f - barHeight) * mHeight;
+  }
 
-    private float barToY(float barHeight) {
-        return (1f - barHeight) * mHeight;
-    }
+  private float dpToPixels(float dp) {
+    Resources r = getResources();
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+  }
 
-    private float dpToPixels(float dp) {
-        Resources r = getResources();
-        return TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        mBitmap = null;
-        invalidate();
-    }
+  @Override
+  public void setEnabled(boolean enabled) {
+    super.setEnabled(enabled);
+    mBitmap = null;
+    invalidate();
+  }
 }
