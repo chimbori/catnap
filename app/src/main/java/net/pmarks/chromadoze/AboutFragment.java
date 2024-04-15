@@ -52,7 +52,7 @@ public class AboutFragment extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
-    ((ChromaDoze) getActivity()).setFragmentId(FragmentIndex.ID_ABOUT);
+    ((MainActivity) getActivity()).setFragmentId(FragmentIndex.ID_ABOUT);
   }
 
 }

@@ -30,6 +30,6 @@ public class TheBackupAgent extends BackupAgentHelper {
   @Override
   public void onCreate() {
     addHelper(PREF_BACKUP_KEY, new SharedPreferencesBackupHelper(
-        this, ChromaDoze.PREF_NAME));
+        this, MainActivity.PREF_NAME));
   }
 }

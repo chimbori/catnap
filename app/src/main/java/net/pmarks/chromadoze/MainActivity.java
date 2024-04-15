@@ -45,14 +45,14 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import java.util.Date;
 
-public class ChromaDoze extends AppCompatActivity implements
+public class MainActivity extends AppCompatActivity implements
     NoiseService.PercentListener, UIState.LockListener, OnItemSelectedListener {
   // The name to use when accessing our SharedPreferences.
-  public static final String PREF_NAME = "ChromaDoze";
+  public static final String PREF_NAME = "app";
   private static final int MENU_PLAY_STOP = 1;
   private static final int MENU_LOCK = 2;
   private UIState mUiState;
-  private int mFragmentId = FragmentIndex.ID_CHROMA_DOZE;
+  private int mFragmentId = FragmentIndex.ID_MAIN;
   private Drawable mToolbarIcon;
   private Spinner mNavSpinner;
   private boolean mServiceActive;
@@ -165,7 +165,7 @@ public class ChromaDoze extends AppCompatActivity implements
     menu.add(0, MENU_PLAY_STOP, 0, getString(R.string.play_stop)).setShowAsAction(
         MenuItem.SHOW_AS_ACTION_ALWAYS);
 
-    if (mFragmentId == FragmentIndex.ID_CHROMA_DOZE) {
+    if (mFragmentId == FragmentIndex.ID_MAIN) {
       menu.add(0, MENU_LOCK, 0, getString(R.string.lock_unlock)).setShowAsAction(
           MenuItem.SHOW_AS_ACTION_ALWAYS);
     }
@@ -266,7 +266,7 @@ public class ChromaDoze extends AppCompatActivity implements
   public void setFragmentId(int id) {
     mFragmentId = id;
 
-    final boolean enableUp = id != FragmentIndex.ID_CHROMA_DOZE;
+    final boolean enableUp = id != FragmentIndex.ID_MAIN;
     ActionBar actionBar = getSupportActionBar();
     supportInvalidateOptionsMenu();
 
@@ -290,7 +290,7 @@ public class ChromaDoze extends AppCompatActivity implements
       return;
     }
     switch (position) {
-      case FragmentIndex.ID_CHROMA_DOZE:
+      case FragmentIndex.ID_MAIN:
         onSupportNavigateUp();
         return;
       case FragmentIndex.ID_OPTIONS:

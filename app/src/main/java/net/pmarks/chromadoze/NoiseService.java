@@ -44,7 +44,7 @@ public class NoiseService extends Service {
   private static final int PERCENT_MSG = 1;
   private static final ArrayList<PercentListener> sPercentListeners = new ArrayList<>();
   private static final int NOTIFY_ID = 1;
-  private static final String CHANNEL_ID = "chromadoze_default";
+  private static final String CHANNEL_ID = "default";
   // These must be accessed only from the main thread.
   private static int sLastPercent = -1;
   // Save the reason for the most recent stop/restart.  In theory, it would
@@ -226,7 +226,7 @@ public class NoiseService extends Service {
         .setContentIntent(PendingIntent.getActivity(
             this,
             0,
-            new Intent(this, ChromaDoze.class)
+            new Intent(this, MainActivity.class)
                 .setAction(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LAUNCHER),
             PendingIntent.FLAG_IMMUTABLE));

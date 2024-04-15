@@ -18,9 +18,9 @@
     android:backupAgent=".TheBackupAgent"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
-    android:theme="@style/Theme.ChromaDozeTheme">
+    android:theme="@style/Theme.AppTheme">
     <activity
-      android:name=".ChromaDoze"
+      android:name=".MainActivity"
       android:exported="true"
       android:launchMode="singleTask">
       <intent-filter>

@@ -73,7 +73,7 @@ public class MemoryFragment extends ListFragment implements
   @Override
   public void onViewCreated(View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    mUiState = ((ChromaDoze) getActivity()).getUIState();
+    mUiState = ((MainActivity) getActivity()).getUIState();
 
     mAdapter = new MemoryArrayAdapter(getActivity(), mUiState.mSavedPhonons);
     setListAdapter(mAdapter);
@@ -86,7 +86,7 @@ public class MemoryFragment extends ListFragment implements
   @Override
   public void onResume() {
     super.onResume();
-    ((ChromaDoze) getActivity()).setFragmentId(FragmentIndex.ID_MEMORY);
+    ((MainActivity) getActivity()).setFragmentId(FragmentIndex.ID_MEMORY);
 
     setScratchPosAndDraw(findScratchCopy());
     syncActiveItem(false);
