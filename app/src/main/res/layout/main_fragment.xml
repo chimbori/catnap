@@ -31,7 +31,7 @@
     </ProgressBar>
   </LinearLayout>
 
-  <net.pmarks.chromadoze.EqualizerView
+  <com.chimbori.catnap.EqualizerView
     android:id="@+id/EqualizerView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"/>

@@ -19,7 +19,7 @@
 // This algorithm is from:
 // http://www.javamex.com/tutorials/random_numbers/xorshift.shtml
 
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 class XORShiftRandom {
   private long mState = System.nanoTime();

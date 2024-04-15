@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Chroma Doze.  If not, see <http://www.gnu.org/licenses/>.
 
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 import android.os.Process;
 import android.os.SystemClock;

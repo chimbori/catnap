@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<net.pmarks.chromadoze.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.chimbori.catnap.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
   android:layout_height="wrap_content"
   android:orientation="vertical">
 
-  <net.pmarks.chromadoze.CheckableLinearLayout
+  <com.chimbori.catnap.CheckableLinearLayout
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
@@ -19,11 +19,11 @@
 
     <include layout="@layout/memory_list_item_common"/>
 
-  </net.pmarks.chromadoze.CheckableLinearLayout>
+  </com.chimbori.catnap.CheckableLinearLayout>
 
   <View
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="?android:attr/listDivider"/>
 
-</net.pmarks.chromadoze.CheckableLinearLayout>
+</com.chimbori.catnap.CheckableLinearLayout>

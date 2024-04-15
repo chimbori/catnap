@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Chroma Doze.  If not, see <http://www.gnu.org/licenses/>.
 
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -39,6 +39,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import java.util.ArrayList;
 import java.util.Date;
+
 
 public class NoiseService extends Service {
   private static final int PERCENT_MSG = 1;
@@ -118,7 +119,7 @@ public class NoiseService extends Service {
     mSampleShuffler = new SampleShuffler(params);
     mSampleGenerator = new SampleGenerator(this, params, mSampleShuffler);
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "chromadoze:NoiseService");
+    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "catnap:NoiseService");
     mWakeLock.acquire();
 
     final CharSequence name = getString(R.string.channel_name);

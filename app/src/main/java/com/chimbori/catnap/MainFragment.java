@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Chroma Doze.  If not, see <http://www.gnu.org/licenses/>.
 
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,6 +26,7 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import java.text.DateFormat;
 import java.util.Date;
+
 
 public class MainFragment extends Fragment implements NoiseService.PercentListener {
   private EqualizerView mEqualizer;

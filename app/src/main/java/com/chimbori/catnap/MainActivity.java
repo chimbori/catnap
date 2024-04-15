@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Chroma Doze.  If not, see <http://www.gnu.org/licenses/>.
 
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 import android.app.backup.BackupManager;
 import android.content.SharedPreferences;
@@ -44,6 +44,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import java.util.Date;
+
 
 public class MainActivity extends AppCompatActivity implements
     NoiseService.PercentListener, UIState.LockListener, OnItemSelectedListener {

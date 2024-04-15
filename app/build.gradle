@@ -4,6 +4,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
+  namespace 'com.chimbori.catnap'
   compileSdk 34
   defaultConfig {
     applicationId 'com.chimbori.catnap'
@@ -16,7 +17,6 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
     }
   }
-  namespace 'net.pmarks.chromadoze'
   kotlinOptions {
     jvmTarget = '17'
   }

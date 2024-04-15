@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Chroma Doze.  If not, see <http://www.gnu.org/licenses/>.
 
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -27,6 +27,7 @@ import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import androidx.annotation.NonNull;
+
 
 public class EqualizerView extends android.view.View implements UIState.LockListener {
   private static final int BAND_COUNT = SpectrumData.BAND_COUNT;

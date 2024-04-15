@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Chroma Doze.  If not, see <http://www.gnu.org/licenses/>.
 
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,7 +28,8 @@ import androidx.fragment.app.ListFragment;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.DropListener;
 import com.mobeta.android.dslv.DragSortListView.RemoveListener;
-import net.pmarks.chromadoze.MemoryArrayAdapter.Saved;
+import com.chimbori.catnap.MemoryArrayAdapter.Saved;
+
 
 public class MemoryFragment extends ListFragment implements
     OnItemClickListener, DropListener, RemoveListener {

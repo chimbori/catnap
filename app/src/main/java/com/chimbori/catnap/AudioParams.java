@@ -1,4 +1,4 @@
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 import android.media.AudioAttributes;
 import android.media.AudioFormat;

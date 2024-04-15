@@ -15,13 +15,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Chroma Doze.  If not, see <http://www.gnu.org/licenses/>.
 
-package net.pmarks.chromadoze;
+package com.chimbori.catnap;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
+
 
 public class UIState {
 
