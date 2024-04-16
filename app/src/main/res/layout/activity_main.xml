@@ -2,19 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="?attr/colorSurface"
+  android:layout_marginTop="@dimen/spacing_250"
+  android:layout_marginBottom="@dimen/spacing_100"
   android:orientation="vertical">
 
   <androidx.appcompat.widget.Toolbar
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="?attr/colorSurfaceBright">
+    android:layout_marginStart="@dimen/spacing_100"
+    android:layout_marginEnd="@dimen/spacing_100">
 
     <Spinner
       android:id="@+id/nav_spinner"
       android:layout_width="wrap_content"
-      android:layout_height="match_parent"/>
+      android:layout_height="match_parent"
+      android:layout_marginStart="@dimen/spacing_100"
+      android:layout_marginEnd="@dimen/spacing_100"/>
   </androidx.appcompat.widget.Toolbar>
 
   <FrameLayout

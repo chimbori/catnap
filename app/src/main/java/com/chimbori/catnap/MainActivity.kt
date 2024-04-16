@@ -1,12 +1,14 @@
 package com.chimbori.catnap
 
 import android.app.backup.BackupManager
+import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -16,9 +18,14 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.Spinner
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -39,6 +46,7 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
   private var mServiceActive = false
 
   public override fun onCreate(savedInstanceState: Bundle?) {
+    enableEdgeToEdge()
     DynamicColors.applyToActivityIfAvailable(this)
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
