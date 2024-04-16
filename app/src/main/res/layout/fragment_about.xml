@@ -3,53 +3,49 @@
   android:layout_width="wrap_content"
   android:layout_height="wrap_content"
   android:orientation="vertical"
-  android:padding="10sp">
+  android:padding="@dimen/spacing_200">
 
   <TextView
-    style="@android:style/TextAppearance.Medium"
-    android:layout_width="wrap_content"
+    style="@android:style/TextAppearance.Material.Headline"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
+    android:layout_marginBottom="@dimen/spacing_50"
     android:text="@string/app_name"/>
 
   <TextView
-    android:layout_width="wrap_content"
+    style="@android:style/TextAppearance.Material.Body1"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
+    android:layout_marginBottom="@dimen/spacing_200"
     android:text="@string/app_description"/>
 
   <TextView
-    android:id="@+id/VersionText"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:text="Version %s"/>
+    android:id="@+id/fragment_about_version"
+    style="@android:style/TextAppearance.Material.Headline"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
 
   <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:paddingBottom="10sp"
-    android:text=""/>
-
-  <TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/spacing_200"
+    android:layout_marginBottom="@dimen/spacing_200"
     android:autoLink="web"
+    android:paddingTop="@dimen/spacing_50"
+    android:paddingBottom="@dimen/spacing_50"
     android:text="@string/source_url"/>
 
   <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingTop="10sp"
+    android:layout_marginBottom="@dimen/spacing_200"
+    android:lineSpacingMultiplier="1.4"
     android:text="@string/dependencies"/>
-
 
   <TextView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingTop="10sp"
-    android:paddingBottom="10sp"
+    android:lineSpacingMultiplier="1.4"
     android:text="@string/license_gnu_gpl"/>
 
 </LinearLayout>
