@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_150">
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/amplitude_wave"
+      android:textAppearance="@android:style/TextAppearance.Material.Headline"/>
+
+    <TableLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/spacing_200"
+      android:layout_marginBottom="@dimen/spacing_200">
+
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+          android:layout_width="@dimen/spacing_300"
+          android:layout_height="@dimen/spacing_300"
+          android:layout_gravity="center_vertical"
+          android:src="@drawable/amplitude"/>
+
+        <SeekBar
+          android:id="@+id/fragment_options_minimum_volume_seekbar"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center_vertical"
+          android:layout_weight="1"/>
+
+        <TextView
+          android:id="@+id/fragment_options_minimum_volume_text"
+          style="@android:style/TextAppearance.Material.Body1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center_vertical|center_horizontal"
+          android:text="100%"/>
+      </TableRow>
+
+      <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+          android:layout_width="@dimen/spacing_300"
+          android:layout_height="@dimen/spacing_300"
+          android:layout_gravity="center_vertical"
+          android:src="@drawable/frequency"/>
+
+        <SeekBar
+          android:id="@+id/fragment_options_period_seekbar"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center_vertical"
+          android:layout_weight="1"
+          android:max="53"/>
+
+        <TextView
+          android:id="@+id/fragment_options_period_text"
+          style="@android:style/TextAppearance.Material.Body1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center_vertical|center_horizontal"
+          android:text="60s"/>
+      </TableRow>
+    </TableLayout>
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="@dimen/spacing_200"
+      android:layout_marginBottom="@dimen/spacing_200"
+      android:text="@string/advanced_options"
+      android:textAppearance="@android:style/TextAppearance.Material.Headline"/>
+
+    <androidx.appcompat.widget.SwitchCompat
+      android:id="@+id/fragment_options_auto_play_checkbox"
+      style="@android:style/TextAppearance.Material.Medium"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:paddingTop="@dimen/spacing_100"
+      android:paddingBottom="@dimen/spacing_100"
+      android:text="@string/auto_play_on_open"/>
+
+    <androidx.appcompat.widget.SwitchCompat
+      android:id="@+id/fragment_options_ignore_audio_focus_checkbox"
+      style="@android:style/TextAppearance.Material.Medium"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:paddingTop="@dimen/spacing_100"
+      android:paddingBottom="@dimen/spacing_100"
+      android:text="@string/ignore_audio_focus"/>
+
+    <androidx.appcompat.widget.SwitchCompat
+      android:id="@+id/fragment_options_volume_limit_checkbox"
+      style="@android:style/TextAppearance.Material.Medium"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:paddingTop="@dimen/spacing_100"
+      android:paddingBottom="@dimen/spacing_100"
+      android:text="@string/reduce_volume"/>
+
+    <SeekBar
+      android:id="@+id/fragment_options_volume_limit_seekbar"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"/>
+  </LinearLayout>
+
+</ScrollView>

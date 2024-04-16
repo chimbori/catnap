@@ -16,6 +16,12 @@
   <string name="memory">Memory</string>
   <string name="unsaved">(unsaved)</string>
 
+  <string name="advanced_options">Advanced Options</string>
+  <string name="auto_play_on_open">Play Automatically on Open</string>
+  <string name="ignore_audio_focus">Keep Playing over Other Apps</string>
+  <string name="reduce_volume">Reduce Volume</string>
+  <string name="amplitude_wave">Amplitude Wave</string>
+
   <string name="channel_name">Default</string>
   <string name="channel_description">This notification appears when Catnap is generating noise</string>
 
