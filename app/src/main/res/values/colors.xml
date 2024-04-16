@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-  <color name="black">#000000</color>
-  <color name="dark_purple">#201E24</color>
-  <color name="holo_blue_light">#33b5e5</color>
-  <color name="icon_tint">#ccc</color>
-
+  <color name="transparent">#00000000</color>
 </resources>

@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+  android:background="?attr/colorSurface"
   android:orientation="vertical">
 
   <androidx.appcompat.widget.Toolbar
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="?attr/colorPrimary">
+    android:background="?attr/colorSurfaceBright">
 
     <Spinner
       android:id="@+id/nav_spinner"
@@ -19,7 +20,6 @@
   <FrameLayout
     android:id="@+id/fragment_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#000000"></FrameLayout>
+    android:layout_height="match_parent"/>
 
 </LinearLayout>

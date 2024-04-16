@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentTransaction
 import com.chimbori.catnap.NoiseService.PercentListener
 import com.chimbori.catnap.UIState.LockListener
 import com.chimbori.catnap.UIState.LockListener.LockEvent
+import com.google.android.material.color.DynamicColors
 import java.util.Date
 
 class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemSelectedListener {
@@ -36,9 +37,12 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
   private var mToolbarIcon: Drawable? = null
   private var mNavSpinner: Spinner? = null
   private var mServiceActive = false
+
   public override fun onCreate(savedInstanceState: Bundle?) {
+    DynamicColors.applyToActivityIfAvailable(this)
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.main)
+    setContentView(R.layout.activity_main)
+
     uIState = UIState(application)
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
     uIState!!.loadState(pref)

@@ -40,7 +40,7 @@
 
         <TextView
           android:id="@+id/fragment_options_minimum_volume_text"
-          style="@android:style/TextAppearance.Material.Body1"
+          style="@android:style/TextAppearance.Material.Medium"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center_vertical|center_horizontal"
@@ -67,7 +67,7 @@
 
         <TextView
           android:id="@+id/fragment_options_period_text"
-          style="@android:style/TextAppearance.Material.Body1"
+          style="@android:style/TextAppearance.Material.Medium"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center_vertical|center_horizontal"
