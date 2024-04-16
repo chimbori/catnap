@@ -10,7 +10,7 @@
   <string name="notification_text">Catnap is running</string>
   <string name="about_menu">About</string>
   <string name="options">Options</string>
-  <string name="generating">Generating IDCT blocks:&#160;</string>
+  <string name="generating">Generating IDCT blocks</string>
   <string name="play_stop">Play/Stop</string>
   <string name="lock_unlock">Lock/Unlock Input</string>
   <string name="memory">Memory</string>
