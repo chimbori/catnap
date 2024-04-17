@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+    android:id="@id/equalizerFragmentDest"
+    android:icon="@drawable/power_sleep"
+    android:title="@string/app_name"/>
+
+  <item
+    android:id="@id/presetsFragmentDest"
+    android:icon="@drawable/playlist_music"
+    android:title="@string/memory"/>
+
+  <item
+    android:id="@id/settingsFragmentDest"
+    android:icon="@drawable/cog"
+    android:title="@string/options"/>
+</menu>

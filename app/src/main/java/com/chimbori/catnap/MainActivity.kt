@@ -9,18 +9,13 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
-import android.widget.ArrayAdapter
-import android.widget.ImageButton
+import android.view.MenuItem.SHOW_AS_ACTION_ALWAYS
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.chimbori.catnap.NoiseService.PercentListener
 import com.chimbori.catnap.UIState.LockListener
 import com.chimbori.catnap.UIState.LockListener.LockEvent
@@ -28,15 +23,15 @@ import com.chimbori.catnap.databinding.ActivityMainBinding
 import com.google.android.material.color.DynamicColors
 import java.util.Date
 
-class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemSelectedListener {
+class MainActivity : AppCompatActivity(), PercentListener, LockListener {
   private lateinit var binding: ActivityMainBinding
+  private val navFragment by lazy { supportFragmentManager.findFragmentById(R.id.main_nav_host_container) as NavHostFragment }
+  private val navController by lazy { navFragment.navController }
 
   // Fragments can read this >= onActivityCreated().
   var uIState: UIState? = null
     private set
 
-  private var mFragmentId = FragmentIndex.ID_MAIN
-  private var mToolbarIcon: Drawable? = null
   private var mServiceActive = false
 
   public override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,38 +41,12 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
+    binding.mainBottomNav.setupWithNavController(navController)
+
     uIState = UIState(application)
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
     uIState!!.loadState(pref)
     setSupportActionBar(binding.mainToolbar)
-    supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-    supportActionBar!!.title = ""
-
-    val adapter = ArrayAdapter(
-      supportActionBar!!.themedContext, R.layout.spinner_title,
-      FragmentIndex.getStrings(this)
-    )
-    adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
-    binding.mainNavSpinner.setAdapter(adapter)
-    binding.mainNavSpinner.onItemSelectedListener = this
-
-
-    // Created a scaled-down icon for the Toolbar.
-    run {
-      // val tv = TypedValue()
-      // getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)
-      // val height = TypedValue.complexToDimensionPixelSize(tv.data, getResources().displayMetrics)
-      // This originally used a scaled-down launcher icon, but I don't feel like figuring
-      // out how to render R.mipmap.chromadoze_icon correctly.
-      mToolbarIcon = ContextCompat.getDrawable(this, R.drawable.icon)
-    }
-
-    // When this Activity is first created, set up the initial fragment.
-    // After a save/restore, the framework will drop in the last-used
-    // fragment automatically.
-    if (savedInstanceState == null) {
-      changeFragment(MainFragment(), false)
-    }
   }
 
   public override fun onResume() {
@@ -110,14 +79,8 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    menu.add(0, MENU_PLAY_STOP, 0, getString(R.string.play_stop)).setShowAsAction(
-      MenuItem.SHOW_AS_ACTION_ALWAYS
-    )
-    if (mFragmentId == FragmentIndex.ID_MAIN) {
-      menu.add(0, MENU_LOCK, 0, getString(R.string.lock_unlock)).setShowAsAction(
-        MenuItem.SHOW_AS_ACTION_ALWAYS
-      )
-    }
+    menu.add(0, MENU_PLAY_STOP, 0, getString(R.string.play_stop)).setShowAsAction(SHOW_AS_ACTION_ALWAYS)
+    menu.add(0, MENU_LOCK, 0, getString(R.string.lock_unlock)).setShowAsAction(SHOW_AS_ACTION_ALWAYS)
     return super.onCreateOptionsMenu(menu)
   }
 
@@ -147,17 +110,13 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
 
   override fun onSupportNavigateUp(): Boolean {
     // Rewind the back stack.
-    supportFragmentManager.popBackStack(
-      null,
-      FragmentManager.POP_BACK_STACK_INCLUSIVE
-    )
+    supportFragmentManager.popBackStack(null, POP_BACK_STACK_INCLUSIVE)
     return true
   }
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     when (item.itemId) {
-      MENU_PLAY_STOP -> {
-        // Force the service into its expected state.
+      MENU_PLAY_STOP -> {  // Force the service into its expected state.
         if (!mServiceActive) {
           uIState!!.sendToService()
         } else {
@@ -184,71 +143,6 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
     }
   }
 
-  private fun changeFragment(f: Fragment, allowBack: Boolean) {
-    val fragmentManager = supportFragmentManager
-
-    // Prune the stack, so "back" always leads home.
-    if (fragmentManager.backStackEntryCount > 0) {
-      onSupportNavigateUp()
-    }
-    val transaction = fragmentManager.beginTransaction()
-    transaction.replace(R.id.main_fragment_container, f)
-    if (allowBack) {
-      transaction.addToBackStack(null)
-      transaction
-        .setTransition(FragmentTransaction.TRANSIT_NONE)
-    }
-    transaction.commit()
-  }
-
-  // Each fragment calls this from onResume to tweak the ActionBar.
-  fun setFragmentId(id: Int) {
-    mFragmentId = id
-    val enableUp = id != FragmentIndex.ID_MAIN
-    val actionBar = supportActionBar
-    supportInvalidateOptionsMenu()
-
-    // Use the default left arrow, or a scaled-down Chroma Doze icon.
-    actionBar!!.setHomeAsUpIndicator(if (enableUp) null else mToolbarIcon)
-
-    // When we're on the main page, make the icon non-clickable.
-    val navUp = findImageButton(binding.mainToolbar)
-    if (navUp != null) {
-      navUp.isClickable = enableUp
-    }
-    binding.mainNavSpinner.setSelection(id)
-  }
-
-  // Handle nav_spinner selection.
-  override fun onItemSelected(
-    parent: AdapterView<*>?, view: View, position: Int,
-    id: Long
-  ) {
-    if (position == mFragmentId) {
-      return
-    }
-    when (position) {
-      FragmentIndex.ID_MAIN -> {
-        onSupportNavigateUp()
-        return
-      }
-      FragmentIndex.ID_OPTIONS -> {
-        changeFragment(OptionsFragment(), true)
-        return
-      }
-      FragmentIndex.ID_MEMORY -> {
-        changeFragment(MemoryFragment(), true)
-        return
-      }
-      FragmentIndex.ID_ABOUT -> {
-        changeFragment(AboutFragment(), true)
-        return
-      }
-    }
-  }
-
-  override fun onNothingSelected(parent: AdapterView<*>?) {}
-
   companion object {
     // The name to use when accessing our SharedPreferences.
     const val PREF_NAME = "app"
@@ -262,23 +156,6 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
       } else {
         drawable!!.setColorFilter(color, mode)
       }
-    }
-
-    // Search a View for the first ImageButton.  We use it to locate the
-    // home/up button in a Toolbar.
-    private fun findImageButton(view: View): ImageButton? {
-      if (view is ImageButton) {
-        return view
-      } else if (view is ViewGroup) {
-        val vg = view
-        for (i in 0 until vg.childCount) {
-          val found = findImageButton(vg.getChildAt(i))
-          if (found != null) {
-            return found
-          }
-        }
-      }
-      return null
     }
   }
 }

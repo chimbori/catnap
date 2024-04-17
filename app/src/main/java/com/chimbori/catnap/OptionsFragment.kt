@@ -8,7 +8,6 @@ import android.widget.CompoundButton
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.fragment.app.Fragment
-import com.chimbori.catnap.FragmentIndex.ID_OPTIONS
 import com.chimbori.catnap.PhononMutable.Companion.PERIOD_MAX
 import com.chimbori.catnap.UIState.Companion.MAX_VOLUME
 import com.chimbori.catnap.databinding.FragmentOptionsBinding
@@ -48,11 +47,6 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
     binding.fragmentOptionsMinimumVolumeSeekbar.setMax(MAX_VOLUME)
     binding.fragmentOptionsMinimumVolumeSeekbar.setOnSeekBarChangeListener(this)
     redrawVolumeLimit()
-  }
-
-  override fun onResume() {
-    super.onResume()
-    (activity as MainActivity?)!!.setFragmentId(ID_OPTIONS)
   }
 
   override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {

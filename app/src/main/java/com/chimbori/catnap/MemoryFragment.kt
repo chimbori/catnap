@@ -51,7 +51,6 @@ class MemoryFragment : ListFragment(), OnItemClickListener, DropListener, Remove
 
   override fun onResume() {
     super.onResume()
-    (activity as MainActivity?)!!.setFragmentId(FragmentIndex.ID_MEMORY)
     setScratchPosAndDraw(findScratchCopy())
     syncActiveItem(false)
   }

@@ -5,7 +5,6 @@ import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import androidx.fragment.app.Fragment
-import com.chimbori.catnap.FragmentIndex.ID_MAIN
 import com.chimbori.catnap.NoiseService.PercentListener
 import com.chimbori.catnap.databinding.FragmentMainBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
@@ -27,7 +26,6 @@ class MainFragment : Fragment(R.layout.fragment_main), PercentListener {
     // Start receiving progress events.
     NoiseService.addPercentListener(this)
     mUiState!!.addLockListener(binding.fragmentMainEqualizer)
-    (activity as MainActivity?)!!.setFragmentId(ID_MAIN)
   }
 
   override fun onPause() {

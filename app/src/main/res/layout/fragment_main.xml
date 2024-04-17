@@ -38,7 +38,7 @@
     android:layout_margin="@dimen/spacing_100"
     android:layout_weight="1"
     app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-    app:cardCornerRadius="@dimen/spacing_200">
+    app:cardCornerRadius="@dimen/spacing_100">
 
     <com.chimbori.catnap.EqualizerView
       android:id="@+id/fragment_main_equalizer"

@@ -4,7 +4,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import com.chimbori.catnap.FragmentIndex.ID_ABOUT
 import com.chimbori.catnap.databinding.FragmentAboutBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
@@ -18,10 +17,5 @@ class AboutFragment : Fragment(R.layout.fragment_about) {
     } catch (e: PackageManager.NameNotFoundException) {
       null
     }?.versionName ?: "__"
-  }
-
-  override fun onResume() {
-    super.onResume()
-    (activity as MainActivity?)!!.setFragmentId(ID_ABOUT)
   }
 }
