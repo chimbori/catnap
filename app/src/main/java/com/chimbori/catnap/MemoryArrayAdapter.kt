@@ -31,7 +31,7 @@ class MemoryArrayAdapter(context: Context?, objects: List<Phonon?>?) : ArrayAdap
       buf.append(context.getString(R.string.unsaved))
     }
     (view.findViewById<View>(R.id.item_memory_name) as TextView).text = buf.toString()
-    (view.findViewById<View>(R.id.item_memory_equalizer) as EqualizerViewLite).setPhonon(ph)
+    (view.findViewById<View>(R.id.item_memory_equalizer) as EqualizerViewLite).phonon = ph
   }
 
   enum class Saved {

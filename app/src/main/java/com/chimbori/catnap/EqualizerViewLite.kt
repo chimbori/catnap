@@ -2,47 +2,52 @@ package com.chimbori.catnap
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Bitmap.Config.ARGB_8888
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.Color
+import android.graphics.Color.WHITE
 import android.graphics.Paint
+import android.graphics.Paint.ANTI_ALIAS_FLAG
+import android.graphics.Paint.Style.STROKE
 import android.graphics.Path
-import android.graphics.PorterDuff
+import android.graphics.PorterDuff.Mode.SRC_IN
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
 
 class EqualizerViewLite(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
-  private var mPhonon: Phonon? = null
-  private var mWidth = 0
-  private var mHeight = 0
-  private var mBarWidth = 0f
-  private var mBitmap: Bitmap? = null
-  fun setPhonon(ph: Phonon) {
-    if (mPhonon !== ph) {
-      mPhonon = ph
-      mBitmap = null
+  private var barWidth = 0f
+  private var canvasBitmap: Bitmap? = null
+
+  var phonon: Phonon? = null
+    set(value) {
+      if (field != value) {
+        field = value
+      }
+      canvasBitmap = null
       invalidate()
     }
-  }
 
-  private fun makeBitmap(): Bitmap {
-    val bmp = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bmp)
+  private fun createBitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(width, height, ARGB_8888)
+    val canvas = Canvas(bitmap)
 
     // Draw a white line
-    val whitePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    whitePaint.setColor(Color.WHITE)
-    whitePaint.setAlpha(if (isEnabled) 250 else 94)
-    whitePaint.style = Paint.Style.STROKE
-    whitePaint.strokeWidth = dpToPixels(3f)
+    val whitePaint = Paint(ANTI_ALIAS_FLAG).apply {
+      setColor(WHITE)
+      setAlpha(if (isEnabled) 250 else 94)
+      style = STROKE
+      strokeWidth = dpToPixels(3f)
+    }
+
     val path = Path()
     var first = true
     for (i in 0 until BAND_COUNT) {
-      val bar = if (mPhonon != null) mPhonon!!.getBar(i) else .5f
-      val x = mBarWidth * (i + 0.5f)
+      val bar = phonon?.getBar(i) ?: .5f
+      val x = barWidth * (i + 0.5f)
       val y = barToY(bar)
       if (first) {
         first = false
@@ -54,43 +59,36 @@ class EqualizerViewLite(context: Context?, attrs: AttributeSet?) : View(context,
     canvas.drawPath(path, whitePaint)
 
     // Overlay the spectrum bitmap to add color.
-    val colorBmp = BitmapFactory.decodeResource(resources, R.drawable.spectrum)
-    val src = Rect(0, 0, colorBmp.getWidth(), colorBmp.getHeight())
-    val dst = Rect(0, 0, bmp.getWidth(), bmp.getHeight())
+    val spectrumOverlay = BitmapFactory.decodeResource(resources, R.drawable.spectrum)
+    val src = Rect(0, 0, spectrumOverlay.getWidth(), spectrumOverlay.getHeight())
+    val dst = Rect(0, 0, bitmap.getWidth(), bitmap.getHeight())
+
     val alphaPaint = Paint()
-    alphaPaint.setXfermode(PorterDuffXfermode(PorterDuff.Mode.SRC_IN))
-    canvas.drawBitmap(colorBmp, src, dst, alphaPaint)
-    return bmp
+    alphaPaint.setXfermode(PorterDuffXfermode(SRC_IN))
+    canvas.drawBitmap(spectrumOverlay, src, dst, alphaPaint)
+
+    return bitmap
   }
 
   override fun onDraw(canvas: Canvas) {
-    if (mBitmap == null) {
-      mBitmap = makeBitmap()
+    if (canvasBitmap == null) {
+      canvasBitmap = createBitmap()
     }
-    canvas.drawBitmap(mBitmap!!, 0f, 0f, null)
+    canvas.drawBitmap(canvasBitmap!!, 0f, 0f, null)
   }
 
   override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-    mWidth = width
-    mHeight = height
-    mBarWidth = mWidth.toFloat() / BAND_COUNT
-    mBitmap = null
+    barWidth = width.toFloat() / BAND_COUNT
+    canvasBitmap = null
   }
 
-  private fun barToY(barHeight: Float): Float {
-    return (1f - barHeight) * mHeight
-  }
+  private fun barToY(barHeight: Float) = (1f - barHeight) * height
 
-  private fun dpToPixels(dp: Float): Float {
-    val r = resources
-    return TypedValue.applyDimension(
-      TypedValue.COMPLEX_UNIT_DIP, dp, r.displayMetrics
-    )
-  }
+  private fun dpToPixels(dp: Float) = TypedValue.applyDimension(COMPLEX_UNIT_DIP, dp, resources.displayMetrics)
 
   override fun setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)
-    mBitmap = null
+    canvasBitmap = null
     invalidate()
   }
 
