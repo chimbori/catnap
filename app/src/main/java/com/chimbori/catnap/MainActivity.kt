@@ -23,10 +23,17 @@ import com.chimbori.catnap.databinding.ActivityMainBinding
 import com.google.android.material.color.DynamicColors
 import java.util.Date
 
-class MainActivity : AppCompatActivity(), PercentListener, LockListener {
+class MainActivity : AppCompatActivity(), PercentListener {
   private lateinit var binding: ActivityMainBinding
   private val navFragment by lazy { supportFragmentManager.findFragmentById(R.id.main_nav_host_container) as NavHostFragment }
   private val navController by lazy { navFragment.navController }
+
+  private val lockListener = object : LockListener {
+    override fun onLockStateChange(e: LockEvent) {
+      // Redraw the lock icon for both event types.
+      supportInvalidateOptionsMenu()
+    }
+  }
 
   // Fragments can read this >= onActivityCreated().
   var uIState: UIState? = null
@@ -53,7 +60,7 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener {
     super.onResume()
     // Start receiving progress events.
     NoiseService.addPercentListener(this)
-    uIState!!.addLockListener(this)
+    uIState!!.addLockListener(lockListener)
     if (uIState!!.autoPlay) {
       uIState!!.sendToService()
     }
@@ -75,7 +82,7 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener {
 
     // Stop receiving progress events.
     NoiseService.removePercentListener(this)
-    uIState!!.removeLockListener(this)
+    uIState!!.removeLockListener(lockListener)
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -89,11 +96,6 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener {
     val mi = menu.findItem(MENU_LOCK)
     mi?.setIcon(lockIcon)
     return super.onPrepareOptionsMenu(menu)
-  }
-
-  override fun onLockStateChange(e: LockEvent) {
-    // Redraw the lock icon for both event types.
-    supportInvalidateOptionsMenu()
   }
 
   private val lockIcon: Drawable?
