@@ -9,6 +9,7 @@ import com.chimbori.catnap.UIState.LockListener.LockEvent
 
 class UIState(application: Application) : AndroidViewModel(application) {
   private val mContext = application.applicationContext
+
   val mActivePos = TrackedPosition()
   private val mLockListeners = ArrayList<LockListener>()
   var mScratchPhonon: PhononMutable? = null
@@ -22,6 +23,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
   private var mIgnoreAudioFocus = false
   private var mVolumeLimitEnabled = false
   private var mVolumeLimit = 0
+
   fun saveState(pref: SharedPreferences.Editor) {
     pref.putBoolean("locked", locked)
     pref.putBoolean("autoPlay", autoPlay)
@@ -187,7 +189,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
 
   // This interface is for receiving a callback when the state
   // of the Input Lock has changed.
-  interface LockListener {
+  fun interface LockListener {
     fun onLockStateChange(e: LockEvent)
     enum class LockEvent {
       TOGGLE,

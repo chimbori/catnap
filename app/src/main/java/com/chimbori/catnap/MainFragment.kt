@@ -16,23 +16,42 @@ class MainFragment : Fragment(R.layout.fragment_main), PercentListener {
   private val binding by viewBinding(FragmentMainBinding::bind)
   private val mUiState: UIState by activityViewModels()
 
+  private val lockListener = UIState.LockListener { e ->
+    // Only spend time redrawing if this is an on/off event.
+    if (e == UIState.LockListener.LockEvent.TOGGLE) {
+      binding.fragmentMainEqualizer.isLocked = mUiState.locked
+    }
+  }
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.fragmentMainEqualizer.setUiState(mUiState)
+    binding.fragmentMainEqualizer.apply {
+      addBarChangedListener { band, value ->
+        mUiState.phononMutable!!.setBar(band, value)
+      }
+      addInteractedWhileLockedListener {
+        mUiState.lockBusy = it
+      }
+      addInteractionCompleteListener {
+        mUiState.sendIfDirty()
+      }
+      phonon = mUiState.phonon
+      isLocked = mUiState.locked
+    }
   }
 
   override fun onResume() {
     super.onResume()
     // Start receiving progress events.
     NoiseService.addPercentListener(this)
-    mUiState.addLockListener(binding.fragmentMainEqualizer)
+    mUiState.addLockListener(lockListener)
   }
 
   override fun onPause() {
     super.onPause()
     // Stop receiving progress events.
     NoiseService.removePercentListener(this)
-    mUiState.removeLockListener(binding.fragmentMainEqualizer)
+    mUiState.removeLockListener(lockListener)
   }
 
   override fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int) {

@@ -9,11 +9,33 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import com.chimbori.catnap.UIState.LockListener
-import com.chimbori.catnap.UIState.LockListener.LockEvent
 
-class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, attrs), LockListener {
-  private lateinit var mUiState: UIState
+class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
+  var phonon: Phonon? = null
+    set(value) {
+      field = value
+      invalidate()
+    }
+  var isLocked: Boolean = false
+    set(value) {
+      field = value
+      invalidate()
+    }
+
+  private val barChangedListeners = mutableListOf<(band: Int, value: Float) -> Unit>()
+  fun addBarChangedListener(listener: (band: Int, value: Float) -> Unit) {
+    barChangedListeners.add(listener)
+  }
+
+  private val interactedWhileLockedListeners = mutableListOf<(Boolean) -> Unit>()
+  fun addInteractedWhileLockedListener(listener: (Boolean) -> Unit) {
+    interactedWhileLockedListeners.add(listener)
+  }
+
+  private val interactionCompleteListeners = mutableListOf<(() -> Boolean)>()
+  fun addInteractionCompleteListener(listener: () -> Boolean) {
+    interactionCompleteListeners.add(listener)
+  }
 
   // L=light, M=medium, D=dark
   private val mBarColorL = arrayOfNulls<Paint>(BAND_COUNT)
@@ -33,11 +55,6 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
 
   init {
     makeColors()
-  }
-
-  fun setUiState(uiState: UIState) {
-    mUiState = uiState
-    invalidate()
   }
 
   private fun makeColors() {
@@ -74,11 +91,9 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   }
 
   override fun onDraw(canvas: Canvas) {
-    val ph = if (mUiState != null) mUiState.phonon else null
-    val isLocked = if (mUiState != null) mUiState.locked else false
     val p = Path()
     for (i in 0 until BAND_COUNT) {
-      val bar = ph?.getBar(i) ?: .5f
+      val bar = phonon?.getBar(i) ?: .5f
       val startX = bandToX(i)
       val stopX = startX + mBarWidth
       val startY = barToY(bar)
@@ -114,14 +129,14 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   }
 
   override fun onTouchEvent(event: MotionEvent): Boolean {
-    if (mUiState.locked) {
+    if (isLocked) {
       when (event.action) {
         MotionEvent.ACTION_DOWN -> {
-          mUiState.lockBusy = true
+          interactedWhileLockedListeners.forEach { it(true) }
           return true
         }
         MotionEvent.ACTION_UP -> {
-          mUiState.lockBusy = false
+          interactedWhileLockedListeners.forEach { it(false) }
           return true
         }
         MotionEvent.ACTION_MOVE -> return true
@@ -136,13 +151,14 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
       MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {}
       else -> return false
     }
-    val phm = mUiState.phononMutable!!
     for (i in 0 until event.historySize) {
-      touchLine(phm, event.getHistoricalX(i), event.getHistoricalY(i))
+      touchLine(event.getHistoricalX(i), event.getHistoricalY(i))
     }
-    touchLine(phm, event.x, event.y)
-    if (mUiState.sendIfDirty()) {
-      invalidate()
+    touchLine(event.x, event.y)
+    interactionCompleteListeners.forEach {
+      if (it()) {
+        invalidate()
+      }
     }
     return true
   }
@@ -200,7 +216,7 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   //     0->3: 0, 1, 2 [endpoint in 3]
   //   Left:
   //     3->0: 3, 2, 1 [endpoint in 0]
-  private fun touchLine(phm: PhononMutable, stopX: Float, stopY: Float) {
+  private fun touchLine(stopX: Float, stopY: Float) {
     val startX = mLastX
     val startY = mLastY
     mLastX = stopX
@@ -217,18 +233,11 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
       // Get the Y value at exitX.
       val slope = (stopY - startY) / (stopX - startX)
       val exitY = startY + slope * (exitX - startX)
-      phm.setBar(i, yToBar(exitY))
+      barChangedListeners.forEach { it(i, yToBar(exitY)) }
       i += direction
     }
     // Set the Y endpoint.
-    phm.setBar(stopBand, yToBar(stopY))
-  }
-
-  override fun onLockStateChange(e: LockEvent) {
-    // Only spend time redrawing if this is an on/off event.
-    if (e == LockEvent.TOGGLE) {
-      invalidate()
-    }
+    barChangedListeners.forEach { it(stopBand, yToBar(stopY)) }
   }
 
   companion object {
