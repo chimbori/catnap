@@ -2,13 +2,13 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
   <com.chimbori.catnap.EqualizerViewLite
-    android:id="@+id/EqualizerView"
+    android:id="@+id/item_memory_equalizer"
     android:layout_width="75dp"
     android:layout_height="100dp"
     android:layout_margin="4dp"/>
 
   <CheckedTextView
-    android:id="@+id/text"
+    android:id="@+id/item_memory_name"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:layout_weight="1"

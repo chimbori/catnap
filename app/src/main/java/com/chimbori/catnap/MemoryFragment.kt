@@ -20,16 +20,11 @@ class MemoryFragment : ListFragment(), OnItemClickListener, DropListener, Remove
   private var mDslv: DragSortListView? = null
   private var mUiState: UIState? = null
   private var mAdapter: MemoryArrayAdapter? = null
-  override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View? {
-    mDslv = inflater.inflate(
-      R.layout.memory_list,
-      container, false
-    ) as DragSortListView
-    val v = inflater.inflate(R.layout.memory_list_item_top, null)
-    val button = v.findViewById<View>(R.id.save_button)
+
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    mDslv = inflater.inflate(R.layout.fragment_memory, container, false) as DragSortListView
+    val v = inflater.inflate(R.layout.item_memory_top, null)
+    val button = v.findViewById<View>(R.id.item_memory_save_button)
     button.setOnClickListener { // Clicked the "Save" button.
       val ph: Phonon = mUiState!!.mScratchPhonon!!.makeMutableCopy()
       mAdapter!!.insert(ph, 0)
@@ -40,10 +35,7 @@ class MemoryFragment : ListFragment(), OnItemClickListener, DropListener, Remove
     }
     mHeaderView = v
     mDslv!!.addHeaderView(mHeaderView, null, true)
-    mDslv!!.addHeaderView(
-      inflater.inflate(R.layout.memory_list_divider, null), null,
-      false
-    )
+    mDslv!!.addHeaderView(inflater.inflate(R.layout.item_memory_divider, null), null, false)
     return mDslv
   }
 

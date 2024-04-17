@@ -10,7 +10,7 @@ import android.widget.TextView
 class MemoryArrayAdapter(context: Context?, objects: List<Phonon?>?) : ArrayAdapter<Phonon?>(context!!, 0, objects!!) {
   override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    val view = convertView ?: inflater.inflate(R.layout.memory_list_item, parent, false)
+    val view = convertView ?: inflater.inflate(R.layout.item_memory, parent, false)
     initListItem(view, getItem(position), Saved.NONE)
     return view
   }
@@ -30,8 +30,8 @@ class MemoryArrayAdapter(context: Context?, objects: List<Phonon?>?) : ArrayAdap
     } else if (saved == Saved.NO) {
       buf.append(context.getString(R.string.unsaved))
     }
-    (view.findViewById<View>(R.id.text) as TextView).text = buf.toString()
-    (view.findViewById<View>(R.id.fragment_main_equalizer) as EqualizerViewLite).setPhonon(ph)
+    (view.findViewById<View>(R.id.item_memory_name) as TextView).text = buf.toString()
+    (view.findViewById<View>(R.id.item_memory_equalizer) as EqualizerViewLite).setPhonon(ph)
   }
 
   enum class Saved {
