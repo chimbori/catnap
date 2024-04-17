@@ -23,7 +23,7 @@ import com.chimbori.catnap.databinding.ActivityMainBinding
 import com.google.android.material.color.DynamicColors
 import java.util.Date
 
-class MainActivity : AppCompatActivity(), PercentListener {
+class MainActivity : AppCompatActivity() {
   private lateinit var binding: ActivityMainBinding
   private val navFragment by lazy { supportFragmentManager.findFragmentById(R.id.main_nav_host_container) as NavHostFragment }
   private val navController by lazy { navFragment.navController }
@@ -32,6 +32,16 @@ class MainActivity : AppCompatActivity(), PercentListener {
     override fun onLockStateChange(e: LockEvent) {
       // Redraw the lock icon for both event types.
       supportInvalidateOptionsMenu()
+    }
+  }
+
+  private val noisePercentListener = object : PercentListener {
+    override fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int) {
+      val newServiceActive = percent >= 0
+      if (mServiceActive != newServiceActive) {
+        mServiceActive = newServiceActive
+        supportInvalidateOptionsMenu()  // Redraw the "Play/Stop" button.
+      }
     }
   }
 
@@ -59,7 +69,7 @@ class MainActivity : AppCompatActivity(), PercentListener {
   public override fun onResume() {
     super.onResume()
     // Start receiving progress events.
-    NoiseService.addPercentListener(this)
+    NoiseService.addPercentListener(noisePercentListener)
     uIState!!.addLockListener(lockListener)
     if (uIState!!.autoPlay) {
       uIState!!.sendToService()
@@ -81,7 +91,7 @@ class MainActivity : AppCompatActivity(), PercentListener {
     BackupManager(this).dataChanged()
 
     // Stop receiving progress events.
-    NoiseService.removePercentListener(this)
+    NoiseService.removePercentListener(noisePercentListener)
     uIState!!.removeLockListener(lockListener)
   }
 
@@ -133,16 +143,6 @@ class MainActivity : AppCompatActivity(), PercentListener {
       }
     }
     return false
-  }
-
-  override fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int) {
-    val newServiceActive = percent >= 0
-    if (mServiceActive != newServiceActive) {
-      mServiceActive = newServiceActive
-
-      // Redraw the "Play/Stop" button.
-      supportInvalidateOptionsMenu()
-    }
   }
 
   companion object {
