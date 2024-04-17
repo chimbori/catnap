@@ -8,6 +8,7 @@ import android.widget.CompoundButton
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.chimbori.catnap.PhononMutable.Companion.PERIOD_MAX
 import com.chimbori.catnap.UIState.Companion.MAX_VOLUME
 import com.chimbori.catnap.databinding.FragmentOptionsBinding
@@ -16,14 +17,12 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeListener,
   CompoundButton.OnCheckedChangeListener {
   private val binding by viewBinding(FragmentOptionsBinding::bind)
-
-  private var mUiState: UIState? = null
+  private val mUiState: UIState by activityViewModels()
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    mUiState = (activity as MainActivity?)!!.uIState
-    val ph = mUiState!!.phonon!!
+    val ph = mUiState.phonon!!
     binding.fragmentOptionsMinimumVolumeText.text = ph.minVolText
 
     binding.fragmentOptionsMinimumVolumeSeekbar.progress = ph.minVol
@@ -36,10 +35,10 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
     binding.fragmentOptionsPeriodSeekbar.setMax(PERIOD_MAX)
     binding.fragmentOptionsPeriodSeekbar.setOnSeekBarChangeListener(this)
 
-    binding.fragmentOptionsAutoPlayCheckbox.setChecked(mUiState!!.autoPlay)
+    binding.fragmentOptionsAutoPlayCheckbox.setChecked(mUiState.autoPlay)
     binding.fragmentOptionsAutoPlayCheckbox.setOnCheckedChangeListener(this)
 
-    binding.fragmentOptionsIgnoreAudioFocusCheckbox.setChecked(mUiState!!.ignoreAudioFocus)
+    binding.fragmentOptionsIgnoreAudioFocusCheckbox.setChecked(mUiState.ignoreAudioFocus)
     binding.fragmentOptionsIgnoreAudioFocusCheckbox.setOnCheckedChangeListener(this)
 
     binding.fragmentOptionsVolumeLimitCheckbox.setOnCheckedChangeListener(this)
@@ -54,10 +53,10 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
       return
     }
     if (seekBar === binding.fragmentOptionsVolumeLimitSeekbar) {
-      mUiState!!.volumeLimit = progress
+      mUiState.volumeLimit = progress
       redrawVolumeLimit()
     } else {
-      val phm = mUiState!!.phononMutable!!
+      val phm = mUiState.phononMutable!!
       if (seekBar === binding.fragmentOptionsMinimumVolumeSeekbar) {
         phm.minVol = progress
         binding.fragmentOptionsMinimumVolumeText.text = phm.minVolText
@@ -67,27 +66,27 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
         binding.fragmentOptionsPeriodText.text = phm.periodText
       }
     }
-    mUiState!!.sendIfDirty()
+    mUiState.sendIfDirty()
   }
 
   override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
     if (buttonView === binding.fragmentOptionsAutoPlayCheckbox) {
-      mUiState!!.setAutoPlay(isChecked, true)
+      mUiState.setAutoPlay(isChecked, true)
     } else if (buttonView === binding.fragmentOptionsIgnoreAudioFocusCheckbox) {
-      mUiState!!.ignoreAudioFocus = isChecked
+      mUiState.ignoreAudioFocus = isChecked
     } else if (buttonView === binding.fragmentOptionsVolumeLimitCheckbox) {
-      mUiState!!.volumeLimitEnabled = isChecked
+      mUiState.volumeLimitEnabled = isChecked
       redrawVolumeLimit()
     }
-    mUiState!!.sendIfDirty()
+    mUiState.sendIfDirty()
   }
 
   override fun onStartTrackingTouch(seekBar: SeekBar) {}
   override fun onStopTrackingTouch(seekBar: SeekBar) {}
   private fun redrawVolumeLimit() {
-    val enabled = mUiState!!.volumeLimitEnabled
+    val enabled = mUiState.volumeLimitEnabled
     binding.fragmentOptionsVolumeLimitCheckbox.setChecked(enabled)
     binding.fragmentOptionsVolumeLimitSeekbar.visibility = if (enabled) VISIBLE else INVISIBLE
-    binding.fragmentOptionsVolumeLimitSeekbar.progress = mUiState!!.volumeLimit
+    binding.fragmentOptionsVolumeLimitSeekbar.progress = mUiState.volumeLimit
   }
 }

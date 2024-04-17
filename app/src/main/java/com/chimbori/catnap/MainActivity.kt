@@ -11,6 +11,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MenuItem.SHOW_AS_ACTION_ALWAYS
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
@@ -25,6 +26,8 @@ import java.util.Date
 
 class MainActivity : AppCompatActivity() {
   private lateinit var binding: ActivityMainBinding
+  private val uIState: UIState by viewModels()
+
   private val navFragment by lazy { supportFragmentManager.findFragmentById(R.id.main_nav_host_container) as NavHostFragment }
   private val navController by lazy { navFragment.navController }
 
@@ -45,10 +48,6 @@ class MainActivity : AppCompatActivity() {
     }
   }
 
-  // Fragments can read this >= onActivityCreated().
-  var uIState: UIState? = null
-    private set
-
   private var mServiceActive = false
 
   public override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,9 +59,8 @@ class MainActivity : AppCompatActivity() {
 
     binding.mainBottomNav.setupWithNavController(navController)
 
-    uIState = UIState(application)
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
-    uIState!!.loadState(pref)
+    uIState.loadState(pref)
     setSupportActionBar(binding.mainToolbar)
   }
 
@@ -70,9 +68,9 @@ class MainActivity : AppCompatActivity() {
     super.onResume()
     // Start receiving progress events.
     NoiseService.addPercentListener(noisePercentListener)
-    uIState!!.addLockListener(lockListener)
-    if (uIState!!.autoPlay) {
-      uIState!!.sendToService()
+    uIState.addLockListener(lockListener)
+    if (uIState.autoPlay) {
+      uIState.sendToService()
     }
   }
 
@@ -81,18 +79,18 @@ class MainActivity : AppCompatActivity() {
 
     // If the equalizer is silent, stop the service.
     // This makes it harder to leave running accidentally.
-    if (mServiceActive && uIState!!.phonon!!.isSilent) {
+    if (mServiceActive && uIState.phonon!!.isSilent) {
       NoiseService.stopNow(application, R.string.stop_reason_silent)
     }
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit()
     pref.clear()
-    uIState!!.saveState(pref)
+    uIState.saveState(pref)
     pref.commit()
     BackupManager(this).dataChanged()
 
     // Stop receiving progress events.
     NoiseService.removePercentListener(noisePercentListener)
-    uIState!!.removeLockListener(lockListener)
+    uIState.removeLockListener(lockListener)
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -111,8 +109,8 @@ class MainActivity : AppCompatActivity() {
   private val lockIcon: Drawable?
     // Get the lock icon which reflects the current action.
     get() {
-      val d = ContextCompat.getDrawable(this, if (uIState!!.locked) R.drawable.lock else R.drawable.lock_open)
-      if (uIState!!.lockBusy) {
+      val d = ContextCompat.getDrawable(this, if (uIState.locked) R.drawable.lock else R.drawable.lock_open)
+      if (uIState.lockBusy) {
         setColorFilterCompat(d, -0xbbbc, PorterDuff.Mode.SRC_IN)
       } else {
         d!!.clearColorFilter()
@@ -130,14 +128,14 @@ class MainActivity : AppCompatActivity() {
     when (item.itemId) {
       MENU_PLAY_STOP -> {  // Force the service into its expected state.
         if (!mServiceActive) {
-          uIState!!.sendToService()
+          uIState.sendToService()
         } else {
           NoiseService.stopNow(application, R.string.stop_reason_toolbar)
         }
         return true
       }
       MENU_LOCK -> {
-        uIState!!.toggleLocked()
+        uIState.toggleLocked()
         supportInvalidateOptionsMenu()
         return true
       }

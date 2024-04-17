@@ -13,6 +13,8 @@ import com.chimbori.catnap.UIState.LockListener
 import com.chimbori.catnap.UIState.LockListener.LockEvent
 
 class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, attrs), LockListener {
+  private lateinit var mUiState: UIState
+
   // L=light, M=medium, D=dark
   private val mBarColorL = arrayOfNulls<Paint>(BAND_COUNT)
   private val mBarColorM = arrayOfNulls<Paint>(BAND_COUNT)
@@ -20,7 +22,6 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   private val mBaseColorL = arrayOfNulls<Paint>(4)
   private val mBaseColorM = arrayOfNulls<Paint>(4)
   private val mBaseColorD = arrayOfNulls<Paint>(4)
-  private var mUiState: UIState? = null
   private var mWidth = 0f
   private var mHeight = 0f
   private var mBarWidth = 0f
@@ -34,7 +35,7 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
     makeColors()
   }
 
-  fun setUiState(uiState: UIState?) {
+  fun setUiState(uiState: UIState) {
     mUiState = uiState
     invalidate()
   }
@@ -73,8 +74,8 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   }
 
   override fun onDraw(canvas: Canvas) {
-    val ph = if (mUiState != null) mUiState!!.phonon else null
-    val isLocked = if (mUiState != null) mUiState!!.locked else false
+    val ph = if (mUiState != null) mUiState.phonon else null
+    val isLocked = if (mUiState != null) mUiState.locked else false
     val p = Path()
     for (i in 0 until BAND_COUNT) {
       val bar = ph?.getBar(i) ?: .5f
@@ -113,14 +114,14 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   }
 
   override fun onTouchEvent(event: MotionEvent): Boolean {
-    if (mUiState!!.locked) {
+    if (mUiState.locked) {
       when (event.action) {
         MotionEvent.ACTION_DOWN -> {
-          mUiState!!.lockBusy = true
+          mUiState.lockBusy = true
           return true
         }
         MotionEvent.ACTION_UP -> {
-          mUiState!!.lockBusy = false
+          mUiState.lockBusy = false
           return true
         }
         MotionEvent.ACTION_MOVE -> return true
@@ -135,12 +136,12 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
       MotionEvent.ACTION_UP, MotionEvent.ACTION_MOVE -> {}
       else -> return false
     }
-    val phm = mUiState!!.phononMutable!!
+    val phm = mUiState.phononMutable!!
     for (i in 0 until event.historySize) {
       touchLine(phm, event.getHistoricalX(i), event.getHistoricalY(i))
     }
     touchLine(phm, event.x, event.y)
-    if (mUiState!!.sendIfDirty()) {
+    if (mUiState.sendIfDirty()) {
       invalidate()
     }
     return true

@@ -1,12 +1,14 @@
 package com.chimbori.catnap
 
-import android.content.Context
+import android.app.Application
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
 import com.chimbori.catnap.UIState.LockListener.LockEvent
 
-class UIState(private val mContext: Context) {
+class UIState(application: Application) : AndroidViewModel(application) {
+  private val mContext = application.applicationContext
   val mActivePos = TrackedPosition()
   private val mLockListeners = ArrayList<LockListener>()
   var mScratchPhonon: PhononMutable? = null
