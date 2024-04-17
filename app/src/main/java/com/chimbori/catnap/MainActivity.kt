@@ -1,14 +1,12 @@
 package com.chimbori.catnap
 
 import android.app.backup.BackupManager
-import android.content.Context
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -17,56 +15,51 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
-import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.chimbori.catnap.NoiseService.PercentListener
 import com.chimbori.catnap.UIState.LockListener
 import com.chimbori.catnap.UIState.LockListener.LockEvent
+import com.chimbori.catnap.databinding.ActivityMainBinding
 import com.google.android.material.color.DynamicColors
 import java.util.Date
 
 class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemSelectedListener {
+  private lateinit var binding: ActivityMainBinding
+
   // Fragments can read this >= onActivityCreated().
   var uIState: UIState? = null
     private set
 
   private var mFragmentId = FragmentIndex.ID_MAIN
   private var mToolbarIcon: Drawable? = null
-  private var mNavSpinner: Spinner? = null
   private var mServiceActive = false
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge()
     DynamicColors.applyToActivityIfAvailable(this)
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
 
     uIState = UIState(application)
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
     uIState!!.loadState(pref)
-    val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
-    setSupportActionBar(toolbar)
-    val actionBar = supportActionBar
-    actionBar!!.setDisplayHomeAsUpEnabled(true)
-    actionBar.title = ""
-    mNavSpinner = findViewById<View>(R.id.nav_spinner) as Spinner
+    setSupportActionBar(binding.mainToolbar)
+    supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+    supportActionBar!!.title = ""
+
     val adapter = ArrayAdapter(
-      actionBar.themedContext, R.layout.spinner_title,
+      supportActionBar!!.themedContext, R.layout.spinner_title,
       FragmentIndex.getStrings(this)
     )
     adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
-    mNavSpinner!!.setAdapter(adapter)
-    mNavSpinner!!.onItemSelectedListener = this
+    binding.mainNavSpinner.setAdapter(adapter)
+    binding.mainNavSpinner.onItemSelectedListener = this
 
 
     // Created a scaled-down icon for the Toolbar.
@@ -199,7 +192,7 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
       onSupportNavigateUp()
     }
     val transaction = fragmentManager.beginTransaction()
-    transaction.replace(R.id.fragment_container, f)
+    transaction.replace(R.id.main_fragment_container, f)
     if (allowBack) {
       transaction.addToBackStack(null)
       transaction
@@ -219,11 +212,11 @@ class MainActivity : AppCompatActivity(), PercentListener, LockListener, OnItemS
     actionBar!!.setHomeAsUpIndicator(if (enableUp) null else mToolbarIcon)
 
     // When we're on the main page, make the icon non-clickable.
-    val navUp = findImageButton(findViewById(R.id.toolbar))
+    val navUp = findImageButton(binding.mainToolbar)
     if (navUp != null) {
       navUp.isClickable = enableUp
     }
-    mNavSpinner!!.setSelection(id)
+    binding.mainNavSpinner.setSelection(id)
   }
 
   // Handle nav_spinner selection.
