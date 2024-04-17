@@ -18,9 +18,8 @@ import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.chimbori.catnap.NoiseService.PercentListener
-import com.chimbori.catnap.UIState.LockListener
-import com.chimbori.catnap.UIState.LockListener.LockEvent
 import com.chimbori.catnap.databinding.ActivityMainBinding
+import com.chimbori.catnap.utils.nonNullValue
 import com.google.android.material.color.DynamicColors
 import java.util.Date
 
@@ -30,13 +29,6 @@ class MainActivity : AppCompatActivity() {
 
   private val navFragment by lazy { supportFragmentManager.findFragmentById(R.id.main_nav_host_container) as NavHostFragment }
   private val navController by lazy { navFragment.navController }
-
-  private val lockListener = object : LockListener {
-    override fun onLockStateChange(e: LockEvent) {
-      // Redraw the lock icon for both event types.
-      supportInvalidateOptionsMenu()
-    }
-  }
 
   private val noisePercentListener = object : PercentListener {
     override fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int) {
@@ -62,13 +54,16 @@ class MainActivity : AppCompatActivity() {
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
     uIState.loadState(pref)
     setSupportActionBar(binding.mainToolbar)
+
+    // Redraw the lock icon for both event types.
+    uIState.isLocked.observe(this) { supportInvalidateOptionsMenu() }
+    uIState.interactedWhileLocked.observe(this) { supportInvalidateOptionsMenu() }
   }
 
   public override fun onResume() {
     super.onResume()
     // Start receiving progress events.
     NoiseService.addPercentListener(noisePercentListener)
-    uIState.addLockListener(lockListener)
     if (uIState.autoPlay) {
       uIState.sendToService()
     }
@@ -90,7 +85,6 @@ class MainActivity : AppCompatActivity() {
 
     // Stop receiving progress events.
     NoiseService.removePercentListener(noisePercentListener)
-    uIState.removeLockListener(lockListener)
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -109,8 +103,11 @@ class MainActivity : AppCompatActivity() {
   private val lockIcon: Drawable?
     // Get the lock icon which reflects the current action.
     get() {
-      val d = ContextCompat.getDrawable(this, if (uIState.locked) R.drawable.lock else R.drawable.lock_open)
-      if (uIState.lockBusy) {
+      val d = ContextCompat.getDrawable(
+        this,
+        if (uIState.isLocked.nonNullValue) R.drawable.lock else R.drawable.lock_open
+      )
+      if (uIState.interactedWhileLocked.nonNullValue) {
         setColorFilterCompat(d, -0xbbbc, PorterDuff.Mode.SRC_IN)
       } else {
         d!!.clearColorFilter()

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.chimbori.catnap.NoiseService.PercentListener
 import com.chimbori.catnap.databinding.FragmentMainBinding
+import com.chimbori.catnap.utils.nonNullValue
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import java.text.DateFormat
 import java.util.Date
@@ -16,27 +17,24 @@ class MainFragment : Fragment(R.layout.fragment_main), PercentListener {
   private val binding by viewBinding(FragmentMainBinding::bind)
   private val mUiState: UIState by activityViewModels()
 
-  private val lockListener = UIState.LockListener { e ->
-    // Only spend time redrawing if this is an on/off event.
-    if (e == UIState.LockListener.LockEvent.TOGGLE) {
-      binding.fragmentMainEqualizer.isLocked = mUiState.locked
-    }
-  }
-
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.fragmentMainEqualizer.apply {
       addBarChangedListener { band, value ->
         mUiState.phononMutable!!.setBar(band, value)
       }
-      addInteractedWhileLockedListener {
-        mUiState.lockBusy = it
+      addInteractedWhileLockedListener { interacted ->
+        mUiState.setInteractedWhileLocked(interacted)
       }
       addInteractionCompleteListener {
         mUiState.sendIfDirty()
       }
       phonon = mUiState.phonon
-      isLocked = mUiState.locked
+      isLocked = mUiState.isLocked.nonNullValue
+    }
+
+    mUiState.isLocked.observe(viewLifecycleOwner) { isLocked ->
+      binding.fragmentMainEqualizer.isLocked = isLocked
     }
   }
 
@@ -44,14 +42,12 @@ class MainFragment : Fragment(R.layout.fragment_main), PercentListener {
     super.onResume()
     // Start receiving progress events.
     NoiseService.addPercentListener(this)
-    mUiState.addLockListener(lockListener)
   }
 
   override fun onPause() {
     super.onPause()
     // Stop receiving progress events.
     NoiseService.removePercentListener(this)
-    mUiState.removeLockListener(lockListener)
   }
 
   override fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int) {

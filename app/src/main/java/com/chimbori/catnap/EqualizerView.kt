@@ -27,8 +27,8 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
     barChangedListeners.add(listener)
   }
 
-  private val interactedWhileLockedListeners = mutableListOf<(Boolean) -> Unit>()
-  fun addInteractedWhileLockedListener(listener: (Boolean) -> Unit) {
+  private val interactedWhileLockedListeners = mutableListOf<(interacted: Boolean) -> Unit>()
+  fun addInteractedWhileLockedListener(listener: (interacted: Boolean) -> Unit) {
     interactedWhileLockedListeners.add(listener)
   }
 

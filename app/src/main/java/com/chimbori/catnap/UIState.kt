@@ -5,18 +5,26 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
-import com.chimbori.catnap.UIState.LockListener.LockEvent
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.chimbori.catnap.utils.nonNullValue
+import com.chimbori.catnap.utils.update
 
 class UIState(application: Application) : AndroidViewModel(application) {
   private val mContext = application.applicationContext
 
+  val isLocked: LiveData<Boolean> = MutableLiveData()
+  val interactedWhileLocked: LiveData<Boolean> = MutableLiveData()
+
+  init {
+    isLocked.update(false)
+    interactedWhileLocked.update(false)
+  }
+
   val mActivePos = TrackedPosition()
-  private val mLockListeners = ArrayList<LockListener>()
   var mScratchPhonon: PhononMutable? = null
   var mSavedPhonons: ArrayList<Phonon>? = null
-  var locked = false
-    private set
-  private var mLockBusy = false
+
   private var mDirty = false
   var autoPlay = false
     private set
@@ -25,7 +33,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
   private var mVolumeLimit = 0
 
   fun saveState(pref: SharedPreferences.Editor) {
-    pref.putBoolean("locked", locked)
+    pref.putBoolean("locked", isLocked.nonNullValue)
     pref.putBoolean("autoPlay", autoPlay)
     pref.putBoolean("ignoreAudioFocus", mIgnoreAudioFocus)
     pref.putInt("volumeLimit", volumeLimit)
@@ -38,7 +46,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
   }
 
   fun loadState(pref: SharedPreferences) {
-    locked = pref.getBoolean("locked", false)
+    isLocked.update(pref.getBoolean("locked", false))
     setAutoPlay(pref.getBoolean("autoPlay", false), false)
     ignoreAudioFocus = pref.getBoolean("ignoreAudioFocus", false)
     volumeLimit = pref.getInt("volumeLimit", MAX_VOLUME)
@@ -67,20 +75,6 @@ class UIState(application: Application) : AndroidViewModel(application) {
     mActivePos.pos = if (-1 <= active && active < mSavedPhonons!!.size) active else -1
   }
 
-  fun addLockListener(l: LockListener) {
-    mLockListeners.add(l)
-  }
-
-  fun removeLockListener(l: LockListener) {
-    check(mLockListeners.remove(l))
-  }
-
-  private fun notifyLockListeners(e: LockEvent) {
-    for (l in mLockListeners) {
-      l.onLockStateChange(e)
-    }
-  }
-
   fun sendToService() {
     val intent = Intent(mContext, NoiseService::class.java)
     phonon!!.writeIntent(intent)
@@ -99,22 +93,21 @@ class UIState(application: Application) : AndroidViewModel(application) {
   }
 
   fun toggleLocked() {
-    locked = !locked
-    if (!locked) {
-      mLockBusy = false
+    isLocked.update(!isLocked.nonNullValue)
+    if (!isLocked.nonNullValue) {
+      interactedWhileLocked.update(false)
     }
-    notifyLockListeners(LockEvent.TOGGLE)
   }
 
-  var lockBusy: Boolean
-    get() = mLockBusy
-    set(busy) {
-      if (!locked) throw AssertionError("Expected mLocked")
-      if (mLockBusy != busy) {
-        mLockBusy = busy
-        notifyLockListeners(LockEvent.BUSY)
-      }
+  fun setInteractedWhileLocked(interacted: Boolean) {
+    if (interacted) {
+      check(isLocked.nonNullValue) { "Expected isLocked" }
     }
+    if (interactedWhileLocked.nonNullValue != interacted) {
+      interactedWhileLocked.update(interacted)
+    }
+  }
+
   val phonon: Phonon?
     get() = if (mActivePos.pos == -1) {
       mScratchPhonon
@@ -186,16 +179,6 @@ class UIState(application: Application) : AndroidViewModel(application) {
         mDirty = true
       }
     }
-
-  // This interface is for receiving a callback when the state
-  // of the Input Lock has changed.
-  fun interface LockListener {
-    fun onLockStateChange(e: LockEvent)
-    enum class LockEvent {
-      TOGGLE,
-      BUSY
-    }
-  }
 
   companion object {
     const val MAX_VOLUME = 100
