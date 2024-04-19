@@ -22,7 +22,6 @@ import com.chimbori.catnap.NoiseService.PercentListener
 import com.chimbori.catnap.databinding.ActivityMainBinding
 import com.chimbori.catnap.utils.nonNullValue
 import com.google.android.material.color.DynamicColors
-import java.util.Date
 
 class MainActivity : AppCompatActivity() {
   private lateinit var binding: ActivityMainBinding
@@ -31,13 +30,11 @@ class MainActivity : AppCompatActivity() {
   private val navFragment by lazy { supportFragmentManager.findFragmentById(R.id.main_nav_host_container) as NavHostFragment }
   private val navController by lazy { navFragment.navController }
 
-  private val noisePercentListener = object : PercentListener {
-    override fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int) {
-      val newServiceActive = percent >= 0
-      if (mServiceActive != newServiceActive) {
-        mServiceActive = newServiceActive
-        supportInvalidateOptionsMenu()  // Redraw the "Play/Stop" button.
-      }
+  private val noisePercentListener = PercentListener { percent, _, _ ->
+    val newServiceActive = percent >= 0
+    if (mServiceActive != newServiceActive) {
+      mServiceActive = newServiceActive
+      supportInvalidateOptionsMenu()  // Redraw the "Play/Stop" button.
     }
   }
 

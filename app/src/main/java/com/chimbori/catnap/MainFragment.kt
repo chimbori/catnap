@@ -13,44 +13,11 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import java.text.DateFormat
 import java.util.Date
 
-class MainFragment : Fragment(R.layout.fragment_main), PercentListener {
+class MainFragment : Fragment(R.layout.fragment_main) {
   private val binding by viewBinding(FragmentMainBinding::bind)
   private val mUiState: UIState by activityViewModels()
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.fragmentMainEqualizer.apply {
-      addBarChangedListener { band, value ->
-        mUiState.phononMutable!!.setBar(band, value)
-      }
-      addInteractedWhileLockedListener { interacted ->
-        mUiState.setInteractedWhileLocked(interacted)
-      }
-      addInteractionCompleteListener {
-        mUiState.restartServiceIfRequired()
-      }
-      phonon = mUiState.phonon
-      isLocked = mUiState.isLocked.nonNullValue
-    }
-
-    mUiState.isLocked.observe(viewLifecycleOwner) { isLocked ->
-      binding.fragmentMainEqualizer.isLocked = isLocked
-    }
-  }
-
-  override fun onResume() {
-    super.onResume()
-    // Start receiving progress events.
-    NoiseService.addPercentListener(this)
-  }
-
-  override fun onPause() {
-    super.onPause()
-    // Stop receiving progress events.
-    NoiseService.removePercentListener(this)
-  }
-
-  override fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int) {
+  private val noisePercentListener = PercentListener { percent, stopTimestamp, stopReasonId ->
     var showGenerating = false
     var showStopReason = false
     if (percent < 0) {
@@ -81,5 +48,36 @@ class MainFragment : Fragment(R.layout.fragment_main), PercentListener {
     } else {
       binding.fragmentMainState.text = ""
     }
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    binding.fragmentMainEqualizer.apply {
+      addBarChangedListener { band, value ->
+        mUiState.phononMutable!!.setBar(band, value)
+      }
+      addInteractedWhileLockedListener { interacted ->
+        mUiState.setInteractedWhileLocked(interacted)
+      }
+      addInteractionCompleteListener {
+        mUiState.restartServiceIfRequired()
+      }
+      phonon = mUiState.phonon
+      isLocked = mUiState.isLocked.nonNullValue
+    }
+
+    mUiState.isLocked.observe(viewLifecycleOwner) { isLocked ->
+      binding.fragmentMainEqualizer.isLocked = isLocked
+    }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    NoiseService.addPercentListener(noisePercentListener)
+  }
+
+  override fun onPause() {
+    super.onPause()
+    NoiseService.removePercentListener(noisePercentListener)
   }
 }

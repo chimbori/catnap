@@ -22,8 +22,8 @@
   <string name="reduce_volume">Reduce Volume</string>
   <string name="amplitude_wave">Amplitude Wave</string>
 
-  <string name="channel_name">Default</string>
-  <string name="channel_description">This notification appears when Catnap is generating noise</string>
+  <string name="channel_name">Noise Generation Active</string>
+  <string name="channel_description">Notifies when Catnap is generating noise</string>
 
   <string name="stop_reason_autoplay">Stopped by auto-play option</string>
   <string name="stop_reason_audiofocus">Lost audio focus</string>

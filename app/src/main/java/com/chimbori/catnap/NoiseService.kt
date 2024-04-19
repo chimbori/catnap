@@ -7,73 +7,78 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ServiceInfo
-import android.os.Build
+import android.content.Intent.ACTION_MAIN
+import android.content.Intent.CATEGORY_LAUNCHER
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.Q
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Parcelable
 import android.os.PowerManager
-import android.os.PowerManager.WakeLock
+import android.os.PowerManager.PARTIAL_WAKE_LOCK
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.NotificationManagerCompat.IMPORTANCE_LOW
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleService
 import java.util.Date
 
 class NoiseService : Service() {
+  private val wakeLock by lazy {
+    (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(PARTIAL_WAKE_LOCK, "catnap:NoiseService")
+  }
+
   private var mSampleShuffler: SampleShuffler? = null
   private var mSampleGenerator: SampleGenerator? = null
   private var mAudioFocusHelper: AudioFocusHelper? = null
-  private var mWakeLock: WakeLock? = null
   private var lastStartId = -1
   private var mPercentHandler: Handler? = null
 
   override fun onCreate() {
+    super.onCreate()
+
     // Set up a message handler in the main thread.
     mPercentHandler = PercentHandler()
     val params = AudioParams()
     mSampleShuffler = SampleShuffler(params)
     mSampleGenerator = SampleGenerator(this, params, mSampleShuffler!!)
-    val pm = getSystemService(POWER_SERVICE) as PowerManager
-    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "catnap:NoiseService")
-    mWakeLock!!.acquire()
-    val name: CharSequence = getString(R.string.channel_name)
-    val description = getString(R.string.channel_description)
-    val importance = NotificationManagerCompat.IMPORTANCE_LOW
+
+    // TODO: Set a timeout for the WakeLock.
+    wakeLock.acquire()
+
     NotificationManagerCompat.from(this).createNotificationChannel(
-      NotificationChannelCompat.Builder(CHANNEL_ID, importance)
-        .setName(name)
-        .setDescription(description)
+      NotificationChannelCompat.Builder(CHANNEL_ID, IMPORTANCE_LOW)
+        .setName(getString(R.string.channel_name))
+        .setDescription(getString(R.string.channel_description))
         .build()
     )
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-      startForeground(NOTIFY_ID, makeNotify(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+    if (SDK_INT >= Q) {
+      startForeground(NOTIFY_ID, makeNotify(), FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
     } else {
       startForeground(NOTIFY_ID, makeNotify())
     }
 
     // Note: This leaks memory if I use "this" instead of "getApplicationContext()".
-    mAudioFocusHelper = AudioFocusHelper(
-      applicationContext, mSampleShuffler!!.volumeListener
-    )
+    mAudioFocusHelper = AudioFocusHelper(applicationContext, mSampleShuffler!!.volumeListener)
   }
 
-  @Suppress("deprecation")
   private fun stopForegroundCompat() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      stopForeground(STOP_FOREGROUND_REMOVE)
-    } else {
-      stopForeground(true)
-    }
+    stopForeground(STOP_FOREGROUND_REMOVE)
   }
 
-  override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    super.onStartCommand(intent, flags, startId)
+
     // When multiple spectra arrive, only the latest should remain active.
     if (lastStartId >= 0) {
       stopSelf(lastStartId)
@@ -81,7 +86,7 @@ class NoiseService : Service() {
     }
 
     // Handle the Stop intent.
-    val stopReasonId = intent.getIntExtra("stopReasonId", 0)
+    val stopReasonId = intent!!.getIntExtra("stopReasonId", 0)
     if (stopReasonId != 0) {
       saveStopReason(stopReasonId)
       stopSelf(startId)
@@ -118,6 +123,8 @@ class NoiseService : Service() {
   }
 
   override fun onDestroy() {
+    super.onDestroy()
+
     if (lastStartId != -1) {
       // This condition can be triggered from adb shell:
       // $ am stopservice net.pmarks.chromadoze/.NoiseService
@@ -129,33 +136,28 @@ class NoiseService : Service() {
     updatePercent(-1)
     mAudioFocusHelper!!.setActive(false)
     stopForegroundCompat()
-    mWakeLock!!.release()
+    wakeLock!!.release()
   }
 
-  override fun onBind(intent: Intent): IBinder? {
-    // Don't use binding.
-    return null
-  }
+  override fun onBind(intent: Intent) = null
 
   // Create an icon for the notification bar.
   private fun makeNotify(): Notification {
     val b = NotificationCompat.Builder(this, CHANNEL_ID)
       .setSmallIcon(R.drawable.power_sleep)
       .setWhen(0)
-      .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+      .setVisibility(VISIBILITY_PUBLIC)
       .setContentIntent(
         PendingIntent.getActivity(
-          this,
-          0,
+          this, 0,
           Intent(this, MainActivity::class.java)
-            .setAction(Intent.ACTION_MAIN)
-            .addCategory(Intent.CATEGORY_LAUNCHER),
+            .setAction(ACTION_MAIN)
+            .addCategory(CATEGORY_LAUNCHER),
           FLAG_IMMUTABLE
         )
       )
-    val rv = RemoteViews(
-      packageName, R.layout.notification_with_stop_button
-    )
+
+    val rv = RemoteViews(packageName, R.layout.notification_with_stop_button)
     rv.setOnClickPendingIntent(
       R.id.stop_button, PendingIntent.getService(
         this, 0, createStopIntent(R.string.stop_reason_notification),
@@ -184,8 +186,8 @@ class NoiseService : Service() {
     m.sendToTarget()
   }
 
-  interface PercentListener {
-    fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, stopReasonId: Int)
+  fun interface PercentListener {
+    fun onNoiseServicePercentChange(percent: Int, stopTimestamp: Date, @StringRes stopReasonId: Int)
   }
 
   private class PercentHandler : Handler(Looper.getMainLooper()) {
@@ -214,7 +216,7 @@ class NoiseService : Service() {
 
     @Suppress("deprecation")
     private fun <T : Parcelable?> getParcelableExtraCompat(intent: Intent, name: String, clazz: Class<T>): T? {
-      return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      return if (SDK_INT >= TIRAMISU) {
         intent.getParcelableExtra(name, clazz)
       } else {
         intent.getParcelableExtra(name)
@@ -224,9 +226,7 @@ class NoiseService : Service() {
     // If connected, notify the main activity of our progress.
     // This must run in the main thread.
     private fun updatePercent(percent: Int) {
-      for (listener in sPercentListeners) {
-        listener.onNoiseServicePercentChange(percent, sStopTimestamp, sStopReasonId)
-      }
+      sPercentListeners.forEach { it.onNoiseServicePercentChange(percent, sStopTimestamp, sStopReasonId) }
       sLastPercent = percent
     }
 

@@ -509,7 +509,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
     }
   }
 
-  private inner class PlaybackThread internal constructor() : Thread("SampleShufflerThread"), VolumeListener {
+  private inner class PlaybackThread() : Thread("SampleShufflerThread"), VolumeListener {
     private var mPreventStart = false
     private var mTrack: AudioTrack? = null
     private var mDuckLevel = DuckLevel.NORMAL
