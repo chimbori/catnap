@@ -7,7 +7,6 @@ import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.Service
 import android.content.Context
-import android.content.Context.AUDIO_SERVICE
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
 import android.content.Intent.CATEGORY_LAUNCHER
@@ -19,7 +18,6 @@ import android.media.AudioManager.AUDIOFOCUS_GAIN
 import android.media.AudioManager.AUDIOFOCUS_LOSS
 import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
 import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
-import android.media.AudioManager.OnAudioFocusChangeListener
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.TIRAMISU
@@ -36,22 +34,37 @@ import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
 import androidx.core.content.ContextCompat
-import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
 import com.chimbori.catnap.SampleShuffler.Companion.makeAudioAttributes
-import com.chimbori.catnap.SampleShuffler.VolumeListener
 import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.DUCK
 import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.NORMAL
 import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.SILENT
 import java.util.Date
 
 class NoiseService : Service() {
+  private val audioManager by lazy { getSystemService(AUDIO_SERVICE) as AudioManager }
+
   private val wakeLock by lazy {
     (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(PARTIAL_WAKE_LOCK, "catnap:NoiseService")
   }
 
+  private var audioFocusRequest = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
+    .setAudioAttributes(makeAudioAttributes())
+    .setOnAudioFocusChangeListener { focusChange ->
+      when (focusChange) {
+        // For example, a music player or a sleep timer stealing focus.
+        AUDIOFOCUS_LOSS -> stopNoiseService(R.string.stop_reason_audiofocus)
+        // For example, an alarm or phone call.
+        AUDIOFOCUS_LOSS_TRANSIENT -> mSampleShuffler!!.volumeListener.setDuckLevel(SILENT)
+        // For example, an email notification.
+        AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> mSampleShuffler!!.volumeListener.setDuckLevel(DUCK)
+        // Resume the default volume level.
+        AUDIOFOCUS_GAIN -> mSampleShuffler!!.volumeListener.setDuckLevel(NORMAL)
+      }
+    }
+    .build()
+
   private var mSampleShuffler: SampleShuffler? = null
   private var mSampleGenerator: SampleGenerator? = null
-  private var mAudioFocusHelper: AudioFocusHelper? = null
   private var lastStartId = -1
   private var mPercentHandler: Handler? = null
 
@@ -77,13 +90,6 @@ class NoiseService : Service() {
     } else {
       startForeground(NOTIFICATION_ID, createNotification())
     }
-
-    // Note: This leaks memory if I use "this" instead of "getApplicationContext()".
-    mAudioFocusHelper = AudioFocusHelper(applicationContext, mSampleShuffler!!.volumeListener)
-  }
-
-  private fun stopForegroundCompat() {
-    stopForeground(STOP_FOREGROUND_REMOVE)
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -114,12 +120,13 @@ class NoiseService : Service() {
       intent.getFloatExtra("minvol", -1f),
       intent.getFloatExtra("period", -1f)
     )
-    mSampleShuffler!!.volumeListener.setVolumeLevel(
-      intent.getFloatExtra("volumeLimit", -1f)
-    )
-    mAudioFocusHelper!!.setActive(
-      !intent.getBooleanExtra("ignoreAudioFocus", false)
-    )
+    mSampleShuffler!!.volumeListener.setVolumeLevel(intent.getFloatExtra("volumeLimit", -1f))
+
+    if (intent.getBooleanExtra("ignoreAudioFocus", false)) {
+      audioManager.abandonAudioFocusRequest(audioFocusRequest)
+    } else {
+      audioManager.requestAudioFocus(audioFocusRequest)
+    }
 
     // Background updates.
     mSampleGenerator!!.updateSpectrum(spectrum)
@@ -144,8 +151,10 @@ class NoiseService : Service() {
     mSampleShuffler!!.stopThread()
     mPercentHandler!!.removeMessages(PERCENT_MSG)
     updatePercent(-1)
-    mAudioFocusHelper!!.setActive(false)
-    stopForegroundCompat()
+
+    audioManager.abandonAudioFocusRequest(audioFocusRequest)
+
+    stopForeground(STOP_FOREGROUND_REMOVE)
     wakeLock!!.release()
   }
 
@@ -269,42 +278,3 @@ class NoiseService : Service() {
     }
   }
 }
-
-internal class AudioFocusHelper(private val context: Context, private val volumeListener: VolumeListener) :
-  OnAudioFocusChangeListener {
-
-  private val audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
-
-  private var isActive = false
-
-  private var request = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
-    .setAudioAttributes(makeAudioAttributes())
-    .setOnAudioFocusChangeListener(this)
-    .build()
-
-  fun setActive(active: Boolean) {
-    if (isActive == active) {
-      return
-    }
-    if (active) {
-      audioManager.requestAudioFocus(request)
-    } else {
-      audioManager.abandonAudioFocusRequest(request)
-    }
-    isActive = active
-  }
-
-  override fun onAudioFocusChange(focusChange: Int) {
-    when (focusChange) {
-      // For example, a music player or a sleep timer stealing focus.
-      AUDIOFOCUS_LOSS -> context.stopNoiseService(R.string.stop_reason_audiofocus)
-      // For example, an alarm or phone call.
-      AUDIOFOCUS_LOSS_TRANSIENT -> volumeListener.setDuckLevel(SILENT)
-      // For example, an email notification.
-      AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> volumeListener.setDuckLevel(DUCK)
-      // Resume the default volume level.
-      AUDIOFOCUS_GAIN -> volumeListener.setDuckLevel(NORMAL)
-    }
-  }
-}
-
