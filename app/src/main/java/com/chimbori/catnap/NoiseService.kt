@@ -1,6 +1,8 @@
 package com.chimbori.catnap
 
 import android.app.Notification
+import android.app.Notification.CATEGORY_SERVICE
+import android.app.Notification.MediaStyle
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
@@ -10,27 +12,23 @@ import android.content.Intent
 import android.content.Intent.ACTION_MAIN
 import android.content.Intent.CATEGORY_LAUNCHER
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+import android.graphics.BitmapFactory
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Handler
-import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Parcelable
 import android.os.PowerManager
 import android.os.PowerManager.PARTIAL_WAKE_LOCK
-import android.widget.FrameLayout
-import android.widget.RemoteViews
-import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.NotificationManagerCompat.IMPORTANCE_LOW
+import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleService
 import java.util.Date
 
 class NoiseService : Service() {
@@ -57,15 +55,15 @@ class NoiseService : Service() {
     wakeLock.acquire()
 
     NotificationManagerCompat.from(this).createNotificationChannel(
-      NotificationChannelCompat.Builder(CHANNEL_ID, IMPORTANCE_LOW)
+      NotificationChannelCompat.Builder(CHANNEL_ID, IMPORTANCE_DEFAULT)
         .setName(getString(R.string.channel_name))
         .setDescription(getString(R.string.channel_description))
         .build()
     )
     if (SDK_INT >= Q) {
-      startForeground(NOTIFY_ID, makeNotify(), FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+      startForeground(NOTIFICATION_ID, createNotification(), FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
     } else {
-      startForeground(NOTIFY_ID, makeNotify())
+      startForeground(NOTIFICATION_ID, createNotification())
     }
 
     // Note: This leaks memory if I use "this" instead of "getApplicationContext()".
@@ -141,41 +139,33 @@ class NoiseService : Service() {
 
   override fun onBind(intent: Intent) = null
 
-  // Create an icon for the notification bar.
-  private fun makeNotify(): Notification {
-    val b = NotificationCompat.Builder(this, CHANNEL_ID)
-      .setSmallIcon(R.drawable.power_sleep)
-      .setWhen(0)
-      .setVisibility(VISIBILITY_PUBLIC)
-      .setContentIntent(
+  private fun createNotification(): Notification {
+    val context = applicationContext
+    return NotificationCompat.Builder(this, CHANNEL_ID).apply {
+      setContentTitle(getString(R.string.channel_name))
+      setSmallIcon(R.drawable.power_sleep_black)
+      setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.power_sleep_black))
+      setWhen(System.currentTimeMillis())
+      setCategory(CATEGORY_SERVICE)
+      setVisibility(VISIBILITY_PUBLIC)
+      setLocalOnly(true)
+      setContentIntent(
         PendingIntent.getActivity(
-          this, 0,
-          Intent(this, MainActivity::class.java)
+          context, 0, Intent(context, MainActivity::class.java)
             .setAction(ACTION_MAIN)
             .addCategory(CATEGORY_LAUNCHER),
           FLAG_IMMUTABLE
         )
       )
-
-    val rv = RemoteViews(packageName, R.layout.notification_with_stop_button)
-    rv.setOnClickPendingIntent(
-      R.id.stop_button, PendingIntent.getService(
-        this, 0, createStopIntent(R.string.stop_reason_notification),
-        FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+      addAction(
+        NotificationCompat.Action(
+          R.drawable.stop, getString(R.string.stop), PendingIntent.getService(
+            context, 0, createStopIntent(R.string.stop_reason_notification),
+            FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+          )
+        )
       )
-    )
-
-    // Temporarily inflate the notification, to copy colors from its default style.
-    val inflated = rv.apply(this, FrameLayout(this))
-    val titleText = inflated.findViewById<TextView>(R.id.title)
-    rv.setInt(R.id.divider, "setBackgroundColor", titleText.textColors.defaultColor)
-    rv.setInt(R.id.stop_button_square, "setBackgroundColor", titleText.textColors.defaultColor)
-
-    // It would be nice if there were some way to omit the "expander affordance",
-    // but this seems good enough.
-    b.setCustomContentView(rv)
-    b.setStyle(NotificationCompat.DecoratedCustomViewStyle())
-    return b.build()
+    }.build()
   }
 
   // Call updatePercent() from any thread.
@@ -202,7 +192,7 @@ class NoiseService : Service() {
   companion object {
     private const val PERCENT_MSG = 1
     private val sPercentListeners = ArrayList<PercentListener>()
-    private const val NOTIFY_ID = 1
+    private const val NOTIFICATION_ID = 1
     private const val CHANNEL_ID = "default"
 
     // These must be accessed only from the main thread.

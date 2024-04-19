@@ -12,6 +12,7 @@
   <string name="options">Options</string>
   <string name="generating">Generating IDCT blocks</string>
   <string name="play_stop">Play/Stop</string>
+  <string name="stop">Stop</string>
   <string name="lock_unlock">Lock/Unlock Input</string>
   <string name="memory">Memory</string>
   <string name="unsaved">(unsaved)</string>
