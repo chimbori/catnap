@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
-import android.widget.CompoundButton
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.fragment.app.Fragment
@@ -14,8 +13,7 @@ import com.chimbori.catnap.UIState.Companion.MAX_VOLUME
 import com.chimbori.catnap.databinding.FragmentOptionsBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
-class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeListener,
-  CompoundButton.OnCheckedChangeListener {
+class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeListener {
   private val binding by viewBinding(FragmentOptionsBinding::bind)
   private val mUiState: UIState by activityViewModels()
 
@@ -36,12 +34,22 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
     binding.fragmentOptionsPeriodSeekbar.setOnSeekBarChangeListener(this)
 
     binding.fragmentOptionsAutoPlayCheckbox.setChecked(mUiState.autoPlay)
-    binding.fragmentOptionsAutoPlayCheckbox.setOnCheckedChangeListener(this)
+    binding.fragmentOptionsAutoPlayCheckbox.setOnCheckedChangeListener { _, isChecked ->
+      mUiState.setAutoPlay(isChecked, true)
+      mUiState.restartServiceIfRequired()
+    }
 
     binding.fragmentOptionsIgnoreAudioFocusCheckbox.setChecked(mUiState.ignoreAudioFocus)
-    binding.fragmentOptionsIgnoreAudioFocusCheckbox.setOnCheckedChangeListener(this)
+    binding.fragmentOptionsIgnoreAudioFocusCheckbox.setOnCheckedChangeListener { _, isChecked ->
+      mUiState.ignoreAudioFocus = isChecked
+      mUiState.restartServiceIfRequired()
+    }
 
-    binding.fragmentOptionsVolumeLimitCheckbox.setOnCheckedChangeListener(this)
+    binding.fragmentOptionsVolumeLimitCheckbox.setOnCheckedChangeListener { _, isChecked ->
+      mUiState.volumeLimitEnabled = isChecked
+      redrawVolumeLimit()
+      mUiState.restartServiceIfRequired()
+    }
 
     binding.fragmentOptionsMinimumVolumeSeekbar.setMax(MAX_VOLUME)
     binding.fragmentOptionsMinimumVolumeSeekbar.setOnSeekBarChangeListener(this)
@@ -65,18 +73,6 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
         phm.period = progress
         binding.fragmentOptionsPeriodText.text = phm.periodText
       }
-    }
-    mUiState.restartServiceIfRequired()
-  }
-
-  override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-    if (buttonView === binding.fragmentOptionsAutoPlayCheckbox) {
-      mUiState.setAutoPlay(isChecked, true)
-    } else if (buttonView === binding.fragmentOptionsIgnoreAudioFocusCheckbox) {
-      mUiState.ignoreAudioFocus = isChecked
-    } else if (buttonView === binding.fragmentOptionsVolumeLimitCheckbox) {
-      mUiState.volumeLimitEnabled = isChecked
-      redrawVolumeLimit()
     }
     mUiState.restartServiceIfRequired()
   }
