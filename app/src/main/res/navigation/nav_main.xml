@@ -10,9 +10,14 @@
     android:label="MainFragment"/>
 
   <fragment
-    android:id="@+id/presetsFragmentDest"
+    android:id="@+id/memoryFragmentDest"
     android:name="com.chimbori.catnap.MemoryFragment"
     android:label="MemoryFragment"/>
+
+  <fragment
+    android:id="@+id/presetsFragmentDest"
+    android:name="com.chimbori.catnap.PresetsFragment"
+    android:label="PresetsFragment"/>
 
   <fragment
     android:id="@+id/settingsFragmentDest"

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:layout_marginStart="@dimen/spacing_100"
+  android:layout_marginEnd="@dimen/spacing_100"
+  app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+  app:cardCornerRadius="@dimen/spacing_100">
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/spacing_100">
+
+    <com.chimbori.catnap.EqualizerViewLite
+      android:id="@+id/item_phonon_equalizer"
+      android:layout_width="@dimen/equalizer_width"
+      android:layout_height="@dimen/equalizer_height"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+      android:id="@+id/item_phonon_name"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      app:layout_constraintStart_toEndOf="@id/item_phonon_equalizer"
+      app:layout_constraintTop_toTopOf="parent"/>
+
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

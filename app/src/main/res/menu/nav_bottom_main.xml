@@ -8,6 +8,11 @@
   <item
     android:id="@id/presetsFragmentDest"
     android:icon="@drawable/playlist_music"
+    android:title="@string/presets"/>
+
+  <item
+    android:id="@id/memoryFragmentDest"
+    android:icon="@drawable/playlist_music"
     android:title="@string/memory"/>
 
   <item

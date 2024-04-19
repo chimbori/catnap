@@ -35,7 +35,6 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
       })
     }
 
-
     binding.fragmentOptionsPeriodText.text = ph.periodText
 
     binding.fragmentOptionsPeriodSeekbar.apply {
