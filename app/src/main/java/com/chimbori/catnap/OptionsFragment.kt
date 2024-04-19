@@ -19,44 +19,52 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-
     val ph = mUiState.phonon!!
-    binding.fragmentOptionsMinimumVolumeText.text = ph.minVolText
 
-    binding.fragmentOptionsMinimumVolumeSeekbar.progress = ph.minVol
-    binding.fragmentOptionsMinimumVolumeSeekbar.setMax(MAX_VOLUME)
-    binding.fragmentOptionsMinimumVolumeSeekbar.setOnSeekBarChangeListener(object : SimpleSeekBarChangeListener {
-      override fun onProgressChanged(progress: Int) {
-        mUiState.phononMutable!!.minVol = progress
-        binding.fragmentOptionsMinimumVolumeText.text = mUiState.phononMutable!!.minVolText
-        binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
-        mUiState.restartServiceIfRequired()
-      }
-    })
+    binding.fragmentOptionsMinimumVolumeText.text = ph.minVolText
+    binding.fragmentOptionsMinimumVolumeSeekbar.apply {
+      progress = ph.minVol
+      setMax(MAX_VOLUME)
+      setOnSeekBarChangeListener(object : SimpleSeekBarChangeListener {
+        override fun onProgressChanged(progress: Int) {
+          mUiState.phononMutable!!.minVol = progress
+          binding.fragmentOptionsMinimumVolumeText.text = mUiState.phononMutable!!.minVolText
+          binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
+          mUiState.restartServiceIfRequired()
+        }
+      })
+    }
+
 
     binding.fragmentOptionsPeriodText.text = ph.periodText
 
-    binding.fragmentOptionsPeriodSeekbar.progress = ph.period
-    binding.fragmentOptionsPeriodSeekbar.setEnabled(ph.minVol != 100)  // When the volume is at 100%, disable the period bar.
-    binding.fragmentOptionsPeriodSeekbar.setMax(PERIOD_MAX)
-    binding.fragmentOptionsPeriodSeekbar.setOnSeekBarChangeListener(object : SimpleSeekBarChangeListener {
-      override fun onProgressChanged(progress: Int) {
-        mUiState.phononMutable!!.period = progress
-        binding.fragmentOptionsPeriodText.text = mUiState.phononMutable!!.periodText
-        mUiState.restartServiceIfRequired()
-      }
-    })
-
-    binding.fragmentOptionsAutoPlayCheckbox.setChecked(mUiState.autoPlay)
-    binding.fragmentOptionsAutoPlayCheckbox.setOnCheckedChangeListener { _, isChecked ->
-      mUiState.setAutoPlay(isChecked, true)
-      mUiState.restartServiceIfRequired()
+    binding.fragmentOptionsPeriodSeekbar.apply {
+      progress = ph.period
+      setEnabled(ph.minVol != 100)  // When the volume is at 100%, disable the period bar.
+      setMax(PERIOD_MAX)
+      setOnSeekBarChangeListener(object : SimpleSeekBarChangeListener {
+        override fun onProgressChanged(progress: Int) {
+          mUiState.phononMutable!!.period = progress
+          binding.fragmentOptionsPeriodText.text = mUiState.phononMutable!!.periodText
+          mUiState.restartServiceIfRequired()
+        }
+      })
     }
 
-    binding.fragmentOptionsIgnoreAudioFocusCheckbox.setChecked(mUiState.ignoreAudioFocus)
-    binding.fragmentOptionsIgnoreAudioFocusCheckbox.setOnCheckedChangeListener { _, isChecked ->
-      mUiState.ignoreAudioFocus = isChecked
-      mUiState.restartServiceIfRequired()
+    binding.fragmentOptionsAutoPlayCheckbox.apply {
+      setChecked(mUiState.autoPlay)
+      setOnCheckedChangeListener { _, isChecked ->
+        mUiState.setAutoPlay(isChecked, true)
+        mUiState.restartServiceIfRequired()
+      }
+    }
+
+    binding.fragmentOptionsIgnoreAudioFocusCheckbox.apply {
+      setChecked(mUiState.ignoreAudioFocus)
+      setOnCheckedChangeListener { _, isChecked ->
+        mUiState.ignoreAudioFocus = isChecked
+        mUiState.restartServiceIfRequired()
+      }
     }
 
     binding.fragmentOptionsVolumeLimitCheckbox.setOnCheckedChangeListener { _, isChecked ->
@@ -71,8 +79,10 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
   private fun redrawVolumeLimit() {
     val enabled = mUiState.volumeLimitEnabled
     binding.fragmentOptionsVolumeLimitCheckbox.setChecked(enabled)
-    binding.fragmentOptionsVolumeLimitSeekbar.visibility = if (enabled) VISIBLE else INVISIBLE
-    binding.fragmentOptionsVolumeLimitSeekbar.progress = mUiState.volumeLimit
+    binding.fragmentOptionsVolumeLimitSeekbar.apply {
+      visibility = if (enabled) VISIBLE else INVISIBLE
+      progress = mUiState.volumeLimit
+    }
   }
 }
 
