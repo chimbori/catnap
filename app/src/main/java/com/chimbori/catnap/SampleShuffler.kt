@@ -3,8 +3,12 @@ package com.chimbori.catnap
 import android.media.AudioTrack
 import android.os.Build
 import android.os.Process
+import android.os.Process.THREAD_PRIORITY_AUDIO
 import android.util.Log
 import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.DUCK
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.NORMAL
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.SILENT
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.sin
@@ -26,7 +30,7 @@ occurs at the midpoint, with a result of sqrt(2), or ~1.414.
 Thus, for a 16-bit output stream in the range +/-32767, we need to keep the
 individual streams below 32767 / sqrt(2), or ~23170.
 */
-internal class SampleShuffler(private val mParams: AudioParams) {
+internal class SampleShuffler {
   private val mShuffleBag = ShuffleBag()
   private val mPlaybackThread: PlaybackThread
   private var mAudioChunks: MutableList<AudioChunk>? = null
@@ -39,7 +43,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
   private var mChunk0: ShortArray? = null
   private var mChunk1: ShortArray? = null
   private var mAlternateFuture: ShortArray? = null
-  private var mAmpWave = AmpWave(mParams, 1f, 0f)
+  private var mAmpWave = AmpWave(1f, 0f)
 
   init {
     mPlaybackThread = PlaybackThread()
@@ -63,7 +67,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
   @Synchronized
   fun setAmpWave(minVol: Float, period: Float) {
     if (mAmpWave.mMinVol != minVol || mAmpWave.mPeriod != period) {
-      mAmpWave = AmpWave(mParams, minVol, period)
+      mAmpWave = AmpWave(minVol, period)
     }
   }
 
@@ -174,7 +178,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
 
   @get:Synchronized
   private val randomChunk: ShortArray
-    private get() = mAudioChunks!!.get(mShuffleBag.next).pcmData
+    get() = mAudioChunks!!.get(mShuffleBag.next).pcmData
 
   @Synchronized
   private fun addChunk(chunk: AudioChunk) {
@@ -190,7 +194,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
         // Grab the chunk of data that would've been played if it
         // weren't for this interruption.  Later, we'll cross-fade it
         // with the new data to avoid pops.
-        val peek = ShortArray(FADE_LEN * AudioParams.SHORTS_PER_SAMPLE)
+        val peek = ShortArray(FADE_LEN * SHORTS_PER_SAMPLE)
         fillBuffer(peek)
         mAlternateFuture = peek
       }
@@ -425,7 +429,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
     }
   }
 
-  private class AmpWave(mParams: AudioParams, minVol: Float, period: Float /* seconds */) {
+  private class AmpWave(minVol: Float, period: Float /* seconds */) {
     // The minimum amplitude, from [0,1]
     val mMinVol: Float
 
@@ -459,7 +463,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
 
         // When period == 1 sec, SAMPLE_RATE iterations should cover
         // SINE_PERIOD virtual points.
-        mSpeed = (Companion.SINE_PERIOD / (period * mParams.SAMPLE_RATE)).toInt()
+        mSpeed = (Companion.SINE_PERIOD / (period * SAMPLE_RATE)).toInt()
       }
       mMinVol = minVol
       mPeriod = period
@@ -487,7 +491,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
         // Multiply by [0, 1) using integer math.
         val mult = mTweakedSine[mPos / Companion.SINE_STRETCH]
         mPos = mPos + mSpeed and Companion.SINE_PERIOD - 1
-        for (chan in 0 until AudioParams.SHORTS_PER_SAMPLE) {
+        for (chan in 0 until SHORTS_PER_SAMPLE) {
           buf[outPos] = (buf[outPos] * mult shr 15).toShort()
           outPos++
         }
@@ -512,7 +516,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
   private inner class PlaybackThread : Thread("SampleShufflerThread"), VolumeListener {
     private var mPreventStart = false
     private var mTrack: AudioTrack? = null
-    private var mDuckLevel = DuckLevel.NORMAL
+    private var mDuckLevel = NORMAL
     private var mVolumeLevel = 1f
 
     @Synchronized
@@ -525,7 +529,7 @@ internal class SampleShuffler(private val mParams: AudioParams) {
       // Perhaps it just needs a retry loop?  I have no idea if this helps at all.
       var i = 1
       while (true) {
-        mTrack = mParams.makeAudioTrack()
+        mTrack = makeAudioTrack()
         setVolumeInternal()
         try {
           mTrack!!.play()
@@ -578,31 +582,27 @@ internal class SampleShuffler(private val mParams: AudioParams) {
     }
 
     private fun setVolumeInternal() {
-      val v: Float
-      v = when (mDuckLevel) {
-        DuckLevel.SILENT -> 0f
-        DuckLevel.DUCK -> mVolumeLevel * 0.1f
-        DuckLevel.NORMAL -> mVolumeLevel
-        else -> throw IllegalArgumentException("Invalid DuckLevel: $mDuckLevel")
-      }
-      setVolumeCompat(mTrack, v)
+      setVolumeCompat(
+        mTrack, when (mDuckLevel) {
+          SILENT -> 0f
+          DUCK -> mVolumeLevel * 0.1f
+          NORMAL -> mVolumeLevel
+        }
+      )
     }
 
     override fun run() {
-      Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO)
+      Process.setThreadPriority(THREAD_PRIORITY_AUDIO)
       if (!startPlaying()) {
         return
       }
 
       // Apply a fade-in effect on startup (half-period = 1sec)
-      var fadeIn: AmpWave? = AmpWave(mParams, 0f, 2f)
+      var fadeIn: AmpWave? = AmpWave(0f, 2f)
 
       // Aim to write half of the AudioTrack's buffer per iteration,
       // but FADE_LEN is the bare minimum to avoid errors.
-      val buf = ShortArray(
-        max(mParams.BUF_SAMPLES / 2, FADE_LEN) *
-            AudioParams.SHORTS_PER_SAMPLE
-      )
+      val buf = ShortArray(max(BUF_SAMPLES / 2, FADE_LEN) * SHORTS_PER_SAMPLE)
       var oldAmpWave: AmpWave? = null
       var result: Int
       do {

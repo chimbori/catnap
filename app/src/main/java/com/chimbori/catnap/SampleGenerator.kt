@@ -4,10 +4,7 @@ import android.os.Process
 import android.os.SystemClock
 import org.jtransforms.dct.FloatDCT_1D
 
-internal class SampleGenerator(
-  private val mNoiseService: NoiseService, private val mParams: AudioParams,
-  private val mSampleShuffler: SampleShuffler
-) {
+internal class SampleGenerator(private val mNoiseService: NoiseService, private val mSampleShuffler: SampleShuffler) {
   private val mWorkerThread: Thread
   private val mRandom = XORShiftRandom() // Not thread safe.
 
@@ -83,7 +80,7 @@ internal class SampleGenerator(
       // Avoid burning the CPU while the user is scrubbing.  For the
       // first couple large chunks, the next chunk should be ready
       // when this one is ~75% finished playing.
-      val sleepTargetMs = state.getSleepTargetMs(mParams.SAMPLE_RATE)
+      val sleepTargetMs = state.getSleepTargetMs(SAMPLE_RATE)
       val elapsedMs = SystemClock.elapsedRealtime() - startMs
       waitMs = sleepTargetMs - elapsedMs
       if (waitMs < 0) waitMs = 0
@@ -127,7 +124,7 @@ internal class SampleGenerator(
       mLastDctSize = dctSize
     }
     val dctData = FloatArray(dctSize)
-    spectrum!!.fill(dctData, mParams.SAMPLE_RATE)
+    spectrum!!.fill(dctData, SAMPLE_RATE)
 
     // Multiply by a block of white noise.
     var i = 0

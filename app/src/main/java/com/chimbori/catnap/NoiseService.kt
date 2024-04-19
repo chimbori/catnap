@@ -2,17 +2,24 @@ package com.chimbori.catnap
 
 import android.app.Notification
 import android.app.Notification.CATEGORY_SERVICE
-import android.app.Notification.MediaStyle
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.Service
 import android.content.Context
+import android.content.Context.AUDIO_SERVICE
 import android.content.Intent
 import android.content.Intent.ACTION_MAIN
 import android.content.Intent.CATEGORY_LAUNCHER
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.graphics.BitmapFactory
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.media.AudioManager.AUDIOFOCUS_GAIN
+import android.media.AudioManager.AUDIOFOCUS_LOSS
+import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
+import android.media.AudioManager.OnAudioFocusChangeListener
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.TIRAMISU
@@ -29,6 +36,11 @@ import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
 import androidx.core.content.ContextCompat
+import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
+import com.chimbori.catnap.SampleShuffler.VolumeListener
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.DUCK
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.NORMAL
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.SILENT
 import java.util.Date
 
 class NoiseService : Service() {
@@ -47,9 +59,8 @@ class NoiseService : Service() {
 
     // Set up a message handler in the main thread.
     mPercentHandler = PercentHandler()
-    val params = AudioParams()
-    mSampleShuffler = SampleShuffler(params)
-    mSampleGenerator = SampleGenerator(this, params, mSampleShuffler!!)
+    mSampleShuffler = SampleShuffler()
+    mSampleGenerator = SampleGenerator(this, mSampleShuffler!!)
 
     // TODO: Set a timeout for the WakeLock.
     wakeLock.acquire()
@@ -257,3 +268,42 @@ class NoiseService : Service() {
     }
   }
 }
+
+internal class AudioFocusHelper(private val context: Context, private val volumeListener: VolumeListener) :
+  OnAudioFocusChangeListener {
+
+  private val audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
+
+  private var isActive = false
+
+  private var request = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
+    .setAudioAttributes(makeAudioAttributes())
+    .setOnAudioFocusChangeListener(this)
+    .build()
+
+  fun setActive(active: Boolean) {
+    if (isActive == active) {
+      return
+    }
+    if (active) {
+      audioManager.requestAudioFocus(request)
+    } else {
+      audioManager.abandonAudioFocusRequest(request)
+    }
+    isActive = active
+  }
+
+  override fun onAudioFocusChange(focusChange: Int) {
+    when (focusChange) {
+      // For example, a music player or a sleep timer stealing focus.
+      AUDIOFOCUS_LOSS -> context.stopNoiseService(R.string.stop_reason_audiofocus)
+      // For example, an alarm or phone call.
+      AUDIOFOCUS_LOSS_TRANSIENT -> volumeListener.setDuckLevel(SILENT)
+      // For example, an email notification.
+      AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> volumeListener.setDuckLevel(DUCK)
+      // Resume the default volume level.
+      AUDIOFOCUS_GAIN -> volumeListener.setDuckLevel(NORMAL)
+    }
+  }
+}
+
