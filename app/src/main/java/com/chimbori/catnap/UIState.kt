@@ -1,15 +1,12 @@
 package com.chimbori.catnap
 
 import android.app.Application
-import android.content.Intent
 import android.content.SharedPreferences
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.chimbori.catnap.NoiseService.Companion.startNoiseService
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
-import com.chimbori.catnap.UIState.Companion.MAX_VOLUME
 import com.chimbori.catnap.utils.nonNullValue
 import com.chimbori.catnap.utils.update
 
