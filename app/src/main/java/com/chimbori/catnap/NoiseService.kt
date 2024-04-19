@@ -23,6 +23,7 @@ import androidx.annotation.StringRes
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import java.util.Date
 
 class NoiseService : Service() {
@@ -157,7 +158,7 @@ class NoiseService : Service() {
     )
     rv.setOnClickPendingIntent(
       R.id.stop_button, PendingIntent.getService(
-        this, 0, createStopIntent(this, R.string.stop_reason_notification),
+        this, 0, createStopIntent(R.string.stop_reason_notification),
         FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
       )
     )
@@ -240,12 +241,12 @@ class NoiseService : Service() {
       check(sPercentListeners.remove(listener))
     }
 
-    private fun createStopIntent(context: Context, @StringRes stopReasonId: Int) =
-      Intent(context, NoiseService::class.java).putExtra("stopReasonId", stopReasonId)
+    private fun Context.createStopIntent(@StringRes stopReasonId: Int) =
+      Intent(this, NoiseService::class.java).putExtra("stopReasonId", stopReasonId)
 
-    fun stopService(context: Context, @StringRes stopReasonId: Int) {
+    fun Context.stopNoiseService(@StringRes stopReasonId: Int) {
       try {
-        context.startService(createStopIntent(context, stopReasonId))
+        startService(createStopIntent(stopReasonId))
       } catch (e: IllegalStateException) {
         // This can be triggered by running "adb shell input keyevent 86" when the app
         // is not running. We ignore it, because in that case there's nothing to stop.
@@ -255,6 +256,14 @@ class NoiseService : Service() {
     private fun saveStopReason(stopReasonId: Int) {
       sStopTimestamp = Date()
       sStopReasonId = stopReasonId
+    }
+
+    fun Context.startNoiseService(phonon: Phonon, volumeLimit: Float, ignoreAudioFocus: Boolean) {
+      ContextCompat.startForegroundService(this, Intent(this, NoiseService::class.java).apply {
+        phonon.writeIntent(this)
+        putExtra("volumeLimit", volumeLimit)
+        putExtra("ignoreAudioFocus", ignoreAudioFocus)
+      })
     }
   }
 }

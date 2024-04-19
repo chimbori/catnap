@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
 import com.chimbori.catnap.NoiseService.PercentListener
 import com.chimbori.catnap.databinding.ActivityMainBinding
 import com.chimbori.catnap.utils.nonNullValue
@@ -75,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     // If the equalizer is silent, stop the service.
     // This makes it harder to leave running accidentally.
     if (mServiceActive && uIState.phonon!!.isSilent) {
-      NoiseService.stopService(application, R.string.stop_reason_silent)
+      stopNoiseService(R.string.stop_reason_silent)
     }
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit()
     pref.clear()
@@ -116,7 +117,6 @@ class MainActivity : AppCompatActivity() {
     }
 
   override fun onSupportNavigateUp(): Boolean {
-    // Rewind the back stack.
     supportFragmentManager.popBackStack(null, POP_BACK_STACK_INCLUSIVE)
     return true
   }
@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         if (!mServiceActive) {
           uIState.startService()
         } else {
-          NoiseService.stopService(application, R.string.stop_reason_toolbar)
+          stopNoiseService(R.string.stop_reason_toolbar)
         }
         return true
       }

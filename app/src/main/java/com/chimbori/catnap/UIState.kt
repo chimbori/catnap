@@ -7,6 +7,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.chimbori.catnap.NoiseService.Companion.startNoiseService
+import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
+import com.chimbori.catnap.UIState.Companion.MAX_VOLUME
 import com.chimbori.catnap.utils.nonNullValue
 import com.chimbori.catnap.utils.update
 
@@ -37,7 +40,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
       if (enabled) {
         startService()
       } else {
-        NoiseService.stopService(context, R.string.stop_reason_autoplay)
+        context.stopNoiseService(R.string.stop_reason_autoplay)
       }
     }
   }
@@ -88,11 +91,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
   }
 
   fun startService() {
-    ContextCompat.startForegroundService(context, Intent(context, NoiseService::class.java).apply {
-      phonon!!.writeIntent(this)
-      putExtra("volumeLimit", volumeLimit.toFloat() / MAX_VOLUME)
-      putExtra("ignoreAudioFocus", ignoreAudioFocus)
-    })
+    context.startNoiseService(phonon!!, volumeLimit.toFloat() / MAX_VOLUME, ignoreAudioFocus)
     isDirty = false
   }
 
