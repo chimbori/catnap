@@ -37,6 +37,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
 import androidx.core.content.ContextCompat
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
+import com.chimbori.catnap.SampleShuffler.Companion.makeAudioAttributes
 import com.chimbori.catnap.SampleShuffler.VolumeListener
 import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.DUCK
 import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.NORMAL
