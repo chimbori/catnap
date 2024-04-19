@@ -2,6 +2,8 @@ package com.chimbori.catnap
 
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_CANCEL_CURRENT
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -17,11 +19,10 @@ import android.os.PowerManager.WakeLock
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.chimbori.catnap.MainActivity
-import com.chimbori.catnap.SpectrumData
 import java.util.Date
 
 class NoiseService : Service() {
@@ -148,19 +149,18 @@ class NoiseService : Service() {
           Intent(this, MainActivity::class.java)
             .setAction(Intent.ACTION_MAIN)
             .addCategory(Intent.CATEGORY_LAUNCHER),
-          PendingIntent.FLAG_IMMUTABLE
+          FLAG_IMMUTABLE
         )
       )
     val rv = RemoteViews(
       packageName, R.layout.notification_with_stop_button
     )
-    val pendingIntent = PendingIntent.getService(
-      this,
-      0,
-      newStopIntent(this, R.string.stop_reason_notification),
-      PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    rv.setOnClickPendingIntent(
+      R.id.stop_button, PendingIntent.getService(
+        this, 0, createStopIntent(this, R.string.stop_reason_notification),
+        FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+      )
     )
-    rv.setOnClickPendingIntent(R.id.stop_button, pendingIntent)
 
     // Temporarily inflate the notification, to copy colors from its default style.
     val inflated = rv.apply(this, FrameLayout(this))
@@ -240,16 +240,15 @@ class NoiseService : Service() {
       check(sPercentListeners.remove(listener))
     }
 
-    private fun newStopIntent(ctx: Context, stopReasonId: Int): Intent {
-      return Intent(ctx, NoiseService::class.java).putExtra("stopReasonId", stopReasonId)
-    }
+    private fun createStopIntent(context: Context, @StringRes stopReasonId: Int) =
+      Intent(context, NoiseService::class.java).putExtra("stopReasonId", stopReasonId)
 
-    fun stopNow(ctx: Context, stopReasonId: Int) {
+    fun stopService(context: Context, @StringRes stopReasonId: Int) {
       try {
-        ctx.startService(newStopIntent(ctx, stopReasonId))
+        context.startService(createStopIntent(context, stopReasonId))
       } catch (e: IllegalStateException) {
         // This can be triggered by running "adb shell input keyevent 86" when the app
-        // is not running.  We ignore it, because in that case there's nothing to stop.
+        // is not running. We ignore it, because in that case there's nothing to stop.
       }
     }
 

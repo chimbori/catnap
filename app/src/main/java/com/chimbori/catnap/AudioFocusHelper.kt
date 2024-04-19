@@ -5,7 +5,7 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
 import android.os.Build
-import com.chimbori.catnap.NoiseService.Companion.stopNow
+import com.chimbori.catnap.NoiseService.Companion.stopService
 import com.chimbori.catnap.SampleShuffler.VolumeListener
 
 // This file keeps track of AudioFocus events.
@@ -60,7 +60,7 @@ internal class AudioFocusHelper(private val mContext: Context, private val mVolu
     override fun onAudioFocusChange(focusChange: Int) {
         when (focusChange) {
             AudioManager.AUDIOFOCUS_LOSS ->         // For example, a music player or a sleep timer stealing focus.
-                stopNow(mContext, R.string.stop_reason_audiofocus)
+                stopService(mContext, R.string.stop_reason_audiofocus)
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ->         // For example, an alarm or phone call.
                 mVolumeListener.setDuckLevel(VolumeListener.DuckLevel.SILENT)
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->         // For example, an email notification.

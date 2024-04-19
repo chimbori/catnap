@@ -66,7 +66,7 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
         binding.fragmentOptionsPeriodText.text = phm.periodText
       }
     }
-    mUiState.sendIfDirty()
+    mUiState.restartServiceIfRequired()
   }
 
   override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
@@ -78,7 +78,7 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
       mUiState.volumeLimitEnabled = isChecked
       redrawVolumeLimit()
     }
-    mUiState.sendIfDirty()
+    mUiState.restartServiceIfRequired()
   }
 
   override fun onStartTrackingTouch(seekBar: SeekBar) {}

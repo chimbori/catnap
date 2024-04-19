@@ -11,7 +11,7 @@ import com.chimbori.catnap.utils.nonNullValue
 import com.chimbori.catnap.utils.update
 
 class UIState(application: Application) : AndroidViewModel(application) {
-  private val mContext = application.applicationContext
+  private val context = application.applicationContext
 
   val isLocked: LiveData<Boolean> = MutableLiveData()
   val interactedWhileLocked: LiveData<Boolean> = MutableLiveData()
@@ -35,9 +35,9 @@ class UIState(application: Application) : AndroidViewModel(application) {
     if (fromUser) {
       // Demonstrate AutoPlay by acting like the Play/Stop button.
       if (enabled) {
-        sendToService()
+        startService()
       } else {
-        NoiseService.stopNow(mContext, R.string.stop_reason_autoplay)
+        NoiseService.stopService(context, R.string.stop_reason_autoplay)
       }
     }
   }
@@ -87,18 +87,18 @@ class UIState(application: Application) : AndroidViewModel(application) {
     mActivePos.pos = if (-1 <= active && active < mSavedPhonons!!.size) active else -1
   }
 
-  fun sendToService() {
-    val intent = Intent(mContext, NoiseService::class.java)
-    phonon!!.writeIntent(intent)
-    intent.putExtra("volumeLimit", volumeLimit.toFloat() / MAX_VOLUME)
-    intent.putExtra("ignoreAudioFocus", ignoreAudioFocus)
-    ContextCompat.startForegroundService(mContext, intent)
+  fun startService() {
+    ContextCompat.startForegroundService(context, Intent(context, NoiseService::class.java).apply {
+      phonon!!.writeIntent(this)
+      putExtra("volumeLimit", volumeLimit.toFloat() / MAX_VOLUME)
+      putExtra("ignoreAudioFocus", ignoreAudioFocus)
+    })
     isDirty = false
   }
 
-  fun sendIfDirty(): Boolean {
+  fun restartServiceIfRequired(): Boolean {
     if (isDirty || mActivePos.pos == -1 && mScratchPhonon!!.isDirty) {
-      sendToService()
+      startService()
       return true
     }
     return false
@@ -140,7 +140,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
       throw ArrayIndexOutOfBoundsException()
     }
     mActivePos.pos = index
-    sendToService()
+    startService()
   }
 
   var ignoreAudioFocus: Boolean = false

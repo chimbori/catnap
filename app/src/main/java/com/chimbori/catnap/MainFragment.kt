@@ -27,7 +27,7 @@ class MainFragment : Fragment(R.layout.fragment_main), PercentListener {
         mUiState.setInteractedWhileLocked(interacted)
       }
       addInteractionCompleteListener {
-        mUiState.sendIfDirty()
+        mUiState.restartServiceIfRequired()
       }
       phonon = mUiState.phonon
       isLocked = mUiState.isLocked.nonNullValue

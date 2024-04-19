@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     // Start receiving progress events.
     NoiseService.addPercentListener(noisePercentListener)
     if (uIState.autoPlay) {
-      uIState.sendToService()
+      uIState.startService()
     }
   }
 
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
     // If the equalizer is silent, stop the service.
     // This makes it harder to leave running accidentally.
     if (mServiceActive && uIState.phonon!!.isSilent) {
-      NoiseService.stopNow(application, R.string.stop_reason_silent)
+      NoiseService.stopService(application, R.string.stop_reason_silent)
     }
     val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit()
     pref.clear()
@@ -125,9 +125,9 @@ class MainActivity : AppCompatActivity() {
     when (item.itemId) {
       MENU_PLAY_STOP -> {  // Force the service into its expected state.
         if (!mServiceActive) {
-          uIState.sendToService()
+          uIState.startService()
         } else {
-          NoiseService.stopNow(application, R.string.stop_reason_toolbar)
+          NoiseService.stopService(application, R.string.stop_reason_toolbar)
         }
         return true
       }
