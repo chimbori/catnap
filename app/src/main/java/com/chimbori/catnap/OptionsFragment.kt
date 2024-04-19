@@ -13,7 +13,7 @@ import com.chimbori.catnap.UIState.Companion.MAX_VOLUME
 import com.chimbori.catnap.databinding.FragmentOptionsBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
-class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeListener {
+class OptionsFragment : Fragment(R.layout.fragment_options) {
   private val binding by viewBinding(FragmentOptionsBinding::bind)
   private val mUiState: UIState by activityViewModels()
 
@@ -24,14 +24,28 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
     binding.fragmentOptionsMinimumVolumeText.text = ph.minVolText
 
     binding.fragmentOptionsMinimumVolumeSeekbar.progress = ph.minVol
-    binding.fragmentOptionsMinimumVolumeSeekbar.setOnSeekBarChangeListener(this)
+    binding.fragmentOptionsMinimumVolumeSeekbar.setMax(MAX_VOLUME)
+    binding.fragmentOptionsMinimumVolumeSeekbar.setOnSeekBarChangeListener(object : SimpleSeekBarChangeListener {
+      override fun onProgressChanged(progress: Int) {
+        mUiState.phononMutable!!.minVol = progress
+        binding.fragmentOptionsMinimumVolumeText.text = mUiState.phononMutable!!.minVolText
+        binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
+        mUiState.restartServiceIfRequired()
+      }
+    })
 
     binding.fragmentOptionsPeriodText.text = ph.periodText
 
     binding.fragmentOptionsPeriodSeekbar.progress = ph.period
     binding.fragmentOptionsPeriodSeekbar.setEnabled(ph.minVol != 100)  // When the volume is at 100%, disable the period bar.
     binding.fragmentOptionsPeriodSeekbar.setMax(PERIOD_MAX)
-    binding.fragmentOptionsPeriodSeekbar.setOnSeekBarChangeListener(this)
+    binding.fragmentOptionsPeriodSeekbar.setOnSeekBarChangeListener(object : SimpleSeekBarChangeListener {
+      override fun onProgressChanged(progress: Int) {
+        mUiState.phononMutable!!.period = progress
+        binding.fragmentOptionsPeriodText.text = mUiState.phononMutable!!.periodText
+        mUiState.restartServiceIfRequired()
+      }
+    })
 
     binding.fragmentOptionsAutoPlayCheckbox.setChecked(mUiState.autoPlay)
     binding.fragmentOptionsAutoPlayCheckbox.setOnCheckedChangeListener { _, isChecked ->
@@ -51,38 +65,24 @@ class OptionsFragment : Fragment(R.layout.fragment_options), OnSeekBarChangeList
       mUiState.restartServiceIfRequired()
     }
 
-    binding.fragmentOptionsMinimumVolumeSeekbar.setMax(MAX_VOLUME)
-    binding.fragmentOptionsMinimumVolumeSeekbar.setOnSeekBarChangeListener(this)
     redrawVolumeLimit()
   }
 
-  override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-    if (!fromUser) {
-      return
-    }
-    if (seekBar === binding.fragmentOptionsVolumeLimitSeekbar) {
-      mUiState.volumeLimit = progress
-      redrawVolumeLimit()
-    } else {
-      val phm = mUiState.phononMutable!!
-      if (seekBar === binding.fragmentOptionsMinimumVolumeSeekbar) {
-        phm.minVol = progress
-        binding.fragmentOptionsMinimumVolumeText.text = phm.minVolText
-        binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
-      } else if (seekBar === binding.fragmentOptionsPeriodSeekbar) {
-        phm.period = progress
-        binding.fragmentOptionsPeriodText.text = phm.periodText
-      }
-    }
-    mUiState.restartServiceIfRequired()
-  }
-
-  override fun onStartTrackingTouch(seekBar: SeekBar) {}
-  override fun onStopTrackingTouch(seekBar: SeekBar) {}
   private fun redrawVolumeLimit() {
     val enabled = mUiState.volumeLimitEnabled
     binding.fragmentOptionsVolumeLimitCheckbox.setChecked(enabled)
     binding.fragmentOptionsVolumeLimitSeekbar.visibility = if (enabled) VISIBLE else INVISIBLE
     binding.fragmentOptionsVolumeLimitSeekbar.progress = mUiState.volumeLimit
+  }
+}
+
+private interface SimpleSeekBarChangeListener : OnSeekBarChangeListener {
+  fun onProgressChanged(progress: Int)
+  override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+  override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+  override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+    if (fromUser) {
+      onProgressChanged(progress)
+    }
   }
 }
