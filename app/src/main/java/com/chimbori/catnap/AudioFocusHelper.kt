@@ -3,71 +3,53 @@ package com.chimbori.catnap
 import android.content.Context
 import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.media.AudioManager.AUDIOFOCUS_GAIN
+import android.media.AudioManager.AUDIOFOCUS_LOSS
+import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
 import android.media.AudioManager.OnAudioFocusChangeListener
-import android.os.Build
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
 import com.chimbori.catnap.SampleShuffler.VolumeListener
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.DUCK
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.NORMAL
+import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.SILENT
 
 // This file keeps track of AudioFocus events.
 // http://developer.android.com/training/managing-audio/audio-focus.html
-internal class AudioFocusHelper(private val mContext: Context, private val mVolumeListener: VolumeListener) :
+internal class AudioFocusHelper(private val context: Context, private val volumeListener: VolumeListener) :
   OnAudioFocusChangeListener {
-  private val mAudioManager: AudioManager
-  private var mActive = false
-  private var mRequest: AudioFocusRequest? = null
 
-  init {
-    mAudioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      // For Android Oreo (API 26) and above
-      mRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-        .setAudioAttributes(AudioParams.makeAudioAttributes())
-        .setOnAudioFocusChangeListener(this)
-        .build()
-    }
-  }
+  private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+  private var isActive = false
+
+  private var request: AudioFocusRequest = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
+    .setAudioAttributes(AudioParams.makeAudioAttributes())
+    .setOnAudioFocusChangeListener(this)
+    .build()
 
   fun setActive(active: Boolean) {
-    if (mActive == active) {
+    if (isActive == active) {
       return
     }
     if (active) {
-      requestFocus()
+      audioManager.requestAudioFocus(request)
     } else {
-      abandonFocus()
+      audioManager.abandonAudioFocusRequest(request)
     }
-    mActive = active
-  }
-
-  @Suppress("deprecation")
-  private fun requestFocus() {
-    // I'm too lazy to check the return value.
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      mAudioManager.requestAudioFocus(mRequest!!)
-    } else {
-      mAudioManager.requestAudioFocus(this, AudioParams.STREAM_TYPE, AudioManager.AUDIOFOCUS_GAIN)
-    }
-  }
-
-  @Suppress("deprecation")
-  private fun abandonFocus() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      mAudioManager.abandonAudioFocusRequest(mRequest!!)
-    } else {
-      mAudioManager.abandonAudioFocus(this)
-    }
+    isActive = active
   }
 
   override fun onAudioFocusChange(focusChange: Int) {
     when (focusChange) {
-      AudioManager.AUDIOFOCUS_LOSS ->         // For example, a music player or a sleep timer stealing focus.
-        mContext.stopNoiseService(R.string.stop_reason_audiofocus)
-      AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ->         // For example, an alarm or phone call.
-        mVolumeListener.setDuckLevel(VolumeListener.DuckLevel.SILENT)
-      AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->         // For example, an email notification.
-        mVolumeListener.setDuckLevel(VolumeListener.DuckLevel.DUCK)
-      AudioManager.AUDIOFOCUS_GAIN ->         // Resume the default volume level.
-        mVolumeListener.setDuckLevel(VolumeListener.DuckLevel.NORMAL)
+      // For example, a music player or a sleep timer stealing focus.
+      AUDIOFOCUS_LOSS -> context.stopNoiseService(R.string.stop_reason_audiofocus)
+      // For example, an alarm or phone call.
+      AUDIOFOCUS_LOSS_TRANSIENT -> volumeListener.setDuckLevel(SILENT)
+      // For example, an email notification.
+      AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> volumeListener.setDuckLevel(DUCK)
+      // Resume the default volume level.
+      AUDIOFOCUS_GAIN -> volumeListener.setDuckLevel(NORMAL)
     }
   }
 }
