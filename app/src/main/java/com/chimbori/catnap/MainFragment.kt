@@ -89,13 +89,13 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     }
   }
 
-  override fun onResume() {
-    super.onResume()
+  override fun onStart() {
+    super.onStart()
     NoiseService.addPercentListener(noisePercentListener)
   }
 
-  override fun onPause() {
-    super.onPause()
+  override fun onStop() {
+    super.onStop()
     NoiseService.removePercentListener(noisePercentListener)
   }
 }
