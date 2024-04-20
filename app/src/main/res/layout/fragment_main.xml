@@ -30,13 +30,13 @@
     app:layout_constraintTop_toTopOf="parent"/>
 
   <com.google.android.material.card.MaterialCardView
-    android:layout_width="match_parent"
+    android:id="@+id/fragment_main_equalizer_container"
+    android:layout_width="0dp"
     android:layout_height="0dp"
     android:layout_margin="@dimen/spacing_100"
-    android:layout_weight="1"
     app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
     app:cardCornerRadius="@dimen/spacing_100"
-    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintBottom_toTopOf="@id/fragment_main_play_stop_button"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@id/fragment_main_state">
@@ -44,7 +44,34 @@
     <com.chimbori.catnap.EqualizerView
       android:id="@+id/fragment_main_equalizer"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+      android:layout_height="match_parent"
+      android:layout_margin="0dp"
+      android:padding="0dp"/>
+  </com.google.android.material.card.MaterialCardView>
+
+  <com.google.android.material.card.MaterialCardView
+    android:id="@+id/fragment_main_play_stop_button"
+    android:layout_width="90dp"
+    android:layout_height="90dp"
+    android:layout_marginTop="@dimen/spacing_100"
+    android:layout_marginBottom="@dimen/spacing_200"
+    android:background="?android:attr/selectableItemBackgroundBorderless"
+    android:clickable="true"
+    app:cardCornerRadius="9999dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/fragment_main_equalizer_container">
+
+    <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/fragment_main_play_stop_button_icon"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_margin="@dimen/spacing_100"
+      android:backgroundTint="?attr/colorOnPrimaryFixed"
+      android:cropToPadding="true"
+      android:src="@drawable/play"
+      android:tint="?attr/colorControlNormal"/>
 
   </com.google.android.material.card.MaterialCardView>
 

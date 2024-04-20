@@ -5,7 +5,8 @@ import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
-import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.Q
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -145,7 +146,7 @@ class MainActivity : AppCompatActivity() {
 
     @Suppress("deprecation")
     private fun setColorFilterCompat(drawable: Drawable?, color: Int, mode: PorterDuff.Mode) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      if (SDK_INT >= Q) {
         drawable!!.colorFilter = BlendModeColorFilter(color, BlendMode.valueOf(mode.name))
       } else {
         drawable!!.setColorFilter(color, mode)
