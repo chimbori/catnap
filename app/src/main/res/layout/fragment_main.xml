@@ -57,6 +57,7 @@
     android:layout_marginBottom="@dimen/spacing_200"
     android:background="?android:attr/selectableItemBackgroundBorderless"
     android:clickable="true"
+    app:cardBackgroundColor="?attr/colorPrimaryContainer"
     app:cardCornerRadius="9999dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
@@ -68,10 +69,9 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_margin="@dimen/spacing_100"
-      android:backgroundTint="?attr/colorOnPrimaryFixed"
       android:cropToPadding="true"
       android:src="@drawable/play"
-      android:tint="?attr/colorControlNormal"/>
+      android:tint="?attr/colorOnPrimaryContainer"/>
 
   </com.google.android.material.card.MaterialCardView>
 
