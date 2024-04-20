@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
+  android:layout_height="match_parent">
 
-  <LinearLayout
-    android:layout_width="match_parent"
+  <TextView
+    android:id="@+id/fragment_main_state"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/spacing_150"
-    android:layout_marginTop="@dimen/spacing_100"
+    android:text="@string/generating"
+    app:layout_constraintBottom_toBottomOf="@id/fragment_main_idct_percent"
+    app:layout_constraintEnd_toStartOf="@id/fragment_main_idct_percent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"/>
+
+  <ProgressBar
+    android:id="@+id/fragment_main_idct_percent"
+    style="?android:attr/progressBarStyleHorizontal"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/spacing_150"
     android:layout_marginEnd="@dimen/spacing_150"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
-
-    <TextView
-      android:id="@+id/fragment_main_state"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/generating"/>
-
-    <ProgressBar
-      android:id="@+id/fragment_main_idct_percent"
-      style="?android:attr/progressBarStyleHorizontal"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="@dimen/spacing_100"
-      android:layout_marginEnd="@dimen/spacing_100"
-      android:indeterminate="false"
-      android:max="100"/>
-
-  </LinearLayout>
+    android:indeterminate="false"
+    android:max="100"
+    app:layout_constraintBottom_toBottomOf="@id/fragment_main_state"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@id/fragment_main_state"
+    app:layout_constraintTop_toTopOf="parent"/>
 
   <com.google.android.material.card.MaterialCardView
     android:layout_width="match_parent"
@@ -38,7 +35,11 @@
     android:layout_margin="@dimen/spacing_100"
     android:layout_weight="1"
     app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
-    app:cardCornerRadius="@dimen/spacing_100">
+    app:cardCornerRadius="@dimen/spacing_100"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/fragment_main_state">
 
     <com.chimbori.catnap.EqualizerView
       android:id="@+id/fragment_main_equalizer"
@@ -47,4 +48,4 @@
 
   </com.google.android.material.card.MaterialCardView>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
