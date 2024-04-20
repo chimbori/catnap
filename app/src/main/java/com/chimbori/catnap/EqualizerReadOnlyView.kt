@@ -18,7 +18,7 @@ import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
 
-class EqualizerViewLite(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
+class EqualizerReadOnlyView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
   private var barWidth = 0f
   private var canvasBitmap: Bitmap? = null
 
@@ -62,11 +62,7 @@ class EqualizerViewLite(context: Context?, attrs: AttributeSet?) : View(context,
     val spectrumOverlay = BitmapFactory.decodeResource(resources, R.drawable.spectrum)
     val src = Rect(0, 0, spectrumOverlay.getWidth(), spectrumOverlay.getHeight())
     val dst = Rect(0, 0, bitmap.getWidth(), bitmap.getHeight())
-
-    val alphaPaint = Paint()
-    alphaPaint.setXfermode(PorterDuffXfermode(SRC_IN))
-    canvas.drawBitmap(spectrumOverlay, src, dst, alphaPaint)
-
+    canvas.drawBitmap(spectrumOverlay, src, dst, Paint().apply { xfermode = PorterDuffXfermode(SRC_IN) })
     return bitmap
   }
 
