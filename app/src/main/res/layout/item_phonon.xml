@@ -4,19 +4,22 @@
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:layout_marginStart="@dimen/spacing_100"
+  android:layout_marginTop="@dimen/spacing_50"
   android:layout_marginEnd="@dimen/spacing_100"
+  android:layout_marginBottom="@dimen/spacing_50"
   app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
   app:cardCornerRadius="@dimen/spacing_100">
 
   <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/spacing_100">
+    android:padding="@dimen/spacing_50">
 
     <com.chimbori.catnap.EqualizerReadOnlyView
       android:id="@+id/item_phonon_equalizer"
       android:layout_width="@dimen/equalizer_width"
       android:layout_height="@dimen/equalizer_height"
+      android:layout_marginStart="@dimen/spacing_100"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"/>
