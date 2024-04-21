@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
@@ -83,9 +84,16 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         context?.stopNoiseService(R.string.stop_reason_toolbar)
       }
     }
+    binding.fragmentMainLockButton.setOnClickListener {
+      mUiState.toggleLocked()
+    }
 
     mUiState.isLocked.observe(viewLifecycleOwner) { isLocked ->
       binding.fragmentMainEqualizer.isLocked = isLocked
+      binding.fragmentMainLockButtonIcon.setImageResource(if (mUiState.isLocked.nonNullValue) R.drawable.lock else R.drawable.lock_open)
+    }
+    mUiState.interactedWhileLocked.observe(viewLifecycleOwner) {
+      binding.fragmentMainLockStatus.isVisible = it
     }
   }
 

@@ -49,6 +49,40 @@
       android:padding="0dp"/>
   </com.google.android.material.card.MaterialCardView>
 
+  <androidx.appcompat.widget.AppCompatImageView
+    android:id="@+id/fragment_main_lock_status"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/spacing_200"
+    android:src="@drawable/lock"
+    android:tint="?attr/colorOnPrimaryContainer"
+    app:layout_constraintEnd_toEndOf="@id/fragment_main_equalizer_container"
+    app:layout_constraintStart_toStartOf="@id/fragment_main_equalizer_container"
+    app:layout_constraintTop_toTopOf="@id/fragment_main_equalizer_container"/>
+
+  <com.google.android.material.card.MaterialCardView
+    android:id="@+id/fragment_main_lock_button"
+    android:layout_width="60dp"
+    android:layout_height="60dp"
+    android:background="?android:attr/selectableItemBackgroundBorderless"
+    android:clickable="true"
+    app:cardBackgroundColor="?attr/colorPrimaryContainer"
+    app:cardCornerRadius="9999dp"
+    app:layout_constraintBottom_toBottomOf="@id/fragment_main_play_stop_button"
+    app:layout_constraintEnd_toStartOf="@id/fragment_main_play_stop_button"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@id/fragment_main_play_stop_button">
+
+    <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/fragment_main_lock_button_icon"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_margin="@dimen/spacing_100"
+      android:cropToPadding="true"
+      android:src="@drawable/lock"
+      android:tint="?attr/colorOnPrimaryContainer"/>
+  </com.google.android.material.card.MaterialCardView>
+
   <com.google.android.material.card.MaterialCardView
     android:id="@+id/fragment_main_play_stop_button"
     android:layout_width="90dp"
@@ -72,7 +106,6 @@
       android:cropToPadding="true"
       android:src="@drawable/play"
       android:tint="?attr/colorOnPrimaryContainer"/>
-
   </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
