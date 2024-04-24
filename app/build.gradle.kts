@@ -35,7 +35,6 @@ android {
 
 dependencies {
   implementation(project(":core"))
-  implementation(project(":dslv"))
   implementation(project(":jtransforms"))
 
   implementation(libs.androidx.appcompat)
