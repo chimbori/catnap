@@ -8,7 +8,7 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.chimbori.catnap.PhononMutable.Companion.PERIOD_MAX
+import com.chimbori.catnap.Phonon.Companion.PERIOD_MAX
 import com.chimbori.catnap.UIState.Companion.MAX_VOLUME
 import com.chimbori.catnap.databinding.FragmentOptionsBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding

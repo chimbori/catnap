@@ -22,7 +22,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
   }
 
   val mActivePos = TrackedPosition()
-  var mScratchPhonon: PhononMutable? = null
+  var mScratchPhonon: Phonon? = null
   var mSavedPhonons: ArrayList<Phonon>? = null
 
   private var isDirty = false
@@ -63,7 +63,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
     volumeLimitEnabled = volumeLimit != MAX_VOLUME
 
     // Load the scratch phonon.
-    mScratchPhonon = PhononMutable()
+    mScratchPhonon = Phonon()
     if (mScratchPhonon!!.loadFromJSON(pref.getString("phononS", null))) {
       //
     } else if (mScratchPhonon!!.loadFromLegacyPrefs(pref)) {
@@ -75,7 +75,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
     // Load the saved phonons.
     mSavedPhonons = ArrayList()
     for (i in 0 until TrackedPosition.NOWHERE) {
-      val phm = PhononMutable()
+      val phm = Phonon()
       if (!phm.loadFromJSON(pref.getString("phonon$i", null))) {
         break
       }
@@ -119,15 +119,17 @@ class UIState(application: Application) : AndroidViewModel(application) {
   val phonon: Phonon?
     get() = if (mActivePos.pos == -1) {
       mScratchPhonon
-    } else mSavedPhonons!![mActivePos.pos]
+    } else {
+      mSavedPhonons!![mActivePos.pos]
+    }
 
-  val phononMutable: PhononMutable?
-    get() {
-      if (mActivePos.pos != -1) {
-        mScratchPhonon = mSavedPhonons!![mActivePos.pos].makeMutableCopy()
-        mActivePos.pos = -1
-      }
-      return mScratchPhonon
+  val phononMutable: Phonon?
+    get() = if (mActivePos.pos == -1) {
+      mScratchPhonon
+    } else {
+      mScratchPhonon = mSavedPhonons!![mActivePos.pos].makeMutableCopy()
+      mActivePos.pos = -1
+      mScratchPhonon
     }
 
   // -1 or 0..n
@@ -171,5 +173,8 @@ class UIState(application: Application) : AndroidViewModel(application) {
 
   companion object {
     const val MAX_VOLUME = 100
+
+    /** The name to use when accessing our SharedPreferences. */
+    const val PREF_NAME = "app"
   }
 }
