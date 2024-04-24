@@ -16,14 +16,15 @@ import org.json.JSONObject
 // - Convert to SpectrumData for playback.
 // - Get and set sound-related values.
 class Phonon {
-  private val mBars = ShortArray(SpectrumData.BAND_COUNT)
+  private val mBars = ShortArray(BAND_COUNT)
+
   private var mMinVol = 100
   private var mPeriod = 18 // Maps to 1 second
   var isDirty = true
     private set
   private var mHash = 0
   fun resetToDefault() {
-    for (i in 0 until SpectrumData.BAND_COUNT) {
+    for (i in 0 until BAND_COUNT) {
       setBar(i, .5f)
     }
     mMinVol = 100
@@ -36,7 +37,7 @@ class Phonon {
     if (pref.getFloat("barHeight0", -1f) < 0) {
       return false
     }
-    for (i in 0 until SpectrumData.BAND_COUNT) {
+    for (i in 0 until BAND_COUNT) {
       setBar(i, pref.getFloat("barHeight$i", .5f))
     }
     minVol = pref.getInt("minVol", 100)
@@ -54,7 +55,7 @@ class Phonon {
       minVol = j.getInt("minvol")
       period = j.getInt("period")
       val jBars = j.getJSONArray("bars")
-      for (i in 0 until SpectrumData.BAND_COUNT) {
+      for (i in 0 until BAND_COUNT) {
         val b = jBars.getInt(i)
         if (!(0 <= b && b <= BAR_MAX)) {
           return false
@@ -110,8 +111,8 @@ class Phonon {
 
   private val allBars: FloatArray
     get() {
-      val out = FloatArray(SpectrumData.BAND_COUNT)
-      for (i in 0 until SpectrumData.BAND_COUNT) {
+      val out = FloatArray(BAND_COUNT)
+      for (i in 0 until BAND_COUNT) {
         out[i] = getBar(i)
       }
       return out
@@ -120,7 +121,7 @@ class Phonon {
   val isSilent: Boolean
     // Return true if all equalizer bars are set to zero.
     get() {
-      for (i in 0 until SpectrumData.BAND_COUNT) {
+      for (i in 0 until BAND_COUNT) {
         if (mBars[i] > 0) {
           return false
         }
@@ -197,7 +198,7 @@ class Phonon {
   fun makeMutableCopy(): Phonon {
     check(!isDirty)
     val c = Phonon()
-    System.arraycopy(mBars, 0, c.mBars, 0, SpectrumData.BAND_COUNT)
+    System.arraycopy(mBars, 0, c.mBars, 0, BAND_COUNT)
     c.mMinVol = mMinVol
     c.mPeriod = mPeriod
     c.mHash = mHash
@@ -236,3 +237,6 @@ class Phonon {
     private const val BAR_MAX: Short = 1023
   }
 }
+
+const val BAND_COUNT = 32
+

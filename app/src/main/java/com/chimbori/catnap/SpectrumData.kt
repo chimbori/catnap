@@ -79,7 +79,6 @@ class SpectrumData : Parcelable {
         return arrayOfNulls(size)
       }
     }
-    const val BAND_COUNT = 32
     private const val MIN_FREQ = 100f
     private const val MAX_FREQ = 20000f
 

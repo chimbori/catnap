@@ -241,8 +241,6 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   }
 
   companion object {
-    private const val BAND_COUNT = SpectrumData.BAND_COUNT
-
     // 3D projection offsets (multiple of mBarWidth)
     private const val PROJECT_X = 0.4f
     private const val PROJECT_Y = -0.25f

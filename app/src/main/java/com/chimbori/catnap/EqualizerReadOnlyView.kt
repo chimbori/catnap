@@ -87,8 +87,4 @@ class EqualizerReadOnlyView(context: Context?, attrs: AttributeSet?) : View(cont
     canvasBitmap = null
     invalidate()
   }
-
-  companion object {
-    private const val BAND_COUNT = SpectrumData.BAND_COUNT
-  }
 }
