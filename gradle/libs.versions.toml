@@ -1,0 +1,24 @@
+[versions]
+compileSdk = "34"
+minSdk = "28"
+targetSdk = "34"
+
+kotlin = "1.9.23"
+ksp = "1.9.22-1.0.17"
+coroutines = "1.7.3"
+gradle-plugin = "8.3.1"
+
+androidx-navigation = "2.7.7"
+
+[libraries]
+# buildscript.dependencies
+android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "gradle-plugin" }
+kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+# dependencies
+androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
+androidx-core-ktx = "androidx.core:core-ktx:1.12.0"
+androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "androidx-navigation" }
+androidx-navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "androidx-navigation" }
+material = "com.google.android.material:material:1.11.0"
+viewgenesis = "com.github.chimbori:viewgenesis:3.1.1"
