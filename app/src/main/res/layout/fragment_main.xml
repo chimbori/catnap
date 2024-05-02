@@ -108,4 +108,27 @@
       android:tint="?attr/colorOnPrimaryContainer"/>
   </com.google.android.material.card.MaterialCardView>
 
+  <com.google.android.material.card.MaterialCardView
+    android:id="@+id/fragment_main_save_button"
+    android:layout_width="@dimen/button_small"
+    android:layout_height="@dimen/button_small"
+    android:background="?android:attr/selectableItemBackgroundBorderless"
+    android:clickable="true"
+    app:cardBackgroundColor="?attr/colorPrimaryContainer"
+    app:cardCornerRadius="9999dp"
+    app:layout_constraintBottom_toBottomOf="@id/fragment_main_play_stop_button"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@id/fragment_main_play_stop_button"
+    app:layout_constraintTop_toTopOf="@id/fragment_main_play_stop_button">
+
+    <androidx.appcompat.widget.AppCompatImageView
+      android:id="@+id/fragment_main_save_button_icon"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_margin="@dimen/spacing_100"
+      android:cropToPadding="true"
+      android:src="@drawable/content_save"
+      android:tint="?attr/colorOnPrimaryContainer"/>
+  </com.google.android.material.card.MaterialCardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
