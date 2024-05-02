@@ -109,24 +109,13 @@ class Phonon {
     return mBars[band] / BAR_MAX.toFloat()
   }
 
-  private val allBars: FloatArray
+  private val allBars: List<Float>
     get() {
-      val out = FloatArray(BAND_COUNT)
+      val out = mutableListOf<Float>()
       for (i in 0 until BAND_COUNT) {
-        out[i] = getBar(i)
+        out.add(getBar(i))
       }
       return out
-    }
-
-  val isSilent: Boolean
-    // Return true if all equalizer bars are set to zero.
-    get() {
-      for (i in 0 until BAND_COUNT) {
-        if (mBars[i] > 0) {
-          return false
-        }
-      }
-      return true
     }
 
   var minVol: Int
