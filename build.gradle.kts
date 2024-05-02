@@ -9,6 +9,10 @@ buildscript {
   }
 }
 
+plugins {
+  alias(libs.plugins.kotlin.serialization)
+}
+
 allprojects {
   repositories {
     google()

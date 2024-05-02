@@ -3,6 +3,7 @@ import org.gradle.api.JavaVersion.VERSION_1_8
 plugins {
   id("com.android.application")
   id("kotlin-android")
+  kotlin("plugin.serialization")
 }
 
 android {
@@ -41,6 +42,7 @@ dependencies {
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.navigation.fragment)
   implementation(libs.androidx.navigation.ui)
-  implementation(libs.viewgenesis)
+  implementation(libs.kotlinx.serialization.json)
   implementation(libs.material)
+  implementation(libs.viewgenesis)
 }
