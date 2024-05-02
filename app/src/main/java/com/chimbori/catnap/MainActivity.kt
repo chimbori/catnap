@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.chimbori.catnap.UIState.Companion.PREF_NAME
@@ -40,11 +41,10 @@ class MainActivity : AppCompatActivity() {
 
   override fun onPause() {
     super.onPause()
-
-    val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit()
-    pref.clear()
-    uIState.saveState(pref)
-    pref.commit()
+    getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit {
+      clear()
+      uIState.saveState(this)
+    }
     BackupManager(this).dataChanged()
   }
 }
