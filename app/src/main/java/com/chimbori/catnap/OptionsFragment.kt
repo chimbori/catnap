@@ -25,13 +25,11 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
     binding.fragmentOptionsMinimumVolumeSeekbar.apply {
       progress = ph.minVol
       setMax(MAX_VOLUME)
-      setOnSeekBarChangeListener(object : SimpleSeekBarChangeListener {
-        override fun onProgressChanged(progress: Int) {
-          mUiState.phononMutable!!.minVol = progress
-          binding.fragmentOptionsMinimumVolumeText.text = mUiState.phononMutable!!.minVolText
-          binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
-          mUiState.restartServiceIfRequired()
-        }
+      setOnSeekBarChangeListener(SimpleSeekBarChangeListener { progress ->
+        mUiState.phononMutable!!.minVol = progress
+        binding.fragmentOptionsMinimumVolumeText.text = mUiState.phononMutable!!.minVolText
+        binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
+        mUiState.restartServiceIfRequired()
       })
     }
 
@@ -41,12 +39,10 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
       progress = ph.period
       setEnabled(ph.minVol != 100)  // When the volume is at 100%, disable the period bar.
       setMax(PERIOD_MAX)
-      setOnSeekBarChangeListener(object : SimpleSeekBarChangeListener {
-        override fun onProgressChanged(progress: Int) {
-          mUiState.phononMutable!!.period = progress
-          binding.fragmentOptionsPeriodText.text = mUiState.phononMutable!!.periodText
-          mUiState.restartServiceIfRequired()
-        }
+      setOnSeekBarChangeListener(SimpleSeekBarChangeListener { progress ->
+        mUiState.phononMutable!!.period = progress
+        binding.fragmentOptionsPeriodText.text = mUiState.phononMutable!!.periodText
+        mUiState.restartServiceIfRequired()
       })
     }
 
@@ -85,7 +81,7 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
   }
 }
 
-private interface SimpleSeekBarChangeListener : OnSeekBarChangeListener {
+private fun interface SimpleSeekBarChangeListener : OnSeekBarChangeListener {
   fun onProgressChanged(progress: Int)
   override fun onStartTrackingTouch(seekBar: SeekBar?) {}
   override fun onStopTrackingTouch(seekBar: SeekBar?) {}
