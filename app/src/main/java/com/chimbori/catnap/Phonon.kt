@@ -32,20 +32,6 @@ class Phonon {
     cleanMe()
   }
 
-  // Load data from <= Chroma Doze 2.2.
-  fun loadFromLegacyPrefs(pref: SharedPreferences): Boolean {
-    if (pref.getFloat("barHeight0", -1f) < 0) {
-      return false
-    }
-    for (i in 0 until BAND_COUNT) {
-      setBar(i, pref.getFloat("barHeight$i", .5f))
-    }
-    minVol = pref.getInt("minVol", 100)
-    period = pref.getInt("period", 18)
-    cleanMe()
-    return true
-  }
-
   fun loadFromJSON(jsonString: String?): Boolean {
     if (jsonString == null) {
       return false

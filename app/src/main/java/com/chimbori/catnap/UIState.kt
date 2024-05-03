@@ -66,8 +66,6 @@ class UIState(application: Application) : AndroidViewModel(application) {
     mScratchPhonon = Phonon()
     if (mScratchPhonon!!.loadFromJSON(pref.getString("phononS", null))) {
       //
-    } else if (mScratchPhonon!!.loadFromLegacyPrefs(pref)) {
-      //
     } else {
       mScratchPhonon!!.resetToDefault()
     }
