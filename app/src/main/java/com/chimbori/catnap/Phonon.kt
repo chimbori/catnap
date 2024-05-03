@@ -134,9 +134,6 @@ class Phonon {
       }
     }
 
-  val minVolText: String
-    get() = "$mMinVol%"
-
   var period: Int
     // This gets the slider position.
     get() = mPeriod
@@ -227,5 +224,6 @@ class Phonon {
   }
 }
 
-const val BAND_COUNT = 32
+fun Int.asPercent() = "$this%"
 
+const val BAND_COUNT = 32

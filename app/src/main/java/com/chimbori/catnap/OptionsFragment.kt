@@ -21,13 +21,13 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
     super.onViewCreated(view, savedInstanceState)
     val ph = mUiState.phonon!!
 
-    binding.fragmentOptionsMinimumVolumeText.text = ph.minVolText
+    binding.fragmentOptionsMinimumVolumeText.text = ph.minVol.asPercent()
     binding.fragmentOptionsMinimumVolumeSeekbar.apply {
       progress = ph.minVol
       setMax(MAX_VOLUME)
       setOnSeekBarChangeListener(SimpleSeekBarChangeListener { progress ->
         mUiState.phononMutable!!.minVol = progress
-        binding.fragmentOptionsMinimumVolumeText.text = mUiState.phononMutable!!.minVolText
+        binding.fragmentOptionsMinimumVolumeText.text = mUiState.phononMutable!!.minVol.asPercent()
         binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
         mUiState.restartServiceIfRequired()
       })
