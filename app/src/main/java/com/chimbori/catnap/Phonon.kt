@@ -1,7 +1,6 @@
 package com.chimbori.catnap
 
 import android.content.Intent
-import android.content.SharedPreferences
 import java.util.Locale
 import org.json.JSONArray
 import org.json.JSONException
@@ -18,17 +17,17 @@ import org.json.JSONObject
 class Phonon {
   private val mBars = ShortArray(BAND_COUNT)
 
-  private var mMinVol = 100
-  private var mPeriod = 18 // Maps to 1 second
   var isDirty = true
     private set
+
   private var mHash = 0
+
   fun resetToDefault() {
     for (i in 0 until BAND_COUNT) {
       setBar(i, .5f)
     }
-    mMinVol = 100
-    mPeriod = 18
+    minVol = 100
+    period = 18
     cleanMe()
   }
 
@@ -65,8 +64,8 @@ class Phonon {
         jBars.put(s.toInt())
       }
       j.put("bars", jBars)
-      j.put("minvol", mMinVol)
-      j.put("period", mPeriod)
+      j.put("minvol", minVol)
+      j.put("period", period)
       j.toString()
     } catch (e: JSONException) {
       throw RuntimeException("impossible")
@@ -104,34 +103,20 @@ class Phonon {
       return out
     }
 
-  var minVol: Int
-    get() = mMinVol
-    // Range: [0, 100]
-    set(minVol) {
-      var minVol = minVol
-      if (minVol < 0) {
-        minVol = 0
-      } else if (minVol > 100) {
-        minVol = 100
-      }
-      if (minVol != mMinVol) {
-        mMinVol = minVol
+  var minVol: Int = 100
+    set(value) {
+      val minVol = value.coerceIn(0, 100)
+      if (minVol != field) {
+        field = minVol
         isDirty = true
       }
     }
 
-  var period: Int
-    // This gets the slider position.
-    get() = mPeriod
-    set(period) {
-      var period = period
-      if (period < 0) {
-        period = 0
-      } else if (period > PERIOD_MAX) {
-        period = PERIOD_MAX
-      }
-      if (period != mPeriod) {
-        mPeriod = period
+  var period: Int = 18 // Maps to 1 second
+    set(value) {
+      val period = value.coerceIn(0, PERIOD_MAX)
+      if (period != field) {
+        field = period
         isDirty = true
       }
     }
@@ -150,29 +135,29 @@ class Phonon {
   private val periodSeconds: Float
     get() =// This is a somewhat human-friendly mapping from
       // scroll position to seconds.
-      if (mPeriod < 9) {
+      if (period < 9) {
         // 10ms, 20ms, ..., 90ms
-        (mPeriod + 1) * .010f
-      } else if (mPeriod < 18) {
+        (period + 1) * .010f
+      } else if (period < 18) {
         // 100ms, 200ms, ..., 900ms
-        (mPeriod - 9 + 1) * .100f
-      } else if (mPeriod < 36) {
+        (period - 9 + 1) * .100f
+      } else if (period < 36) {
         // 1.0s, 1.5s, ..., 9.5s
-        (mPeriod - 18 + 2) * .5f
-      } else if (mPeriod < 45) {
+        (period - 18 + 2) * .5f
+      } else if (period < 45) {
         // 10, 11, ..., 19
-        (mPeriod - 36 + 10) * 1f
+        (period - 36 + 10) * 1f
       } else {
         // 20, 25, 30, ... 60
-        (mPeriod - 45 + 4) * 5f
+        (period - 45 + 4) * 5f
       }
 
   fun makeMutableCopy(): Phonon {
     check(!isDirty)
     val c = Phonon()
     System.arraycopy(mBars, 0, c.mBars, 0, BAND_COUNT)
-    c.mMinVol = mMinVol
-    c.mPeriod = mPeriod
+    c.minVol = minVol
+    c.period = period
     c.mHash = mHash
     c.isDirty = false
     return c
@@ -182,15 +167,15 @@ class Phonon {
   // so this also clears the dirty bit.
   fun writeIntent(intent: Intent?) {
     intent!!.putExtra("spectrum", SpectrumData(allBars))
-    intent.putExtra("minvol", mMinVol / 100f)
+    intent.putExtra("minvol", minVol / 100f)
     intent.putExtra("period", periodSeconds)
     cleanMe()
   }
 
   private fun cleanMe() {
     var h = mBars.contentHashCode()
-    h = 31 * h + mMinVol
-    h = 31 * h + mPeriod
+    h = 31 * h + minVol
+    h = 31 * h + period
     mHash = h
     isDirty = false
   }
@@ -199,7 +184,9 @@ class Phonon {
     check(!(isDirty || other!!.isDirty))
     return if (this === other) {
       true
-    } else mHash == other!!.mHash && mMinVol == other.mMinVol && mPeriod == other.mPeriod && mBars.contentEquals(other.mBars)
+    } else mHash == other!!.mHash && minVol == other.minVol && period == other.period && mBars.contentEquals(
+      other.mBars
+    )
   }
 
   companion object {
