@@ -2,6 +2,7 @@ package com.chimbori.catnap
 
 import android.content.Intent
 import java.util.Locale
+import kotlin.math.round
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -41,15 +42,12 @@ data class Phonon(
 
   fun getBar(band: Int) = bars[band]
 
+  // This probably isn't very i18n friendly.
   val periodText: String
-    get() {
-      // This probably isn't very i18n friendly.
-      val s = periodSeconds
-      return if (s >= 1f) {
-        String.format(Locale.getDefault(), "%.2g sec", s)
-      } else {
-        String.format(Locale.getDefault(), "%d ms", Math.round(s * 1000))
-      }
+    get() = if (periodSeconds >= 1f) {
+      String.format(Locale.getDefault(), "%.2g sec", periodSeconds)
+    } else {
+      String.format(Locale.getDefault(), "%d ms", round(periodSeconds * 1000))
     }
 
   /** This is a somewhat human-friendly mapping from scroll position to seconds. */
