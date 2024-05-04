@@ -28,7 +28,8 @@ class PresetsFragment : Fragment(R.layout.fragment_presets) {
       }
     }
 
-    // TODO: Replace with LiveData
-    presetsSection.replaceAll(uiState.mSavedPhonons?.map { PhononItem(it) } ?: emptyList())
+    uiState.phonons.observe(viewLifecycleOwner) { phonons ->
+      presetsSection.replaceAll(phonons.map { PhononItem(it) })
+    }
   }
 }

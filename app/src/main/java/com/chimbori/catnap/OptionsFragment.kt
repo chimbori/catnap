@@ -19,29 +19,28 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    val ph = mUiState.phonon!!
 
-    binding.fragmentOptionsMinimumVolumeText.text = ph.minVol.asPercent()
+    binding.fragmentOptionsMinimumVolumeText.text = mUiState.activePhonon.minimumVolume.asPercent()
     binding.fragmentOptionsMinimumVolumeSeekbar.apply {
-      progress = ph.minVol
+      progress = mUiState.activePhonon.minimumVolume
       setMax(MAX_VOLUME)
       setOnSeekBarChangeListener(SimpleSeekBarChangeListener { progress ->
-        mUiState.phononMutable!!.minVol = progress
-        binding.fragmentOptionsMinimumVolumeText.text = mUiState.phononMutable!!.minVol.asPercent()
+        mUiState.setMinimumVolume(progress)
+        binding.fragmentOptionsMinimumVolumeText.text = mUiState.activePhonon.minimumVolume.asPercent()
         binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
         mUiState.restartServiceIfRequired()
       })
     }
 
-    binding.fragmentOptionsPeriodText.text = ph.periodText
+    binding.fragmentOptionsPeriodText.text = mUiState.activePhonon.periodText
 
     binding.fragmentOptionsPeriodSeekbar.apply {
-      progress = ph.period
-      setEnabled(ph.minVol != 100)  // When the volume is at 100%, disable the period bar.
+      progress = mUiState.activePhonon.period
+      setEnabled(mUiState.activePhonon.minimumVolume != 100)  // When the volume is at 100%, disable the period bar.
       setMax(PERIOD_MAX)
       setOnSeekBarChangeListener(SimpleSeekBarChangeListener { progress ->
-        mUiState.phononMutable!!.period = progress
-        binding.fragmentOptionsPeriodText.text = mUiState.phononMutable!!.periodText
+        mUiState.setPeriod(progress)
+        binding.fragmentOptionsPeriodText.text = mUiState.activePhonon.periodText
         mUiState.restartServiceIfRequired()
       })
     }
@@ -49,7 +48,7 @@ class OptionsFragment : Fragment(R.layout.fragment_options) {
     binding.fragmentOptionsAutoPlayCheckbox.apply {
       setChecked(mUiState.autoPlay)
       setOnCheckedChangeListener { _, isChecked ->
-        mUiState.setAutoPlay(isChecked, true)
+        mUiState.setAutoPlay(isChecked)
         mUiState.restartServiceIfRequired()
       }
     }

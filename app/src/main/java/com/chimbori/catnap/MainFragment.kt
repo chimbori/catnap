@@ -65,7 +65,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     super.onViewCreated(view, savedInstanceState)
     binding.fragmentMainEqualizer.apply {
       addBarChangedListener { band, value ->
-        mUiState.phononMutable!!.setBar(band, value)
+        mUiState.activePhonon.setBar(band, value)
       }
       addInteractedWhileLockedListener { interacted ->
         mUiState.setInteractedWhileLocked(interacted)
@@ -73,7 +73,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
       addInteractionCompleteListener {
         mUiState.restartServiceIfRequired()
       }
-      phonon = mUiState.phonon
+      phonon = mUiState.activePhonon
       isLocked = mUiState.isLocked.nonNullValue
     }
     binding.fragmentMainPlayStopButton.setOnClickListener {

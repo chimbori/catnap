@@ -9,93 +9,77 @@ import com.chimbori.catnap.NoiseService.Companion.startNoiseService
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
 import com.chimbori.catnap.utils.nonNullValue
 import com.chimbori.catnap.utils.update
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class UIState(application: Application) : AndroidViewModel(application) {
   private val context = application.applicationContext
 
+  private var presets = Presets()
+
+  var ignoreAudioFocus: Boolean = false
+
+  var volumeLimitEnabled: Boolean = false
+
+  var activePhonon = Phonon()
+    private set(value) {
+      field = value
+    }
+
+  val phonons: LiveData<List<Phonon>> = MutableLiveData()
   val isLocked: LiveData<Boolean> = MutableLiveData()
   val interactedWhileLocked: LiveData<Boolean> = MutableLiveData()
+  val minimumVolume: LiveData<Int> = MutableLiveData()
+  val periodSeekBarEnabled: LiveData<Boolean> = MutableLiveData()
 
   init {
     isLocked.update(false)
     interactedWhileLocked.update(false)
   }
 
-  val mActivePos = TrackedPosition()
-  var mScratchPhonon: Phonon? = null
-  var mSavedPhonons: ArrayList<Phonon>? = null
-
-  private var isDirty = false
-
   var autoPlay = false
     private set
 
-  fun setAutoPlay(enabled: Boolean, fromUser: Boolean) {
+  fun setAutoPlay(enabled: Boolean) {
     autoPlay = enabled
-    if (fromUser) {
-      // Demonstrate AutoPlay by acting like the Play/Stop button.
-      if (enabled) {
-        startService()
-      } else {
-        context.stopNoiseService(R.string.stop_reason_autoplay)
-      }
+    if (enabled) {
+      startService()  // Demonstrate AutoPlay by acting like the Play/Stop button.
+    } else {
+      context.stopNoiseService(R.string.stop_reason_autoplay)
     }
   }
 
   fun saveState(pref: SharedPreferences.Editor) {
-    pref.putBoolean("locked", isLocked.nonNullValue)
-    pref.putBoolean("autoPlay", autoPlay)
-    pref.putBoolean("ignoreAudioFocus", ignoreAudioFocus)
-    pref.putInt("volumeLimit", volumeLimit)
-    pref.putString("phononS", mScratchPhonon!!.toJSON())
-    for (i in mSavedPhonons!!.indices) {
-      pref.putString("phonon$i", mSavedPhonons!![i].toJSON())
-      mSavedPhonons!![i]
-    }
-    pref.putInt("activePhonon", mActivePos.pos)
+    pref.putString("presets", Json.encodeToString(presets))
   }
 
   fun loadState(pref: SharedPreferences) {
-    isLocked.update(pref.getBoolean("locked", false))
-    setAutoPlay(pref.getBoolean("autoPlay", false), false)
-    ignoreAudioFocus = pref.getBoolean("ignoreAudioFocus", false)
-    volumeLimit = pref.getInt("volumeLimit", MAX_VOLUME)
-    volumeLimitEnabled = volumeLimit != MAX_VOLUME
-
-    // Load the scratch phonon.
-    mScratchPhonon = Phonon()
-    if (mScratchPhonon!!.loadFromJSON(pref.getString("phononS", null))) {
-      //
-    } else {
-      mScratchPhonon!!.resetToDefault()
-    }
-
-    // Load the saved phonons.
-    mSavedPhonons = ArrayList()
-    for (i in 0 until TrackedPosition.NOWHERE) {
-      val phm = Phonon()
-      if (!phm.loadFromJSON(pref.getString("phonon$i", null))) {
-        break
+    try {
+      Json.decodeFromString<Presets>(pref.getString("presets", "") ?: "").let { nonNullPresets ->
+        presets = nonNullPresets
       }
-      mSavedPhonons!!.add(phm)
+    } catch (e: SerializationException) {
+      presets = Presets()
     }
 
-    // Load the currently-selected phonon.
-    val active = pref.getInt("activePhonon", -1)
-    mActivePos.pos = if (-1 <= active && active < mSavedPhonons!!.size) active else -1
+    // TODO: Update LiveData
+
+    isLocked.update(presets.locked)
+    setAutoPlay(presets.autoPlay)
+    ignoreAudioFocus = presets.ignoreAudioFocus
+    volumeLimit = presets.volumeLimit
+    volumeLimitEnabled = volumeLimit != MAX_VOLUME
   }
 
   fun startService() {
-    context.startNoiseService(phonon!!, volumeLimit.toFloat() / MAX_VOLUME, ignoreAudioFocus)
-    isDirty = false
+    context.startNoiseService(activePhonon, volumeLimit.toFloat() / MAX_VOLUME, ignoreAudioFocus)
   }
 
   fun restartServiceIfRequired(): Boolean {
-    if (isDirty || mActivePos.pos == -1 && mScratchPhonon!!.isDirty) {
-      startService()
-      return true
-    }
-    return false
+    // TODO: Check if needed to restart.
+    startService()
+    return true
   }
 
   fun toggleLocked() {
@@ -114,59 +98,29 @@ class UIState(application: Application) : AndroidViewModel(application) {
     }
   }
 
-  val phonon: Phonon?
-    get() = if (mActivePos.pos == -1) {
-      mScratchPhonon
-    } else {
-      mSavedPhonons!![mActivePos.pos]
-    }
-
-  val phononMutable: Phonon?
-    get() = if (mActivePos.pos == -1) {
-      mScratchPhonon
-    } else {
-      mScratchPhonon = mSavedPhonons!![mActivePos.pos].makeMutableCopy()
-      mActivePos.pos = -1
-      mScratchPhonon
-    }
-
-  // -1 or 0..n
-  fun setActivePhonon(index: Int) {
-    if (!(-1 <= index && index < mSavedPhonons!!.size)) {
-      throw ArrayIndexOutOfBoundsException()
-    }
-    mActivePos.pos = index
-    startService()
+  fun setPeriod(period: Int) {
+    activePhonon = activePhonon.copy(period = period)
   }
 
-  var ignoreAudioFocus: Boolean = false
-    set(value) {
-      if (field != value) {
-        field = value
-        isDirty = true
-      }
-    }
+  fun setMinimumVolume(value: Int) {
+    activePhonon = activePhonon.copy(minimumVolume = value)
+    minimumVolume.update(value)
+    periodSeekBarEnabled.update(value != 100)
+    restartServiceIfRequired()
+  }
 
-  var volumeLimitEnabled: Boolean = false
-    set(value) {
-      if (field != value) {
-        field = value
-        if (volumeLimit != MAX_VOLUME) {
-          isDirty = true
-        }
+  fun savePhonon(phonon: Phonon) {
+    presets = presets.copy(
+      phonons = presets.phonons.toMutableList().apply {
+        add(phonon)
       }
-    }
+    )
+  }
 
   var volumeLimit: Int = MAX_VOLUME
     get() = if (volumeLimitEnabled) field else MAX_VOLUME
     set(value) {
-      val limit = value.coerceIn(0, MAX_VOLUME)
-      if (field != limit) {
-        field = limit
-        if (volumeLimitEnabled) {
-          isDirty = true
-        }
-      }
+      field = value.coerceIn(0, MAX_VOLUME)
     }
 
   companion object {
