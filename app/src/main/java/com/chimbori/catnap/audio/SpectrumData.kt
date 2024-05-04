@@ -1,7 +1,8 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.audio
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.chimbori.catnap.BAND_COUNT
 import kotlin.math.min
 import kotlin.math.pow
 

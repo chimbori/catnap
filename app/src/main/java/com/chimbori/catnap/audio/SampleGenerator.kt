@@ -1,8 +1,9 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.audio
 
 import android.os.Process
 import android.os.Process.THREAD_PRIORITY_BACKGROUND
 import android.os.SystemClock
+import com.chimbori.catnap.NoiseService
 import org.jtransforms.dct.FloatDCT_1D
 
 internal class SampleGenerator(private val noiseService: NoiseService, private val sampleShuffler: SampleShuffler) {

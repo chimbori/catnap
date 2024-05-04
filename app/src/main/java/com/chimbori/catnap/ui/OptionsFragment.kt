@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.ui
 
 import android.os.Bundle
 import android.view.View
@@ -7,8 +7,13 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.chimbori.catnap.MAX_VOLUME
+import com.chimbori.catnap.PERIOD_MAX
+import com.chimbori.catnap.R
+import com.chimbori.catnap.asPercent
 import com.chimbori.catnap.databinding.FragmentOptionsBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
+
 
 class OptionsFragment : Fragment(R.layout.fragment_options) {
   private val binding by viewBinding(FragmentOptionsBinding::bind)

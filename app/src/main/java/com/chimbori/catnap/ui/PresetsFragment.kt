@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.ui
 
 import android.os.Bundle
 import android.view.View
@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.chimbori.catnap.R
 import com.chimbori.catnap.databinding.FragmentPresetsBinding
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder

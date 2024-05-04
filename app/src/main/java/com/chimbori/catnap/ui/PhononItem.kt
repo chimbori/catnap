@@ -1,6 +1,8 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.ui
 
 import android.view.View
+import com.chimbori.catnap.Phonon
+import com.chimbori.catnap.R
 import com.chimbori.catnap.databinding.ItemPhononBinding
 import com.xwray.groupie.viewbinding.BindableItem
 

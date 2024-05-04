@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.audio
 
 internal class SampleGeneratorState {
   private var chunkNumber = N_TOTAL_CHUNKS  // Begin in the "done" state.

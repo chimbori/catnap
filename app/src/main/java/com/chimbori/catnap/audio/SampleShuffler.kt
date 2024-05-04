@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.audio
 
 import android.media.AudioAttributes
 import android.media.AudioAttributes.CONTENT_TYPE_MUSIC
@@ -14,10 +14,10 @@ import android.os.Build
 import android.os.Process
 import android.os.Process.THREAD_PRIORITY_AUDIO
 import android.util.Log
-import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel
-import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.DUCK
-import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.NORMAL
-import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.SILENT
+import com.chimbori.catnap.audio.SampleShuffler.VolumeListener.DuckLevel
+import com.chimbori.catnap.audio.SampleShuffler.VolumeListener.DuckLevel.DUCK
+import com.chimbori.catnap.audio.SampleShuffler.VolumeListener.DuckLevel.NORMAL
+import com.chimbori.catnap.audio.SampleShuffler.VolumeListener.DuckLevel.SILENT
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.sin
@@ -461,7 +461,7 @@ internal class SampleShuffler {
     // stored as [0, 32767].
     private val mTweakedSine: ShortArray?
     private var mSpeed = 0
-    private var mPos = Companion.QUIET_POS
+    private var mPos = QUIET_POS
 
     init {
       var minVol = minVol
@@ -483,7 +483,7 @@ internal class SampleShuffler {
 
         // When period == 1 sec, SAMPLE_RATE iterations should cover
         // SINE_PERIOD virtual points.
-        mSpeed = (Companion.SINE_PERIOD / (period * SAMPLE_RATE)).toInt()
+        mSpeed = (SINE_PERIOD / (period * SAMPLE_RATE)).toInt()
       }
       mMinVol = minVol
       mPeriod = period
@@ -505,12 +505,12 @@ internal class SampleShuffler {
       }
       var outPos = 0
       while (outPos < buf.size) {
-        if (stopAtLoud && Companion.LOUD_POS <= mPos && mPos < Companion.QUIET_POS) {
+        if (stopAtLoud && LOUD_POS <= mPos && mPos < QUIET_POS) {
           return true // Reached 100% volume.
         }
         // Multiply by [0, 1) using integer math.
-        val mult = mTweakedSine[mPos / Companion.SINE_STRETCH]
-        mPos = mPos + mSpeed and Companion.SINE_PERIOD - 1
+        val mult = mTweakedSine[mPos / SINE_STRETCH]
+        mPos = mPos + mSpeed and SINE_PERIOD - 1
         for (chan in 0 until SHORTS_PER_SAMPLE) {
           buf[outPos] = (buf[outPos] * mult shr 15).toShort()
           outPos++

@@ -6,17 +6,17 @@
 
   <fragment
     android:id="@+id/equalizerFragmentDest"
-    android:name="com.chimbori.catnap.MainFragment"
+    android:name="com.chimbori.catnap.ui.MainFragment"
     android:label="MainFragment"/>
 
   <fragment
     android:id="@+id/presetsFragmentDest"
-    android:name="com.chimbori.catnap.PresetsFragment"
+    android:name="com.chimbori.catnap.ui.PresetsFragment"
     android:label="PresetsFragment"/>
 
   <fragment
     android:id="@+id/settingsFragmentDest"
-    android:name="com.chimbori.catnap.OptionsFragment"
+    android:name="com.chimbori.catnap.ui.OptionsFragment"
     android:label="OptionsFragment"/>
 
 </navigation>

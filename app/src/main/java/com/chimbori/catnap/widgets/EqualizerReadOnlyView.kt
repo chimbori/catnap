@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.widgets
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -17,6 +17,9 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
+import com.chimbori.catnap.BAND_COUNT
+import com.chimbori.catnap.Phonon
+import com.chimbori.catnap.R
 
 class EqualizerReadOnlyView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
   private var barWidth = 0f

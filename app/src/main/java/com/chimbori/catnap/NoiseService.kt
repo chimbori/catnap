@@ -36,10 +36,13 @@ import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
 import androidx.core.content.ContextCompat
-import com.chimbori.catnap.SampleShuffler.Companion.makeAudioAttributes
-import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.DUCK
-import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.NORMAL
-import com.chimbori.catnap.SampleShuffler.VolumeListener.DuckLevel.SILENT
+import com.chimbori.catnap.audio.SampleGenerator
+import com.chimbori.catnap.audio.SampleShuffler
+import com.chimbori.catnap.audio.SampleShuffler.Companion.makeAudioAttributes
+import com.chimbori.catnap.audio.SampleShuffler.VolumeListener.DuckLevel.DUCK
+import com.chimbori.catnap.audio.SampleShuffler.VolumeListener.DuckLevel.NORMAL
+import com.chimbori.catnap.audio.SampleShuffler.VolumeListener.DuckLevel.SILENT
+import com.chimbori.catnap.audio.SpectrumData
 import java.util.Date
 
 class NoiseService : Service() {

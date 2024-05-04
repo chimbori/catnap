@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.audio
 
 // XORShift is supposedly better and faster than java.util.Random.
 // This algorithm is from:

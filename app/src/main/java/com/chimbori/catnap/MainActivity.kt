@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.chimbori.catnap.databinding.ActivityMainBinding
+import com.chimbori.catnap.ui.AppViewModel
 import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {

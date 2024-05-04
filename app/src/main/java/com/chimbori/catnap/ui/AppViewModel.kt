@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.ui
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -7,8 +7,12 @@ import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.chimbori.catnap.AppConfig
+import com.chimbori.catnap.MAX_VOLUME
 import com.chimbori.catnap.NoiseService.Companion.startNoiseService
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
+import com.chimbori.catnap.Phonon
+import com.chimbori.catnap.R
 import com.chimbori.catnap.utils.nonNullValue
 import com.chimbori.catnap.utils.update
 import kotlinx.serialization.SerializationException

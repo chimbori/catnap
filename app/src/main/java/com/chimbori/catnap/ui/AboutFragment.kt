@@ -1,9 +1,10 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.ui
 
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.chimbori.catnap.R
 import com.chimbori.catnap.databinding.FragmentAboutBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 

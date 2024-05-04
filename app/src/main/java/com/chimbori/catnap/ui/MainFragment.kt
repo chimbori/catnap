@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.ui
 
 import android.os.Bundle
 import android.view.View
@@ -7,8 +7,10 @@ import android.view.View.VISIBLE
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.chimbori.catnap.NoiseService
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
 import com.chimbori.catnap.NoiseService.PercentListener
+import com.chimbori.catnap.R
 import com.chimbori.catnap.databinding.FragmentMainBinding
 import com.chimbori.catnap.utils.nonNullValue
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding

@@ -15,7 +15,7 @@
     android:layout_height="wrap_content"
     android:padding="@dimen/spacing_50">
 
-    <com.chimbori.catnap.EqualizerReadOnlyView
+    <com.chimbori.catnap.widgets.EqualizerReadOnlyView
       android:id="@+id/item_phonon_equalizer"
       android:layout_width="@dimen/equalizer_width"
       android:layout_height="@dimen/equalizer_height"

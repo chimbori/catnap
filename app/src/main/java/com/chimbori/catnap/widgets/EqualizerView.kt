@@ -1,4 +1,4 @@
-package com.chimbori.catnap
+package com.chimbori.catnap.widgets
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -9,6 +9,9 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.chimbori.catnap.BAND_COUNT
+import com.chimbori.catnap.Phonon
+import com.chimbori.catnap.R
 
 class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
   var phonon: Phonon? = null
