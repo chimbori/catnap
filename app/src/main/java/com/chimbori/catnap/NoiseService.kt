@@ -102,7 +102,7 @@ class NoiseService : Service() {
     }
 
     // Handle the Stop intent.
-    val stopReasonId = intent!!.getIntExtra("stopReasonId", 0)
+    val stopReasonId = intent!!.getIntExtra(EXTRA_STOP_REASON_ID, 0)
     if (stopReasonId != 0) {
       saveStopReason(stopReasonId)
       stopSelf(startId)
@@ -113,16 +113,16 @@ class NoiseService : Service() {
     if (flags and START_FLAG_REDELIVERY != 0) {
       saveStopReason(R.string.stop_reason_restarted)
     }
-    val spectrum = getParcelableExtraCompat(intent, "spectrum", SpectrumData::class.java)!!
+    val spectrum = getParcelableExtraCompat(intent, EXTRA_SPECTRUM_BARS, SpectrumData::class.java)!!
 
     // Synchronous updates.
     mSampleShuffler!!.setAmpWave(
-      intent.getFloatExtra("minvol", -1f),
-      intent.getFloatExtra("period", -1f)
+      intent.getFloatExtra(EXTRA_MINIMUM_VOLUME, -1f),
+      intent.getFloatExtra(EXTRA_PERIOD, -1f)
     )
-    mSampleShuffler!!.volumeListener.setVolumeLevel(intent.getFloatExtra("volumeLimit", -1f))
+    mSampleShuffler!!.volumeListener.setVolumeLevel(intent.getFloatExtra(EXTRA_VOLUME_LIMIT, -1f))
 
-    if (intent.getBooleanExtra("ignoreAudioFocus", false)) {
+    if (intent.getBooleanExtra(EXTRA_IGNORE_AUDIO_FOCUS, false)) {
       audioManager.abandonAudioFocusRequest(audioFocusRequest)
     } else {
       audioManager.requestAudioFocus(audioFocusRequest)
@@ -136,6 +136,7 @@ class NoiseService : Service() {
     // stopSelf() with this startId when a replacement spectrum arrives,
     // or if we're stopping the service intentionally.
     lastStartId = startId
+
     return START_REDELIVER_INTENT
   }
 
@@ -144,7 +145,7 @@ class NoiseService : Service() {
 
     if (lastStartId != -1) {
       // This condition can be triggered from adb shell:
-      // $ am stopservice net.pmarks.chromadoze/.NoiseService
+      // $ am stopservice com.chimbori.catnap/.NoiseService
       saveStopReason(R.string.stop_reason_mysterious)
     }
     mSampleGenerator!!.stopThread()
@@ -211,10 +212,7 @@ class NoiseService : Service() {
   }
 
   companion object {
-    private const val PERCENT_MSG = 1
     private val sPercentListeners = ArrayList<PercentListener>()
-    private const val NOTIFICATION_ID = 1
-    private const val CHANNEL_ID = "default"
 
     // These must be accessed only from the main thread.
     private var sLastPercent = -1
@@ -223,6 +221,7 @@ class NoiseService : Service() {
     // be more correct to use persistent storage, but the values should stick
     // around in RAM long enough for practical purposes.
     private var sStopTimestamp = Date()
+
     private var sStopReasonId = 0
 
     @Suppress("deprecation")
@@ -253,7 +252,7 @@ class NoiseService : Service() {
     }
 
     private fun Context.createStopIntent(@StringRes stopReasonId: Int) =
-      Intent(this, NoiseService::class.java).putExtra("stopReasonId", stopReasonId)
+      Intent(this, NoiseService::class.java).putExtra(EXTRA_STOP_REASON_ID, stopReasonId)
 
     fun Context.stopNoiseService(@StringRes stopReasonId: Int) {
       try {
@@ -271,10 +270,27 @@ class NoiseService : Service() {
 
     fun Context.startNoiseService(phonon: Phonon, volumeLimit: Float, ignoreAudioFocus: Boolean) {
       ContextCompat.startForegroundService(this, Intent(this, NoiseService::class.java).apply {
-        phonon.writeIntent(this)
-        putExtra("volumeLimit", volumeLimit)
-        putExtra("ignoreAudioFocus", ignoreAudioFocus)
+        putPhonon(phonon)
+        putExtra(EXTRA_VOLUME_LIMIT, volumeLimit)
+        putExtra(EXTRA_IGNORE_AUDIO_FOCUS, ignoreAudioFocus)
       })
     }
+
+    private fun Intent.putPhonon(phonon: Phonon) {
+      putExtra(EXTRA_SPECTRUM_BARS, SpectrumData(phonon.bars))
+      putExtra(EXTRA_MINIMUM_VOLUME, phonon.minimumVolume / 100f)
+      putExtra(EXTRA_PERIOD, phonon.periodSeconds)
+    }
+
+    private const val PERCENT_MSG = 1
+    private const val NOTIFICATION_ID = 1
+    private const val CHANNEL_ID = "default"
+
+    private const val EXTRA_SPECTRUM_BARS = "spectrum"
+    private const val EXTRA_MINIMUM_VOLUME = "minimum_volume"
+    private const val EXTRA_PERIOD = "period"
+    private const val EXTRA_VOLUME_LIMIT = "volume_limit"
+    private const val EXTRA_IGNORE_AUDIO_FOCUS = "ignore_audio_focus"
+    private const val EXTRA_STOP_REASON_ID = "stop_reason_id"
   }
 }

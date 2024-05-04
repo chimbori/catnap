@@ -1,6 +1,5 @@
 package com.chimbori.catnap
 
-import android.content.Intent
 import java.util.Locale
 import kotlin.math.round
 import kotlinx.serialization.SerialName
@@ -18,7 +17,7 @@ data class AppConfig(
 )
 
 /**
- * Represents a collection of user-tweakable sound information, presented as a single row in the "Presets" view.
+ * Represents a collection of user-tweakable sound information, presented as a single row in the Presets view.
  * Supported operations:
  * - Convert to/from JSON for storage.
  * - Efficient equality testing.
@@ -52,7 +51,7 @@ data class Phonon(
     }
 
   /** This is a somewhat human-friendly mapping from scroll position to seconds. */
-  private val periodSeconds: Float
+  val periodSeconds: Float
     get() = when {
       period < 9 -> (period + 1) * .010f       // 10ms, 20ms, ..., 90ms
       period < 18 -> (period - 9 + 1) * .100f  // 100ms, 200ms, ..., 900ms
@@ -60,12 +59,6 @@ data class Phonon(
       period < 45 -> (period - 36 + 10) * 1f   // 10, 11, ..., 19
       else -> (period - 45 + 4) * 5f           // 20, 25, 30, ... 60
     }
-
-  fun writeIntent(intent: Intent) {
-    intent.putExtra("spectrum", SpectrumData(bars))
-    intent.putExtra("minvol", minimumVolume / 100f)
-    intent.putExtra("period", periodSeconds)
-  }
 
   companion object {
     /** Maps to 60 seconds. */
