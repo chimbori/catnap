@@ -132,26 +132,16 @@ class Phonon {
       }
     }
 
+  /** This is a somewhat human-friendly mapping from scroll position to seconds. */
   private val periodSeconds: Float
-    get() =// This is a somewhat human-friendly mapping from
-      // scroll position to seconds.
-      if (period < 9) {
-        // 10ms, 20ms, ..., 90ms
-        (period + 1) * .010f
-      } else if (period < 18) {
-        // 100ms, 200ms, ..., 900ms
-        (period - 9 + 1) * .100f
-      } else if (period < 36) {
-        // 1.0s, 1.5s, ..., 9.5s
-        (period - 18 + 2) * .5f
-      } else if (period < 45) {
-        // 10, 11, ..., 19
-        (period - 36 + 10) * 1f
-      } else {
-        // 20, 25, 30, ... 60
-        (period - 45 + 4) * 5f
-      }
-
+    get() = when {
+      period < 9 -> (period + 1) * .010f       // 10ms, 20ms, ..., 90ms
+      period < 18 -> (period - 9 + 1) * .100f  // 100ms, 200ms, ..., 900ms
+      period < 36 -> (period - 18 + 2) * .5f   // 1.0s, 1.5s, ..., 9.5s
+      period < 45 -> (period - 36 + 10) * 1f   // 10, 11, ..., 19
+      else -> (period - 45 + 4) * 5f           // 20, 25, 30, ... 60
+    }
+  
   fun makeMutableCopy(): Phonon {
     check(!isDirty)
     val c = Phonon()
