@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 class UIState(application: Application) : AndroidViewModel(application) {
   private val context = application.applicationContext
 
-  private var presets = Presets()
+  private var appConfig = AppConfig()
 
   var ignoreAudioFocus: Boolean = false
 
@@ -51,24 +51,24 @@ class UIState(application: Application) : AndroidViewModel(application) {
   }
 
   fun saveState(pref: SharedPreferences.Editor) {
-    pref.putString("presets", Json.encodeToString(presets))
+    pref.putString(PREF_KEY, Json.encodeToString(appConfig))
   }
 
   fun loadState(pref: SharedPreferences) {
     try {
-      Json.decodeFromString<Presets>(pref.getString("presets", "") ?: "").let { nonNullPresets ->
-        presets = nonNullPresets
+      Json.decodeFromString<AppConfig>(pref.getString(PREF_KEY, "") ?: "").let { nonNullPresets ->
+        appConfig = nonNullPresets
       }
     } catch (e: SerializationException) {
-      presets = Presets()
+      appConfig = AppConfig()
     }
 
     // TODO: Update LiveData
 
-    isLocked.update(presets.locked)
-    setAutoPlay(presets.autoPlay)
-    ignoreAudioFocus = presets.ignoreAudioFocus
-    volumeLimit = presets.volumeLimit
+    isLocked.update(appConfig.locked)
+    setAutoPlay(appConfig.autoPlay)
+    ignoreAudioFocus = appConfig.ignoreAudioFocus
+    volumeLimit = appConfig.volumeLimit
     volumeLimitEnabled = volumeLimit != MAX_VOLUME
   }
 
@@ -110,8 +110,8 @@ class UIState(application: Application) : AndroidViewModel(application) {
   }
 
   fun savePhonon(phonon: Phonon) {
-    presets = presets.copy(
-      phonons = presets.phonons.toMutableList().apply {
+    appConfig = appConfig.copy(
+      phonons = appConfig.phonons.toMutableList().apply {
         add(phonon)
       }
     )
@@ -128,5 +128,7 @@ class UIState(application: Application) : AndroidViewModel(application) {
 
     /** The name to use when accessing our SharedPreferences. */
     const val PREF_NAME = "app"
+
+    private const val PREF_KEY = "app_config"
   }
 }

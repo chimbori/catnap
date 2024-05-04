@@ -6,8 +6,9 @@ import kotlin.math.round
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/** The entire saved state of this app, persisted as JSON. */
 @Serializable
-data class Presets(
+data class AppConfig(
   @SerialName("phonons") val phonons: List<Phonon> = mutableListOf(),
   @SerialName("active_phonon") val activePhonon: Phonon = Phonon(),
   @SerialName("locked") val locked: Boolean = false,
