@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chimbori.catnap.R
 import com.chimbori.catnap.databinding.FragmentPresetsBinding
+import com.chimbori.catnap.widgets.TitleItem
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Section
@@ -16,6 +17,12 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 class PresetsFragment : Fragment(R.layout.fragment_presets) {
   private val binding by viewBinding(FragmentPresetsBinding::bind)
   private val viewModel: AppViewModel by activityViewModels()
+
+  private val titleSection by lazy {
+    Section().apply {
+      add(TitleItem(getString(R.string.presets)))
+    }
+  }
   private val presetsSection = Section()
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -24,6 +31,7 @@ class PresetsFragment : Fragment(R.layout.fragment_presets) {
     binding.fragmentPresetsList.apply {
       layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false /* reverseLayout */)
       adapter = GroupAdapter<GroupieViewHolder>().apply {
+        add(titleSection)
         add(presetsSection)
         setHasStableIds(true)
       }
