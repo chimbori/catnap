@@ -5,4 +5,14 @@
     <item name="isLightTheme">false</item>
     <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Filled</item>
   </style>
+
+  <style name="CatNap"/>
+
+  <style name="CatNap.OptionsCategory">
+    <item name="android:textAppearance">@style/TextAppearance.Material3.BodyMedium</item>
+    <item name="android:textColor">?attr/colorPrimary</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:layout_marginTop">@dimen/spacing_150</item>
+    <item name="android:layout_marginBottom">@dimen/spacing_50</item>
+  </style>
 </resources>

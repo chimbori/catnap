@@ -6,14 +6,14 @@
   android:padding="@dimen/spacing_150">
 
   <TextView
-    style="@android:style/TextAppearance.Material.Headline"
+    style="@style/TextAppearance.Material3.HeadlineMedium"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/spacing_50"
     android:text="@string/app_name"/>
 
   <TextView
-    style="@android:style/TextAppearance.Material.Body1"
+    style="@style/TextAppearance.Material3.BodyMedium"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/spacing_200"
@@ -21,7 +21,7 @@
 
   <TextView
     android:id="@+id/fragment_about_version"
-    style="@android:style/TextAppearance.Material.Headline"
+    style="@style/TextAppearance.Material3.HeadlineMedium"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"/>
 

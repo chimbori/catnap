@@ -12,14 +12,24 @@
     android:orientation="vertical">
 
     <TextView
+      style="@style/TextAppearance.Material3.HeadlineMedium"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/spacing_100"
+      android:layout_marginTop="@dimen/spacing_400"
+      android:text="@string/options"/>
+
+    <TextView
+      style="@style/CatNap.OptionsCategory"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="@string/amplitude_wave"
-      android:textAppearance="@android:style/TextAppearance.Material.Headline"/>
+      android:layout_marginStart="@dimen/spacing_400"
+      android:text="@string/amplitude_wave"/>
 
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/spacing_400"
       android:layout_marginTop="@dimen/spacing_200"
       android:layout_marginBottom="@dimen/spacing_200">
 
@@ -42,7 +52,7 @@
 
         <TextView
           android:id="@+id/fragment_options_minimum_volume_text"
-          style="@android:style/TextAppearance.Material.Medium"
+          style="@style/TextAppearance.Material3.BodyLarge"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center_vertical|center_horizontal"
@@ -69,7 +79,7 @@
 
         <TextView
           android:id="@+id/fragment_options_period_text"
-          style="@android:style/TextAppearance.Material.Medium"
+          style="@style/TextAppearance.Material3.BodyLarge"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center_vertical|center_horizontal"
@@ -78,36 +88,38 @@
     </TableLayout>
 
     <TextView
+      style="@style/CatNap.OptionsCategory"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginTop="@dimen/spacing_200"
-      android:layout_marginBottom="@dimen/spacing_200"
-      android:text="@string/advanced_options"
-      android:textAppearance="@android:style/TextAppearance.Material.Headline"/>
+      android:layout_marginStart="@dimen/spacing_400"
+      android:text="@string/advanced_options"/>
 
     <androidx.appcompat.widget.SwitchCompat
       android:id="@+id/fragment_options_auto_play_checkbox"
-      style="@android:style/TextAppearance.Material.Medium"
+      style="@style/TextAppearance.Material3.BodyLarge"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/spacing_400"
       android:paddingTop="@dimen/spacing_100"
       android:paddingBottom="@dimen/spacing_100"
       android:text="@string/auto_play_on_open"/>
 
     <androidx.appcompat.widget.SwitchCompat
       android:id="@+id/fragment_options_ignore_audio_focus_checkbox"
-      style="@android:style/TextAppearance.Material.Medium"
+      style="@style/TextAppearance.Material3.BodyLarge"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/spacing_400"
       android:paddingTop="@dimen/spacing_100"
       android:paddingBottom="@dimen/spacing_100"
       android:text="@string/ignore_audio_focus"/>
 
     <androidx.appcompat.widget.SwitchCompat
       android:id="@+id/fragment_options_volume_limit_checkbox"
-      style="@android:style/TextAppearance.Material.Medium"
+      style="@style/TextAppearance.Material3.BodyLarge"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/spacing_400"
       android:paddingTop="@dimen/spacing_100"
       android:paddingBottom="@dimen/spacing_100"
       android:text="@string/reduce_volume"/>
@@ -115,7 +127,10 @@
     <SeekBar
       android:id="@+id/fragment_options_volume_limit_seekbar"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"/>
+      android:layout_height="wrap_content"
+      android:layout_marginStart="@dimen/spacing_400"
+      android:paddingTop="@dimen/spacing_100"
+      android:paddingBottom="@dimen/spacing_100"/>
   </LinearLayout>
 
 </ScrollView>
