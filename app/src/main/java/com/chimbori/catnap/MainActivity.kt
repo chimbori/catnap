@@ -5,16 +5,14 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.chimbori.catnap.UIState.Companion.PREF_NAME
 import com.chimbori.catnap.databinding.ActivityMainBinding
 import com.google.android.material.color.DynamicColors
 
 class MainActivity : AppCompatActivity() {
   private lateinit var binding: ActivityMainBinding
-  private val uIState: UIState by viewModels()
+  private val viewModel: AppViewModel by viewModels()
 
   private val navFragment by lazy { supportFragmentManager.findFragmentById(R.id.main_nav_host_container) as NavHostFragment }
   private val navController by lazy { navFragment.navController }
@@ -25,26 +23,12 @@ class MainActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
-
     binding.mainBottomNav.setupWithNavController(navController)
-
-    val pref = getSharedPreferences(PREF_NAME, MODE_PRIVATE)
-    uIState.loadState(pref)
-  }
-
-  public override fun onResume() {
-    super.onResume()
-    if (uIState.autoPlay) {
-      uIState.startService()
-    }
   }
 
   override fun onPause() {
     super.onPause()
-    getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit {
-      clear()
-      uIState.saveState(this)
-    }
+    viewModel.saveState()
     BackupManager(this).dataChanged()
   }
 }

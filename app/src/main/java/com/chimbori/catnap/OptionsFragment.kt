@@ -2,80 +2,62 @@ package com.chimbori.catnap
 
 import android.os.Bundle
 import android.view.View
-import android.view.View.INVISIBLE
-import android.view.View.VISIBLE
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.chimbori.catnap.Phonon.Companion.PERIOD_MAX
-import com.chimbori.catnap.UIState.Companion.MAX_VOLUME
 import com.chimbori.catnap.databinding.FragmentOptionsBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
 class OptionsFragment : Fragment(R.layout.fragment_options) {
   private val binding by viewBinding(FragmentOptionsBinding::bind)
-  private val mUiState: UIState by activityViewModels()
+  private val viewModel: AppViewModel by activityViewModels()
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    binding.fragmentOptionsMinimumVolumeText.text = mUiState.activePhonon.minimumVolume.asPercent()
     binding.fragmentOptionsMinimumVolumeSeekbar.apply {
-      progress = mUiState.activePhonon.minimumVolume
-      setMax(MAX_VOLUME)
-      setOnSeekBarChangeListener(SimpleSeekBarChangeListener { progress ->
-        mUiState.setMinimumVolume(progress)
-        binding.fragmentOptionsMinimumVolumeText.text = mUiState.activePhonon.minimumVolume.asPercent()
-        binding.fragmentOptionsPeriodSeekbar.setEnabled(progress != 100)
-        mUiState.restartServiceIfRequired()
-      })
+      max = MAX_VOLUME
+      setOnSeekBarChangeListener(SimpleSeekBarChangeListener(viewModel::setMinimumVolume))
     }
-
-    binding.fragmentOptionsPeriodText.text = mUiState.activePhonon.periodText
-
     binding.fragmentOptionsPeriodSeekbar.apply {
-      progress = mUiState.activePhonon.period
-      setEnabled(mUiState.activePhonon.minimumVolume != 100)  // When the volume is at 100%, disable the period bar.
-      setMax(PERIOD_MAX)
-      setOnSeekBarChangeListener(SimpleSeekBarChangeListener { progress ->
-        mUiState.setPeriod(progress)
-        binding.fragmentOptionsPeriodText.text = mUiState.activePhonon.periodText
-        mUiState.restartServiceIfRequired()
-      })
+      max = PERIOD_MAX
+      setOnSeekBarChangeListener(SimpleSeekBarChangeListener(viewModel::setPeriod))
     }
-
-    binding.fragmentOptionsAutoPlayCheckbox.apply {
-      setChecked(mUiState.autoPlay)
-      setOnCheckedChangeListener { _, isChecked ->
-        mUiState.setAutoPlay(isChecked)
-        mUiState.restartServiceIfRequired()
-      }
+    binding.fragmentOptionsAutoPlayCheckbox.setOnCheckedChangeListener { _, isChecked ->
+      viewModel.setAutoPlay(isChecked)
     }
-
-    binding.fragmentOptionsIgnoreAudioFocusCheckbox.apply {
-      setChecked(mUiState.ignoreAudioFocus)
-      setOnCheckedChangeListener { _, isChecked ->
-        mUiState.ignoreAudioFocus = isChecked
-        mUiState.restartServiceIfRequired()
-      }
+    binding.fragmentOptionsIgnoreAudioFocusCheckbox.setOnCheckedChangeListener { _, isChecked ->
+      viewModel.setIgnoreAudioFocus(isChecked)
     }
-
     binding.fragmentOptionsVolumeLimitCheckbox.setOnCheckedChangeListener { _, isChecked ->
-      mUiState.volumeLimitEnabled = isChecked
-      redrawVolumeLimit()
-      mUiState.restartServiceIfRequired()
+      viewModel.setVolumeLimitEnabled(isChecked)
+    }
+    binding.fragmentOptionsVolumeLimitSeekbar.apply {
+      max = MAX_VOLUME
+      setOnSeekBarChangeListener(SimpleSeekBarChangeListener(viewModel::setVolumeLimit))
     }
 
-    redrawVolumeLimit()
-  }
-
-  private fun redrawVolumeLimit() {
-    val enabled = mUiState.volumeLimitEnabled
-    binding.fragmentOptionsVolumeLimitCheckbox.setChecked(enabled)
-    binding.fragmentOptionsVolumeLimitSeekbar.apply {
-      visibility = if (enabled) VISIBLE else INVISIBLE
-      progress = mUiState.volumeLimit
+    viewModel.activePhonon.observe(viewLifecycleOwner) { phonon ->
+      binding.fragmentOptionsMinimumVolumeSeekbar.progress = phonon.minimumVolume
+      binding.fragmentOptionsMinimumVolumeText.text = phonon.minimumVolume.asPercent()
+      binding.fragmentOptionsPeriodSeekbar.isEnabled = phonon.minimumVolume != MAX_VOLUME
+      binding.fragmentOptionsPeriodSeekbar.progress = phonon.period
+      binding.fragmentOptionsPeriodText.text = phonon.periodText
+    }
+    viewModel.autoPlay.observe(viewLifecycleOwner) { autoPlay ->
+      binding.fragmentOptionsAutoPlayCheckbox.isChecked = autoPlay
+    }
+    viewModel.ignoreAudioFocus.observe(viewLifecycleOwner) { isChecked ->
+      binding.fragmentOptionsIgnoreAudioFocusCheckbox.isChecked = isChecked
+    }
+    viewModel.volumeLimitEnabled.observe(viewLifecycleOwner) { isEnabled ->
+      binding.fragmentOptionsVolumeLimitCheckbox.isChecked = isEnabled
+      binding.fragmentOptionsVolumeLimitSeekbar.isVisible = isEnabled
+    }
+    viewModel.volumeLimit.observe(viewLifecycleOwner) { volumeLimit ->
+      binding.fragmentOptionsVolumeLimitSeekbar.progress = volumeLimit
     }
   }
 }

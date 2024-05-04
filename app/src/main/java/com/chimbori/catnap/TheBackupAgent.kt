@@ -2,7 +2,7 @@ package com.chimbori.catnap
 
 import android.app.backup.BackupAgentHelper
 import android.app.backup.SharedPreferencesBackupHelper
-import com.chimbori.catnap.UIState.Companion.PREF_NAME
+import com.chimbori.catnap.AppViewModel.Companion.PREF_NAME
 
 // This implements a BackupAgent, not because the data is particularly
 // valuable, but because Android 6.0 will randomly kill the service in the

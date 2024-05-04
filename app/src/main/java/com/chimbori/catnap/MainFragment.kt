@@ -17,7 +17,7 @@ import java.util.Date
 
 class MainFragment : Fragment(R.layout.fragment_main) {
   private val binding by viewBinding(FragmentMainBinding::bind)
-  private val mUiState: UIState by activityViewModels()
+  private val viewModel: AppViewModel by activityViewModels()
 
   private var isServiceActive = false
 
@@ -63,28 +63,29 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+
     binding.fragmentMainEqualizer.apply {
-      addBarChangedListener { band, value -> mUiState.activePhonon.setBar(band, value) }
-      addInteractedWhileLockedListener(mUiState::setInteractedWhileLocked)
-      addInteractionCompleteListener { mUiState.restartServiceIfRequired() }
-      phonon = mUiState.activePhonon
-      isLocked = mUiState.isLocked.nonNullValue
+      addBarChangedListener { band, value -> viewModel.setBar(band, value) }
+      addInteractedWhileLockedListener { viewModel.setInteractedWhileLocked(it) }
+      addInteractionCompleteListener { viewModel.setPhononEditComplete() }
     }
     binding.fragmentMainPlayStopButton.setOnClickListener {
-      mUiState.startService()
       if (!isServiceActive) {
-        mUiState.startService()
+        viewModel.startService()
       } else {
         context?.stopNoiseService(R.string.stop_reason_toolbar)
       }
     }
-    binding.fragmentMainLockButton.setOnClickListener { mUiState.toggleLocked() }
+    binding.fragmentMainLockButton.setOnClickListener { viewModel.toggleLocked() }
+    binding.fragmentMainSaveButton.setOnClickListener { viewModel.savePhononAsPreset() }
 
-    mUiState.isLocked.observe(viewLifecycleOwner) { isLocked ->
+    viewModel.activePhonon.observe(viewLifecycleOwner) { binding.fragmentMainEqualizer.phonon = it }
+    viewModel.isLocked.observe(viewLifecycleOwner) { binding.fragmentMainEqualizer.isLocked = it }
+    viewModel.isLocked.observe(viewLifecycleOwner) { isLocked ->
       binding.fragmentMainEqualizer.isLocked = isLocked
-      binding.fragmentMainLockButtonIcon.setImageResource(if (mUiState.isLocked.nonNullValue) R.drawable.lock else R.drawable.lock_open)
+      binding.fragmentMainLockButtonIcon.setImageResource(if (viewModel.isLocked.nonNullValue) R.drawable.lock else R.drawable.lock_open)
     }
-    mUiState.interactedWhileLocked.observe(viewLifecycleOwner) {
+    viewModel.interactedWhileLocked.observe(viewLifecycleOwner) {
       binding.fragmentMainLockStatus.isVisible = it
     }
   }

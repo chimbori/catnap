@@ -14,7 +14,7 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
 class PresetsFragment : Fragment(R.layout.fragment_presets) {
   private val binding by viewBinding(FragmentPresetsBinding::bind)
-  private val uiState: UIState by activityViewModels()
+  private val viewModel: AppViewModel by activityViewModels()
   private val presetsSection = Section()
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -28,7 +28,7 @@ class PresetsFragment : Fragment(R.layout.fragment_presets) {
       }
     }
 
-    uiState.phonons.observe(viewLifecycleOwner) { phonons ->
+    viewModel.phonons.observe(viewLifecycleOwner) { phonons ->
       presetsSection.replaceAll(phonons.map { PhononItem(it) })
     }
   }

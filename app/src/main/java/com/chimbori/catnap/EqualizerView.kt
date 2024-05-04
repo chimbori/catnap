@@ -16,6 +16,7 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
       field = value
       invalidate()
     }
+
   var isLocked: Boolean = false
     set(value) {
       field = value
@@ -32,6 +33,7 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
     interactedWhileLockedListeners.add(listener)
   }
 
+  // Return [true] to force a redraw.
   private val interactionCompleteListeners = mutableListOf<(() -> Boolean)>()
   fun addInteractionCompleteListener(listener: () -> Boolean) {
     interactionCompleteListeners.add(listener)

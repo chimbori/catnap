@@ -13,7 +13,7 @@ data class AppConfig(
   @SerialName("locked") val locked: Boolean = false,
   @SerialName("auto_play") val autoPlay: Boolean = false,
   @SerialName("ignore_audio_focus") val ignoreAudioFocus: Boolean = false,
-  @SerialName("volume_limit") val volumeLimit: Int = 0,
+  @SerialName("volume_limit") val volumeLimit: Int = MAX_VOLUME,
 )
 
 /**
@@ -27,8 +27,8 @@ data class AppConfig(
 @Serializable
 data class Phonon(
   @SerialName("bars") val bars: MutableList<Float> = mutableListOf(),
-  @SerialName("minimum_volume") val minimumVolume: Int = 100,
-  @SerialName("period") val period: Int = 18,   // Maps to 1 second
+  @SerialName("minimum_volume") val minimumVolume: Int = MAX_VOLUME,
+  @SerialName("period") val period: Int = PERIOD_DEFAULT,
 ) {
   init {
     if (bars.isEmpty()) {
@@ -47,7 +47,7 @@ data class Phonon(
     get() = if (periodSeconds >= 1f) {
       String.format(Locale.getDefault(), "%.2g sec", periodSeconds)
     } else {
-      String.format(Locale.getDefault(), "%d ms", round(periodSeconds * 1000))
+      String.format(Locale.getDefault(), "%d ms", round(periodSeconds * 1000).toInt())
     }
 
   /** This is a somewhat human-friendly mapping from scroll position to seconds. */
@@ -59,13 +59,16 @@ data class Phonon(
       period < 45 -> (period - 36 + 10) * 1f   // 10, 11, ..., 19
       else -> (period - 45 + 4) * 5f           // 20, 25, 30, ... 60
     }
-
-  companion object {
-    /** Maps to 60 seconds. */
-    const val PERIOD_MAX = 53
-  }
 }
 
 fun Int.asPercent() = "$this%"
 
+/** Maps to 1 second */
+const val PERIOD_DEFAULT = 18
+
+/** Maps to 60 seconds. */
+const val PERIOD_MAX = 53
+
 const val BAND_COUNT = 32
+
+const val MAX_VOLUME = 100
