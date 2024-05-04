@@ -6,8 +6,10 @@
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="@dimen/spacing_150">
+    android:layout_marginStart="@dimen/spacing_50"
+    android:layout_marginTop="@dimen/spacing_300"
+    android:layout_marginEnd="@dimen/spacing_100"
+    android:orientation="vertical">
 
     <TextView
       android:layout_width="wrap_content"

@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.chimbori.catnap.databinding.ActivityMainBinding
@@ -22,6 +23,12 @@ class MainActivity : AppCompatActivity() {
     enableEdgeToEdge()
     DynamicColors.applyToActivityIfAvailable(this)
     super.onCreate(savedInstanceState)
+
+    WindowCompat.getInsetsController(window, window.decorView).apply {
+      isAppearanceLightNavigationBars = false
+      isAppearanceLightStatusBars = false
+    }
+
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
     binding.mainBottomNav.setupWithNavController(navController)
