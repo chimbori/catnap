@@ -27,7 +27,9 @@ import android.os.Message
 import android.os.Parcelable
 import android.os.PowerManager
 import android.os.PowerManager.PARTIAL_WAKE_LOCK
+import androidx.annotation.AnyThread
 import androidx.annotation.StringRes
+import androidx.annotation.UiThread
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
@@ -43,38 +45,34 @@ import java.util.Date
 class NoiseService : Service() {
   private val audioManager by lazy { getSystemService(AUDIO_SERVICE) as AudioManager }
 
-  private val wakeLock by lazy {
+  private val percentHandler = PercentHandler()
+  private val sampleShuffler = SampleShuffler()
+  private val sampleGenerator = SampleGenerator(this, sampleShuffler)
+
+  private var lastStartId = -1
+
+  private val wakeLock: PowerManager.WakeLock by lazy {
     (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(PARTIAL_WAKE_LOCK, "catnap:NoiseService")
   }
 
-  private var audioFocusRequest = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
+  private val audioFocusRequest = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
     .setAudioAttributes(makeAudioAttributes())
     .setOnAudioFocusChangeListener { focusChange ->
       when (focusChange) {
         // For example, a music player or a sleep timer stealing focus.
         AUDIOFOCUS_LOSS -> stopNoiseService(R.string.stop_reason_audiofocus)
         // For example, an alarm or phone call.
-        AUDIOFOCUS_LOSS_TRANSIENT -> mSampleShuffler!!.volumeListener.setDuckLevel(SILENT)
+        AUDIOFOCUS_LOSS_TRANSIENT -> sampleShuffler.volumeListener.setDuckLevel(SILENT)
         // For example, an email notification.
-        AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> mSampleShuffler!!.volumeListener.setDuckLevel(DUCK)
+        AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> sampleShuffler.volumeListener.setDuckLevel(DUCK)
         // Resume the default volume level.
-        AUDIOFOCUS_GAIN -> mSampleShuffler!!.volumeListener.setDuckLevel(NORMAL)
+        AUDIOFOCUS_GAIN -> sampleShuffler.volumeListener.setDuckLevel(NORMAL)
       }
     }
     .build()
 
-  private var mSampleShuffler: SampleShuffler? = null
-  private var mSampleGenerator: SampleGenerator? = null
-  private var lastStartId = -1
-  private var mPercentHandler: Handler? = null
-
   override fun onCreate() {
     super.onCreate()
-
-    // Set up a message handler in the main thread.
-    mPercentHandler = PercentHandler()
-    mSampleShuffler = SampleShuffler()
-    mSampleGenerator = SampleGenerator(this, mSampleShuffler!!)
 
     // TODO: Set a timeout for the WakeLock.
     wakeLock.acquire()
@@ -102,7 +100,7 @@ class NoiseService : Service() {
     }
 
     // Handle the Stop intent.
-    val stopReasonId = intent!!.getIntExtra(EXTRA_STOP_REASON_ID, 0)
+    val stopReasonId = intent?.getIntExtra(EXTRA_STOP_REASON_ID, 0) ?: 0
     if (stopReasonId != 0) {
       saveStopReason(stopReasonId)
       stopSelf(startId)
@@ -113,29 +111,31 @@ class NoiseService : Service() {
     if (flags and START_FLAG_REDELIVERY != 0) {
       saveStopReason(R.string.stop_reason_restarted)
     }
-    val spectrum = getParcelableExtraCompat(intent, EXTRA_SPECTRUM_BARS, SpectrumData::class.java)!!
 
-    // Synchronous updates.
-    mSampleShuffler!!.setAmpWave(
-      intent.getFloatExtra(EXTRA_MINIMUM_VOLUME, -1f),
-      intent.getFloatExtra(EXTRA_PERIOD, -1f)
-    )
-    mSampleShuffler!!.volumeListener.setVolumeLevel(intent.getFloatExtra(EXTRA_VOLUME_LIMIT, -1f))
+    if (intent != null) {
+      val spectrum = getParcelableExtraCompat(intent, EXTRA_SPECTRUM_BARS, SpectrumData::class.java)
 
-    if (intent.getBooleanExtra(EXTRA_IGNORE_AUDIO_FOCUS, false)) {
-      audioManager.abandonAudioFocusRequest(audioFocusRequest)
-    } else {
-      audioManager.requestAudioFocus(audioFocusRequest)
+      // Synchronous updates.
+      sampleShuffler.setAmpWave(
+        minVol = intent.getFloatExtra(EXTRA_MINIMUM_VOLUME, -1f),
+        period = intent.getFloatExtra(EXTRA_PERIOD, -1f)
+      )
+      sampleShuffler.volumeListener.setVolumeLevel(intent.getFloatExtra(EXTRA_VOLUME_LIMIT, -1f))
+
+      if (intent.getBooleanExtra(EXTRA_IGNORE_AUDIO_FOCUS, false)) {
+        audioManager.abandonAudioFocusRequest(audioFocusRequest)
+      } else {
+        audioManager.requestAudioFocus(audioFocusRequest)
+      }
+
+      // Background updates.
+      sampleGenerator.updateSpectrum(spectrum)
+
+      // If the kernel decides to kill this process, let Android restart it using the most-recent spectrum.
+      // It's important that we call stopSelf() with this startId when a replacement spectrum arrives, or if we're
+      // stopping the service intentionally.
+      lastStartId = startId
     }
-
-    // Background updates.
-    mSampleGenerator!!.updateSpectrum(spectrum)
-
-    // If the kernel decides to kill this process, let Android restart it
-    // using the most-recent spectrum.  It's important that we call
-    // stopSelf() with this startId when a replacement spectrum arrives,
-    // or if we're stopping the service intentionally.
-    lastStartId = startId
 
     return START_REDELIVER_INTENT
   }
@@ -148,15 +148,15 @@ class NoiseService : Service() {
       // $ am stopservice com.chimbori.catnap/.NoiseService
       saveStopReason(R.string.stop_reason_mysterious)
     }
-    mSampleGenerator!!.stopThread()
-    mSampleShuffler!!.stopThread()
-    mPercentHandler!!.removeMessages(PERCENT_MSG)
+    sampleGenerator.stopThread()
+    sampleShuffler.stopThread()
+    percentHandler.removeMessages(PERCENT_MSG)
     updatePercent(-1)
 
     audioManager.abandonAudioFocusRequest(audioFocusRequest)
 
     stopForeground(STOP_FOREGROUND_REMOVE)
-    wakeLock!!.release()
+    wakeLock.release()
   }
 
   override fun onBind(intent: Intent) = null
@@ -190,12 +190,10 @@ class NoiseService : Service() {
     }.build()
   }
 
-  // Call updatePercent() from any thread.
+  @AnyThread
   fun updatePercentAsync(percent: Int) {
-    mPercentHandler!!.removeMessages(PERCENT_MSG)
-    val m = Message.obtain(mPercentHandler, PERCENT_MSG)
-    m.arg1 = percent
-    m.sendToTarget()
+    percentHandler.removeMessages(PERCENT_MSG)
+    Message.obtain(percentHandler, PERCENT_MSG).apply { arg1 = percent }.sendToTarget()
   }
 
   fun interface PercentListener {
@@ -212,43 +210,41 @@ class NoiseService : Service() {
   }
 
   companion object {
-    private val sPercentListeners = ArrayList<PercentListener>()
+    private val percentListeners = mutableListOf<PercentListener>()
 
     // These must be accessed only from the main thread.
-    private var sLastPercent = -1
+    private var lastPercent = -1
 
-    // Save the reason for the most recent stop/restart.  In theory, it would
-    // be more correct to use persistent storage, but the values should stick
-    // around in RAM long enough for practical purposes.
-    private var sStopTimestamp = Date()
+    // Save the reason for the most recent stop/restart. In theory, it would be more correct to use persistent
+    // storage, but the values should stick around in RAM long enough for practical purposes.
+    private var stopTimestamp = Date()
 
     private var sStopReasonId = 0
 
     @Suppress("deprecation")
-    private fun <T : Parcelable?> getParcelableExtraCompat(intent: Intent, name: String, clazz: Class<T>): T? {
-      return if (SDK_INT >= TIRAMISU) {
+    private fun <T : Parcelable?> getParcelableExtraCompat(intent: Intent, name: String, clazz: Class<T>): T? =
+      if (SDK_INT >= TIRAMISU) {
         intent.getParcelableExtra(name, clazz)
       } else {
         intent.getParcelableExtra(name)
       }
-    }
 
-    // If connected, notify the main activity of our progress.
-    // This must run in the main thread.
+    /** If connected, notify the main activity of our progress. */
+    @UiThread
     private fun updatePercent(percent: Int) {
-      sPercentListeners.forEach { it.onNoiseServicePercentChange(percent, sStopTimestamp, sStopReasonId) }
-      sLastPercent = percent
+      percentListeners.forEach { it.onNoiseServicePercentChange(percent, stopTimestamp, sStopReasonId) }
+      lastPercent = percent
     }
 
-    // Connect the main activity so it receives progress updates.
-    // This must run in the main thread.
+    /** Connect the main activity so it receives progress updates. */
+    @UiThread
     fun addPercentListener(listener: PercentListener) {
-      sPercentListeners.add(listener)
-      listener.onNoiseServicePercentChange(sLastPercent, sStopTimestamp, sStopReasonId)
+      percentListeners.add(listener)
+      listener.onNoiseServicePercentChange(lastPercent, stopTimestamp, sStopReasonId)
     }
 
     fun removePercentListener(listener: PercentListener) {
-      check(sPercentListeners.remove(listener))
+      check(percentListeners.remove(listener))
     }
 
     private fun Context.createStopIntent(@StringRes stopReasonId: Int) =
@@ -258,13 +254,13 @@ class NoiseService : Service() {
       try {
         startService(createStopIntent(stopReasonId))
       } catch (e: IllegalStateException) {
-        // This can be triggered by running "adb shell input keyevent 86" when the app
-        // is not running. We ignore it, because in that case there's nothing to stop.
+        // This can be triggered by running "adb shell input keyevent 86" when the app is not running.
+        // We ignore it, because in that case there's nothing to stop.
       }
     }
 
     private fun saveStopReason(stopReasonId: Int) {
-      sStopTimestamp = Date()
+      stopTimestamp = Date()
       sStopReasonId = stopReasonId
     }
 

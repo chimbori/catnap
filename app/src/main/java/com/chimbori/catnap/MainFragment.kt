@@ -64,15 +64,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.fragmentMainEqualizer.apply {
-      addBarChangedListener { band, value ->
-        mUiState.activePhonon.setBar(band, value)
-      }
-      addInteractedWhileLockedListener { interacted ->
-        mUiState.setInteractedWhileLocked(interacted)
-      }
-      addInteractionCompleteListener {
-        mUiState.restartServiceIfRequired()
-      }
+      addBarChangedListener { band, value -> mUiState.activePhonon.setBar(band, value) }
+      addInteractedWhileLockedListener(mUiState::setInteractedWhileLocked)
+      addInteractionCompleteListener { mUiState.restartServiceIfRequired() }
       phonon = mUiState.activePhonon
       isLocked = mUiState.isLocked.nonNullValue
     }
@@ -84,9 +78,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         context?.stopNoiseService(R.string.stop_reason_toolbar)
       }
     }
-    binding.fragmentMainLockButton.setOnClickListener {
-      mUiState.toggleLocked()
-    }
+    binding.fragmentMainLockButton.setOnClickListener { mUiState.toggleLocked() }
 
     mUiState.isLocked.observe(viewLifecycleOwner) { isLocked ->
       binding.fragmentMainEqualizer.isLocked = isLocked
