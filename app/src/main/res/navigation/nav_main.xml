@@ -16,7 +16,7 @@
 
   <fragment
     android:id="@+id/settingsFragmentDest"
-    android:name="com.chimbori.catnap.ui.OptionsFragment"
-    android:label="OptionsFragment"/>
+    android:name="com.chimbori.catnap.ui.SettingsFragment"
+    android:label="SettingsFragment"/>
 
 </navigation>

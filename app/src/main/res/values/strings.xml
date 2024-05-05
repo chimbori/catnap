@@ -9,7 +9,7 @@
 
   <string name="notification_text">Catnap is running</string>
   <string name="about_menu">About</string>
-  <string name="options">Options</string>
+  <string name="settings">Settings</string>
   <string name="presets">Presets</string>
   <string name="generating">Generating IDCT blocks</string>
   <string name="play_stop">Play/Stop</string>
@@ -18,7 +18,7 @@
   <string name="memory">Memory</string>
   <string name="unsaved">(unsaved)</string>
 
-  <string name="advanced_options">Advanced Options</string>
+  <string name="advanced">Advanced</string>
   <string name="auto_play_on_open">Play Automatically on Open</string>
   <string name="ignore_audio_focus">Keep Playing over Other Apps</string>
   <string name="reduce_volume">Reduce Volume</string>

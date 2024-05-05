@@ -8,7 +8,7 @@
 
   <style name="CatNap"/>
 
-  <style name="CatNap.OptionsCategory">
+  <style name="CatNap.SettingsCategory">
     <item name="android:textAppearance">@style/TextAppearance.Material3.BodyMedium</item>
     <item name="android:textColor">?attr/colorPrimary</item>
     <item name="android:textStyle">bold</item>

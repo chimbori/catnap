@@ -11,58 +11,58 @@ import com.chimbori.catnap.MAX_VOLUME
 import com.chimbori.catnap.PERIOD_MAX
 import com.chimbori.catnap.R
 import com.chimbori.catnap.asPercent
-import com.chimbori.catnap.databinding.FragmentOptionsBinding
+import com.chimbori.catnap.databinding.FragmentSettingsBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
 
-class OptionsFragment : Fragment(R.layout.fragment_options) {
-  private val binding by viewBinding(FragmentOptionsBinding::bind)
+class SettingsFragment : Fragment(R.layout.fragment_settings) {
+  private val binding by viewBinding(FragmentSettingsBinding::bind)
   private val viewModel: AppViewModel by activityViewModels()
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    binding.fragmentOptionsMinimumVolumeSeekbar.apply {
+    binding.fragmentSettingsMinimumVolumeSeekbar.apply {
       max = MAX_VOLUME
       setOnSeekBarChangeListener(SimpleSeekBarChangeListener(viewModel::setMinimumVolume))
     }
-    binding.fragmentOptionsPeriodSeekbar.apply {
+    binding.fragmentSettingsPeriodSeekbar.apply {
       max = PERIOD_MAX
       setOnSeekBarChangeListener(SimpleSeekBarChangeListener(viewModel::setPeriod))
     }
-    binding.fragmentOptionsAutoPlayCheckbox.setOnCheckedChangeListener { _, isChecked ->
+    binding.fragmentSettingsAutoPlayCheckbox.setOnCheckedChangeListener { _, isChecked ->
       viewModel.setAutoPlay(isChecked)
     }
-    binding.fragmentOptionsIgnoreAudioFocusCheckbox.setOnCheckedChangeListener { _, isChecked ->
+    binding.fragmentSettingsIgnoreAudioFocusCheckbox.setOnCheckedChangeListener { _, isChecked ->
       viewModel.setIgnoreAudioFocus(isChecked)
     }
-    binding.fragmentOptionsVolumeLimitCheckbox.setOnCheckedChangeListener { _, isChecked ->
+    binding.fragmentSettingsVolumeLimitCheckbox.setOnCheckedChangeListener { _, isChecked ->
       viewModel.setVolumeLimitEnabled(isChecked)
     }
-    binding.fragmentOptionsVolumeLimitSeekbar.apply {
+    binding.fragmentSettingsVolumeLimitSeekbar.apply {
       max = MAX_VOLUME
       setOnSeekBarChangeListener(SimpleSeekBarChangeListener(viewModel::setVolumeLimit))
     }
 
     viewModel.activePhonon.observe(viewLifecycleOwner) { phonon ->
-      binding.fragmentOptionsMinimumVolumeSeekbar.progress = phonon.minimumVolume
-      binding.fragmentOptionsMinimumVolumeText.text = phonon.minimumVolume.asPercent()
-      binding.fragmentOptionsPeriodSeekbar.isEnabled = phonon.minimumVolume != MAX_VOLUME
-      binding.fragmentOptionsPeriodSeekbar.progress = phonon.period
-      binding.fragmentOptionsPeriodText.text = phonon.periodText
+      binding.fragmentSettingsMinimumVolumeSeekbar.progress = phonon.minimumVolume
+      binding.fragmentSettingsMinimumVolumeText.text = phonon.minimumVolume.asPercent()
+      binding.fragmentSettingsPeriodSeekbar.isEnabled = phonon.minimumVolume != MAX_VOLUME
+      binding.fragmentSettingsPeriodSeekbar.progress = phonon.period
+      binding.fragmentSettingsPeriodText.text = phonon.periodText
     }
     viewModel.autoPlay.observe(viewLifecycleOwner) { autoPlay ->
-      binding.fragmentOptionsAutoPlayCheckbox.isChecked = autoPlay
+      binding.fragmentSettingsAutoPlayCheckbox.isChecked = autoPlay
     }
     viewModel.ignoreAudioFocus.observe(viewLifecycleOwner) { isChecked ->
-      binding.fragmentOptionsIgnoreAudioFocusCheckbox.isChecked = isChecked
+      binding.fragmentSettingsIgnoreAudioFocusCheckbox.isChecked = isChecked
     }
     viewModel.volumeLimitEnabled.observe(viewLifecycleOwner) { isEnabled ->
-      binding.fragmentOptionsVolumeLimitCheckbox.isChecked = isEnabled
-      binding.fragmentOptionsVolumeLimitSeekbar.isVisible = isEnabled
+      binding.fragmentSettingsVolumeLimitCheckbox.isChecked = isEnabled
+      binding.fragmentSettingsVolumeLimitSeekbar.isVisible = isEnabled
     }
     viewModel.volumeLimit.observe(viewLifecycleOwner) { volumeLimit ->
-      binding.fragmentOptionsVolumeLimitSeekbar.progress = volumeLimit
+      binding.fragmentSettingsVolumeLimitSeekbar.progress = volumeLimit
     }
   }
 }

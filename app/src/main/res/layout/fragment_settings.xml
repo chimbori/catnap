@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/spacing_50"
     android:layout_marginTop="@dimen/spacing_300"
-    android:layout_marginEnd="@dimen/spacing_100"
+    android:layout_marginEnd="@dimen/spacing_150"
     android:orientation="vertical">
 
     <TextView
@@ -17,10 +17,10 @@
       android:layout_height="wrap_content"
       android:layout_marginStart="@dimen/spacing_100"
       android:layout_marginTop="@dimen/spacing_400"
-      android:text="@string/options"/>
+      android:text="@string/settings"/>
 
     <TextView
-      style="@style/CatNap.OptionsCategory"
+      style="@style/CatNap.SettingsCategory"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginStart="@dimen/spacing_400"
@@ -43,15 +43,15 @@
           android:layout_gravity="center_vertical"
           android:src="@drawable/amplitude"/>
 
-        <SeekBar
-          android:id="@+id/fragment_options_minimum_volume_seekbar"
+        <androidx.appcompat.widget.AppCompatSeekBar
+          android:id="@+id/fragment_settings_minimum_volume_seekbar"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="center_vertical"
           android:layout_weight="1"/>
 
         <TextView
-          android:id="@+id/fragment_options_minimum_volume_text"
+          android:id="@+id/fragment_settings_minimum_volume_text"
           style="@style/TextAppearance.Material3.BodyLarge"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -69,8 +69,8 @@
           android:layout_gravity="center_vertical"
           android:src="@drawable/frequency"/>
 
-        <SeekBar
-          android:id="@+id/fragment_options_period_seekbar"
+        <androidx.appcompat.widget.AppCompatSeekBar
+          android:id="@+id/fragment_settings_period_seekbar"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="center_vertical"
@@ -78,7 +78,7 @@
           android:max="53"/>
 
         <TextView
-          android:id="@+id/fragment_options_period_text"
+          android:id="@+id/fragment_settings_period_text"
           style="@style/TextAppearance.Material3.BodyLarge"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -88,14 +88,14 @@
     </TableLayout>
 
     <TextView
-      style="@style/CatNap.OptionsCategory"
+      style="@style/CatNap.SettingsCategory"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginStart="@dimen/spacing_400"
-      android:text="@string/advanced_options"/>
+      android:text="@string/advanced"/>
 
-    <androidx.appcompat.widget.SwitchCompat
-      android:id="@+id/fragment_options_auto_play_checkbox"
+    <com.google.android.material.materialswitch.MaterialSwitch
+      android:id="@+id/fragment_settings_auto_play_checkbox"
       style="@style/TextAppearance.Material3.BodyLarge"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -104,8 +104,8 @@
       android:paddingBottom="@dimen/spacing_100"
       android:text="@string/auto_play_on_open"/>
 
-    <androidx.appcompat.widget.SwitchCompat
-      android:id="@+id/fragment_options_ignore_audio_focus_checkbox"
+    <com.google.android.material.materialswitch.MaterialSwitch
+      android:id="@+id/fragment_settings_ignore_audio_focus_checkbox"
       style="@style/TextAppearance.Material3.BodyLarge"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -114,8 +114,8 @@
       android:paddingBottom="@dimen/spacing_100"
       android:text="@string/ignore_audio_focus"/>
 
-    <androidx.appcompat.widget.SwitchCompat
-      android:id="@+id/fragment_options_volume_limit_checkbox"
+    <com.google.android.material.materialswitch.MaterialSwitch
+      android:id="@+id/fragment_settings_volume_limit_checkbox"
       style="@style/TextAppearance.Material3.BodyLarge"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -124,8 +124,8 @@
       android:paddingBottom="@dimen/spacing_100"
       android:text="@string/reduce_volume"/>
 
-    <SeekBar
-      android:id="@+id/fragment_options_volume_limit_seekbar"
+    <androidx.appcompat.widget.AppCompatSeekBar
+      android:id="@+id/fragment_settings_volume_limit_seekbar"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginStart="@dimen/spacing_400"
