@@ -4,6 +4,8 @@ import java.util.Locale
 import kotlin.math.round
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /** The entire saved state of this app, persisted as JSON. */
 @Serializable
@@ -35,6 +37,8 @@ data class Phonon(
       repeat(BAND_COUNT) { bars.add(0.5f) }
     }
   }
+
+  fun deepCopy() = Json.decodeFromString<Phonon>(Json.encodeToString(this))
 
   fun setBar(band: Int, value: Float) {
     bars[band] = value.coerceIn(0f, 1f)

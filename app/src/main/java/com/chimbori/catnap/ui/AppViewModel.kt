@@ -138,10 +138,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
   }
 
   fun savePhononAsPreset() {
-    _phonons.add(_activePhonon)
-    _activePhonon = _activePhonon.copy()  // To prevent further edits from being persisted incorrectly.
+    _phonons.add(_activePhonon.deepCopy())  // To prevent further edits from being persisted incorrectly.
+    phonons.update(_phonons)
     saveState()
-    // TODO: Update LiveData
   }
 
   fun setAutoPlay(enabled: Boolean) {
