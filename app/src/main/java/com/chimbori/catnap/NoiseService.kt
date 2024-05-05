@@ -222,7 +222,8 @@ class NoiseService : Service() {
     // storage, but the values should stick around in RAM long enough for practical purposes.
     private var stopTimestamp = Date()
 
-    private var sStopReasonId = 0
+    @StringRes
+    private var stopReasonId = 0
 
     @Suppress("deprecation")
     private fun <T : Parcelable?> getParcelableExtraCompat(intent: Intent, name: String, clazz: Class<T>): T? =
@@ -235,7 +236,7 @@ class NoiseService : Service() {
     /** If connected, notify the main activity of our progress. */
     @UiThread
     private fun updatePercent(percent: Int) {
-      percentListeners.forEach { it.onNoiseServicePercentChange(percent, stopTimestamp, sStopReasonId) }
+      percentListeners.forEach { it.onNoiseServicePercentChange(percent, stopTimestamp, stopReasonId) }
       lastPercent = percent
     }
 
@@ -243,7 +244,7 @@ class NoiseService : Service() {
     @UiThread
     fun addPercentListener(listener: PercentListener) {
       percentListeners.add(listener)
-      listener.onNoiseServicePercentChange(lastPercent, stopTimestamp, sStopReasonId)
+      listener.onNoiseServicePercentChange(lastPercent, stopTimestamp, stopReasonId)
     }
 
     fun removePercentListener(listener: PercentListener) {
@@ -262,9 +263,9 @@ class NoiseService : Service() {
       }
     }
 
-    private fun saveStopReason(stopReasonId: Int) {
+    private fun saveStopReason(@StringRes reasonId: Int) {
       stopTimestamp = Date()
-      sStopReasonId = stopReasonId
+      stopReasonId = reasonId
     }
 
     fun Context.startNoiseService(phonon: Phonon, volumeLimit: Float, ignoreAudioFocus: Boolean) {

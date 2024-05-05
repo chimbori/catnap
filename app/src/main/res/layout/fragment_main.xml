@@ -10,6 +10,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/spacing_150"
+    android:gravity="start"
     android:text="@string/generating"
     app:layout_constraintBottom_toBottomOf="@id/fragment_main_idct_percent"
     app:layout_constraintEnd_toStartOf="@id/fragment_main_idct_percent"

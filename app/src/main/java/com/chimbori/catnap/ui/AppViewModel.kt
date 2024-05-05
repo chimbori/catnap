@@ -9,12 +9,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.chimbori.catnap.AppConfig
 import com.chimbori.catnap.MAX_VOLUME
+import com.chimbori.catnap.NoiseService
 import com.chimbori.catnap.NoiseService.Companion.startNoiseService
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
 import com.chimbori.catnap.Phonon
 import com.chimbori.catnap.R
 import com.chimbori.catnap.utils.nonNullValue
 import com.chimbori.catnap.utils.update
+import java.text.DateFormat
+import java.util.Date
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -43,8 +46,50 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
   val volumeLimit: LiveData<Int> = MutableLiveData()
   val volumeLimitEnabled: LiveData<Boolean> = MutableLiveData()
 
+  val playStopIconResId: LiveData<Int> = MutableLiveData()
+  val statusText: LiveData<String?> = MutableLiveData()
+  val statusPercent: LiveData<Int> = MutableLiveData()
+
+  private var isServiceActive = false
+
+  private val noisePercentListener = NoiseService.PercentListener { percent, stopTimestamp, stopReasonId ->
+    isServiceActive = percent >= 0
+
+    when {
+      percent < 0 -> {  // STOPPED
+        // Expire the message after 12 hours, to avoid date ambiguity.
+        if (Date().time - stopTimestamp.time <= 12 * 3600 * 1000L) {
+          val timeFmt = DateFormat.getTimeInstance(DateFormat.SHORT).format(stopTimestamp)
+          if (stopReasonId != 0) {
+            statusText.update("$timeFmt: ${context.getString(stopReasonId)}")
+            statusPercent.update(-1)
+          }
+        }
+      }
+      percent < 100 -> {  // GENERATING
+        statusText.update(context.getString(R.string.generating))
+        statusPercent.update(percent)
+      }
+      else -> {  // ACTIVE
+        // While the service is active, only the restart event is worth showing.
+        statusText.update(null)
+        statusPercent.update(percent)
+      }
+    }
+    playStopIconResId.update(if (isServiceActive) R.drawable.stop else R.drawable.play)
+  }
+
   init {
+    playStopIconResId.update(R.drawable.play)
+    statusText.update(null)
+    statusPercent.update(-1)
     loadOrCreateState()
+    NoiseService.addPercentListener(noisePercentListener)
+  }
+
+  override fun onCleared() {
+    super.onCleared()
+    NoiseService.removePercentListener(noisePercentListener)
   }
 
   private fun loadOrCreateState() {
@@ -85,7 +130,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
   }
 
-  fun startService() {
+  private fun startService() {
     context.startNoiseService(
       phonon = _activePhonon,
       volumeLimit = volumeLimit.nonNullValue.toFloat() / MAX_VOLUME,
@@ -103,6 +148,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     isLocked.update(!isLocked.nonNullValue)
     if (!isLocked.nonNullValue) {
       interactedWhileLocked.update(false)
+    }
+  }
+
+  fun togglePlayStop() {
+    if (!isServiceActive) {
+      startService()
+    } else {
+      context?.stopNoiseService(R.string.stop_reason_toolbar)
     }
   }
 
