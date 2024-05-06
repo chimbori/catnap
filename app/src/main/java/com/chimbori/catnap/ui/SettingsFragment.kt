@@ -44,12 +44,12 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
       setOnSeekBarChangeListener(SimpleSeekBarChangeListener(viewModel::setVolumeLimit))
     }
 
-    viewModel.activePhonon.observe(viewLifecycleOwner) { phonon ->
-      binding.fragmentSettingsMinimumVolumeSeekbar.progress = phonon.minimumVolume
-      binding.fragmentSettingsMinimumVolumeText.text = phonon.minimumVolume.asPercent()
-      binding.fragmentSettingsPeriodSeekbar.isEnabled = phonon.minimumVolume != MAX_VOLUME
-      binding.fragmentSettingsPeriodSeekbar.progress = phonon.period
-      binding.fragmentSettingsPeriodText.text = phonon.periodText
+    viewModel.activePreset.observe(viewLifecycleOwner) { preset ->
+      binding.fragmentSettingsMinimumVolumeSeekbar.progress = preset.minimumVolume
+      binding.fragmentSettingsMinimumVolumeText.text = preset.minimumVolume.asPercent()
+      binding.fragmentSettingsPeriodSeekbar.isEnabled = preset.minimumVolume != MAX_VOLUME
+      binding.fragmentSettingsPeriodSeekbar.progress = preset.period
+      binding.fragmentSettingsPeriodText.text = preset.periodText
     }
     viewModel.autoPlay.observe(viewLifecycleOwner) { autoPlay ->
       binding.fragmentSettingsAutoPlayCheckbox.isChecked = autoPlay

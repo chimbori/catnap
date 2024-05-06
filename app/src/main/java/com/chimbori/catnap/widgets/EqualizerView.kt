@@ -14,7 +14,7 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import com.chimbori.catnap.BAND_COUNT
-import com.chimbori.catnap.Phonon
+import com.chimbori.catnap.Preset
 import com.chimbori.catnap.R
 
 class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
@@ -25,7 +25,7 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
   private val lineColorLight = Paint().apply { setColor(Color.argb(100, 100, 100, 100)) }
   private val lineColorDark = Paint().apply { setColor(Color.argb(20, 100, 100, 100)) }
 
-  var phonon: Phonon? = null
+  var preset: Preset? = null
     set(value) {
       field = value
       invalidate()
@@ -77,7 +77,7 @@ class EqualizerView(context: Context?, attrs: AttributeSet?) : View(context, att
 
   override fun onDraw(canvas: Canvas) {
     for (i in 0 until BAND_COUNT) {
-      val bar = phonon?.getBar(i) ?: .5f
+      val bar = preset?.getBar(i) ?: .5f
       val startX = bandToX(i)
       val stopX = startX + barWidth
       val startY = barToY(bar)

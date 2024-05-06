@@ -37,7 +37,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     binding.fragmentMainEqualizer.apply {
       addBarChangedListener { band, value -> viewModel.setBar(band, value) }
       addInteractedWhileLockedListener { viewModel.setInteractedWhileLocked(it) }
-      addInteractionCompleteListener { viewModel.setPhononEditComplete() }
+      addInteractionCompleteListener { viewModel.setPresetEditComplete() }
     }
     binding.fragmentMainPlayStopButton.setOnClickListener {
       viewModel.togglePlayStop()
@@ -47,7 +47,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
       val bottomSheet = BottomSheetDialog(requireActivity())
       val presetConfig = DialogPresetConfigBinding.inflate(layoutInflater).apply {
         dialogPresetTitleSaveButton.setOnClickListener {
-          viewModel.savePhononAsPreset(name = dialogPresetTitleTitle.text.toString())
+          viewModel.savePreset(name = dialogPresetTitleTitle.text.toString())
           bottomSheet.dismiss()
         }
         dialogPresetTitleCancelButton.setOnClickListener { bottomSheet.dismiss() }
@@ -59,7 +59,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
       }.show()
     }
 
-    viewModel.activePhonon.observe(viewLifecycleOwner) { binding.fragmentMainEqualizer.phonon = it }
+    viewModel.activePreset.observe(viewLifecycleOwner) { binding.fragmentMainEqualizer.preset = it }
     viewModel.isLocked.observe(viewLifecycleOwner) { binding.fragmentMainEqualizer.isLocked = it }
     viewModel.isLocked.observe(viewLifecycleOwner) { isLocked ->
       binding.fragmentMainEqualizer.isLocked = isLocked

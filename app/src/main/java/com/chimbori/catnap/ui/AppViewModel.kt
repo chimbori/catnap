@@ -12,7 +12,7 @@ import com.chimbori.catnap.MAX_VOLUME
 import com.chimbori.catnap.NoiseService
 import com.chimbori.catnap.NoiseService.Companion.startNoiseService
 import com.chimbori.catnap.NoiseService.Companion.stopNoiseService
-import com.chimbori.catnap.Phonon
+import com.chimbori.catnap.Preset
 import com.chimbori.catnap.R
 import com.chimbori.catnap.utils.nonNullValue
 import com.chimbori.catnap.utils.update
@@ -28,15 +28,15 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
   private val prefs by lazy { context.getSharedPreferences(PREF_NAME, MODE_PRIVATE) }
 
-  private var _phonons = mutableListOf<Phonon>()
-  val phonons: LiveData<List<Phonon>> = MutableLiveData()
+  private var _presets = mutableListOf<Preset>()
+  val presets: LiveData<List<Preset>> = MutableLiveData()
 
   /**
    * Maintains temporary state, especially when user is editing it in the Equalizer. When user stops editing,
    * this should be persisted to storage as part of [AppConfig].
    */
-  private var _activePhonon = Phonon()
-  val activePhonon: LiveData<Phonon> = MutableLiveData()
+  private var _activePreset = Preset()
+  val activePreset: LiveData<Preset> = MutableLiveData()
 
   val isLocked: LiveData<Boolean> = MutableLiveData()
   val interactedWhileLocked: LiveData<Boolean> = MutableLiveData()
@@ -99,11 +99,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
       AppConfig()
     }
 
-    _phonons = appConfig.phonons.toMutableList()
-    phonons.update(_phonons)
+    _presets = appConfig.presets.toMutableList()
+    presets.update(_presets)
 
-    _activePhonon = appConfig.activePhonon
-    activePhonon.update(_activePhonon)
+    _activePreset = appConfig.activePreset
+    activePreset.update(_activePreset)
 
     isLocked.update(appConfig.locked)
     interactedWhileLocked.update(false)
@@ -118,8 +118,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
       putString(
         PREF_KEY, Json.encodeToString(
           AppConfig(
-            phonons = _phonons,
-            activePhonon = _activePhonon,
+            presets = _presets,
+            activePreset = _activePreset,
             locked = isLocked.nonNullValue,
             autoPlay = autoPlay.nonNullValue,
             ignoreAudioFocus = ignoreAudioFocus.nonNullValue,
@@ -132,7 +132,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
   private fun startService() {
     context.startNoiseService(
-      phonon = _activePhonon,
+      preset = _activePreset,
       volumeLimit = volumeLimit.nonNullValue.toFloat() / MAX_VOLUME,
       ignoreAudioFocus = ignoreAudioFocus.nonNullValue
     )
@@ -169,33 +169,33 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
   }
 
   fun setBar(band: Int, value: Float) {
-    _activePhonon.setBar(band, value)  // Update the in-memory Phonon, but don’t notify observers yet.
+    _activePreset.setBar(band, value)  // Update the in-memory Preset, but don’t notify observers yet.
   }
 
-  fun setPhononEditComplete(): Boolean {
-    activePhonon.update(_activePhonon)  // Notify observers once user interaction is complete.
+  fun setPresetEditComplete(): Boolean {
+    activePreset.update(_activePreset)  // Notify observers once user interaction is complete.
     restartServiceIfRequired()
     return true
   }
 
   fun setMinimumVolume(minimumVolume: Int) {
-    _activePhonon = _activePhonon.copy(minimumVolume = minimumVolume)
-    activePhonon.update(_activePhonon)
+    _activePreset = _activePreset.copy(minimumVolume = minimumVolume)
+    activePreset.update(_activePreset)
     restartServiceIfRequired()
   }
 
   fun setPeriod(period: Int) {
-    _activePhonon = _activePhonon.copy(period = period)
-    activePhonon.update(_activePhonon)
+    _activePreset = _activePreset.copy(period = period)
+    activePreset.update(_activePreset)
     restartServiceIfRequired()
   }
 
-  fun savePhononAsPreset(name: String) {
-    _phonons.add(
+  fun savePreset(name: String) {
+    _presets.add(
       // To prevent further edits from being persisted incorrectly.
-      _activePhonon.copy(name = name).deepCopy()
+      _activePreset.copy(name = name).deepCopy()
     )
-    phonons.update(_phonons)
+    presets.update(_presets)
     saveState()
   }
 
@@ -222,7 +222,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     volumeLimitEnabled.update(checked)
   }
 
-  fun getNextPresetName() = "${context.getString(R.string.preset)} #${phonons.nonNullValue.size + 1}"
+  fun getNextPresetName() = "${context.getString(R.string.preset)} #${presets.nonNullValue.size + 1}"
 
   companion object {
     /** The name to use when accessing our SharedPreferences. */

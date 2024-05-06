@@ -18,14 +18,14 @@ import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
 import com.chimbori.catnap.BAND_COUNT
-import com.chimbori.catnap.Phonon
+import com.chimbori.catnap.Preset
 import com.chimbori.catnap.R
 
 class EqualizerReadOnlyView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
   private var barWidth = 0f
   private var canvasBitmap: Bitmap? = null
 
-  var phonon: Phonon? = null
+  var preset: Preset? = null
     set(value) {
       if (field != value) {
         field = value
@@ -49,7 +49,7 @@ class EqualizerReadOnlyView(context: Context?, attrs: AttributeSet?) : View(cont
     val path = Path()
     var first = true
     for (i in 0 until BAND_COUNT) {
-      val bar = phonon?.getBar(i) ?: .5f
+      val bar = preset?.getBar(i) ?: .5f
       val x = barWidth * (i + 0.5f)
       val y = barToY(bar)
       if (first) {

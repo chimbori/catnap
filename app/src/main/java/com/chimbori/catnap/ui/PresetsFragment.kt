@@ -37,8 +37,8 @@ class PresetsFragment : Fragment(R.layout.fragment_presets) {
       }
     }
 
-    viewModel.phonons.observe(viewLifecycleOwner) { phonons ->
-      presetsSection.replaceAll(phonons.map { PhononItem(it) })
+    viewModel.presets.observe(viewLifecycleOwner) { presets ->
+      presetsSection.replaceAll(presets.map { PresetItem(it) })
     }
   }
 }

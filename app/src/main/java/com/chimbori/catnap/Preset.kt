@@ -10,8 +10,8 @@ import kotlinx.serialization.json.Json
 /** The entire saved state of this app, persisted as JSON. */
 @Serializable
 data class AppConfig(
-  @SerialName("phonons") val phonons: List<Phonon> = mutableListOf(),
-  @SerialName("active_phonon") val activePhonon: Phonon = Phonon(),
+  @SerialName("presets") val presets: List<Preset> = mutableListOf(),
+  @SerialName("active_preset") val activePreset: Preset = Preset(),
   @SerialName("locked") val locked: Boolean = false,
   @SerialName("auto_play") val autoPlay: Boolean = false,
   @SerialName("ignore_audio_focus") val ignoreAudioFocus: Boolean = false,
@@ -27,7 +27,7 @@ data class AppConfig(
  * - Get and set sound-related values.
  */
 @Serializable
-data class Phonon(
+data class Preset(
   @SerialName("bars") val bars: MutableList<Float> = mutableListOf(),
   @SerialName("name") val name: String = "",
   @SerialName("minimum_volume") val minimumVolume: Int = MAX_VOLUME,
@@ -39,7 +39,7 @@ data class Phonon(
     }
   }
 
-  fun deepCopy() = Json.decodeFromString<Phonon>(Json.encodeToString(this))
+  fun deepCopy() = Json.decodeFromString<Preset>(Json.encodeToString(this))
 
   fun setBar(band: Int, value: Float) {
     bars[band] = value.coerceIn(0f, 1f)

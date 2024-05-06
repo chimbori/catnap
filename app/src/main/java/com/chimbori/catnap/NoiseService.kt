@@ -268,18 +268,18 @@ class NoiseService : Service() {
       stopReasonId = reasonId
     }
 
-    fun Context.startNoiseService(phonon: Phonon, volumeLimit: Float, ignoreAudioFocus: Boolean) {
+    fun Context.startNoiseService(preset: Preset, volumeLimit: Float, ignoreAudioFocus: Boolean) {
       ContextCompat.startForegroundService(this, Intent(this, NoiseService::class.java).apply {
-        putPhonon(phonon)
+        putPreset(preset)
         putExtra(EXTRA_VOLUME_LIMIT, volumeLimit)
         putExtra(EXTRA_IGNORE_AUDIO_FOCUS, ignoreAudioFocus)
       })
     }
 
-    private fun Intent.putPhonon(phonon: Phonon) {
-      putExtra(EXTRA_SPECTRUM_BARS, SpectrumData(phonon.bars))
-      putExtra(EXTRA_MINIMUM_VOLUME, phonon.minimumVolume / 100f)
-      putExtra(EXTRA_PERIOD, phonon.periodSeconds)
+    private fun Intent.putPreset(preset: Preset) {
+      putExtra(EXTRA_SPECTRUM_BARS, SpectrumData(preset.bars))
+      putExtra(EXTRA_MINIMUM_VOLUME, preset.minimumVolume / 100f)
+      putExtra(EXTRA_PERIOD, preset.periodSeconds)
     }
 
     private const val PERCENT_MSG = 1

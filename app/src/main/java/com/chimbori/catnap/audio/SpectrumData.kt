@@ -7,7 +7,7 @@ import kotlin.math.min
 import kotlin.math.pow
 
 /**
- * SpectrumData is a Phonon translated into "machine readable" form. In other
+ * SpectrumData is a Preset translated into "machine readable" form. In other
  * words, the values here are suitable for generating noise, and not for
  * storage or rendering UI elements.
  */
