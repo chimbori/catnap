@@ -33,7 +33,7 @@
 
   <com.google.android.material.card.MaterialCardView
     android:id="@+id/fragment_main_equalizer_container"
-    android:layout_width="0dp"
+    style="@style/WidthMax600"
     android:layout_height="0dp"
     android:layout_margin="@dimen/spacing_100"
     app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
