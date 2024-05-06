@@ -15,20 +15,31 @@
     android:layout_height="wrap_content"
     android:padding="@dimen/spacing_50">
 
-    <com.chimbori.catnap.widgets.EqualizerReadOnlyView
-      android:id="@+id/item_phonon_equalizer"
-      android:layout_width="@dimen/equalizer_width"
-      android:layout_height="@dimen/equalizer_height"
-      android:layout_marginStart="@dimen/spacing_100"
+    <com.google.android.material.card.MaterialCardView
+      android:id="@+id/item_phonon_equalizer_container"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:cardBackgroundColor="?attr/colorSurfaceDim"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"/>
+      app:layout_constraintTop_toTopOf="parent">
+
+      <com.chimbori.catnap.widgets.EqualizerReadOnlyView
+        android:id="@+id/item_phonon_equalizer"
+        android:layout_width="@dimen/equalizer_width"
+        android:layout_height="@dimen/equalizer_height"
+        android:layout_margin="@dimen/spacing_100"/>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
       android:id="@+id/item_phonon_name"
+      style="@style/TextAppearance.Material3.BodyLarge"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
-      app:layout_constraintStart_toEndOf="@id/item_phonon_equalizer"
+      android:layout_marginStart="@dimen/spacing_150"
+      android:layout_marginTop="@dimen/spacing_50"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toEndOf="@id/item_phonon_equalizer_container"
       app:layout_constraintTop_toTopOf="parent"/>
 
   </androidx.constraintlayout.widget.ConstraintLayout>

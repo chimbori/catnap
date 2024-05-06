@@ -29,6 +29,7 @@ data class AppConfig(
 @Serializable
 data class Phonon(
   @SerialName("bars") val bars: MutableList<Float> = mutableListOf(),
+  @SerialName("name") val name: String = "",
   @SerialName("minimum_volume") val minimumVolume: Int = MAX_VOLUME,
   @SerialName("period") val period: Int = PERIOD_DEFAULT,
 ) {

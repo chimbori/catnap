@@ -190,8 +190,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     restartServiceIfRequired()
   }
 
-  fun savePhononAsPreset() {
-    _phonons.add(_activePhonon.deepCopy())  // To prevent further edits from being persisted incorrectly.
+  fun savePhononAsPreset(name: String) {
+    _phonons.add(
+      // To prevent further edits from being persisted incorrectly.
+      _activePhonon.copy(name = name).deepCopy()
+    )
     phonons.update(_phonons)
     saveState()
   }
@@ -218,6 +221,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
   fun setVolumeLimitEnabled(checked: Boolean) {
     volumeLimitEnabled.update(checked)
   }
+
+  fun getNextPresetName() = "${context.getString(R.string.preset)} #${phonons.nonNullValue.size + 1}"
 
   companion object {
     /** The name to use when accessing our SharedPreferences. */

@@ -8,8 +8,11 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.chimbori.catnap.R
+import com.chimbori.catnap.databinding.DialogPresetConfigBinding
 import com.chimbori.catnap.databinding.FragmentMainBinding
 import com.chimbori.catnap.utils.nonNullValue
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 
 class MainFragment : Fragment(R.layout.fragment_main) {
@@ -40,7 +43,21 @@ class MainFragment : Fragment(R.layout.fragment_main) {
       viewModel.togglePlayStop()
     }
     binding.fragmentMainLockButton.setOnClickListener { viewModel.toggleLocked() }
-    binding.fragmentMainSaveButton.setOnClickListener { viewModel.savePhononAsPreset() }
+    binding.fragmentMainSaveButton.setOnClickListener {
+      val bottomSheet = BottomSheetDialog(requireActivity())
+      val presetConfig = DialogPresetConfigBinding.inflate(layoutInflater).apply {
+        dialogPresetTitleSaveButton.setOnClickListener {
+          viewModel.savePhononAsPreset(name = dialogPresetTitleTitle.text.toString())
+          bottomSheet.dismiss()
+        }
+        dialogPresetTitleCancelButton.setOnClickListener { bottomSheet.dismiss() }
+        dialogPresetTitleTitle.setText(viewModel.getNextPresetName())
+      }
+      bottomSheet.apply {
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED  // Needed for Tablets in Landscape Mode
+        setContentView(presetConfig.root)
+      }.show()
+    }
 
     viewModel.activePhonon.observe(viewLifecycleOwner) { binding.fragmentMainEqualizer.phonon = it }
     viewModel.isLocked.observe(viewLifecycleOwner) { binding.fragmentMainEqualizer.isLocked = it }

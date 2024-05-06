@@ -10,8 +10,8 @@
   <dimen name="spacing_400">64dp</dimen>
   <dimen name="spacing_450">72dp</dimen>
 
-  <dimen name="equalizer_width">80dp</dimen>
-  <dimen name="equalizer_height">80dp</dimen>
+  <dimen name="equalizer_width">60dp</dimen>
+  <dimen name="equalizer_height">40dp</dimen>
 
   <dimen name="button_small">60dp</dimen>
   <dimen name="button_large">80dp</dimen>

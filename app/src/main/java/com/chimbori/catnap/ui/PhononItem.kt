@@ -13,5 +13,6 @@ class PhononItem(private val phonon: Phonon) : BindableItem<ItemPhononBinding>()
 
   override fun bind(viewBinding: ItemPhononBinding, position: Int) {
     viewBinding.itemPhononEqualizer.phonon = phonon
+    viewBinding.itemPhononName.text = phonon.name
   }
 }
