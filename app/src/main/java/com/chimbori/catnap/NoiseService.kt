@@ -116,28 +116,14 @@ class NoiseService : Service() {
     }
 
     if (intent != null) {
-      val spectrum = getParcelableExtraCompat(intent, EXTRA_SPECTRUM_BARS, SpectrumData::class.java)
-
-      // Synchronous updates.
-      sampleShuffler.setAmpWave(
+      startNoise(
+        spectrum = getParcelableExtraCompat(intent, EXTRA_SPECTRUM_BARS, SpectrumData::class.java)!!,
         minVol = intent.getFloatExtra(EXTRA_MINIMUM_VOLUME, -1f),
-        period = intent.getFloatExtra(EXTRA_PERIOD, -1f)
+        period = intent.getFloatExtra(EXTRA_PERIOD, -1f),
+        volumeLimit = intent.getFloatExtra(EXTRA_VOLUME_LIMIT, -1f),
+        ignoreAudioFocus = intent.getBooleanExtra(EXTRA_IGNORE_AUDIO_FOCUS, false),
+        startId = startId
       )
-      sampleShuffler.volumeListener.setVolumeLevel(intent.getFloatExtra(EXTRA_VOLUME_LIMIT, -1f))
-
-      if (intent.getBooleanExtra(EXTRA_IGNORE_AUDIO_FOCUS, false)) {
-        audioManager.abandonAudioFocusRequest(audioFocusRequest)
-      } else {
-        audioManager.requestAudioFocus(audioFocusRequest)
-      }
-
-      // Background updates.
-      sampleGenerator.updateSpectrum(spectrum)
-
-      // If the kernel decides to kill this process, let Android restart it using the most-recent spectrum.
-      // It's important that we call stopSelf() with this startId when a replacement spectrum arrives, or if we're
-      // stopping the service intentionally.
-      lastStartId = startId
     }
 
     return START_REDELIVER_INTENT
@@ -145,7 +131,36 @@ class NoiseService : Service() {
 
   override fun onDestroy() {
     super.onDestroy()
+    stopNoise()
+    stopForeground(STOP_FOREGROUND_REMOVE)
+    wakeLock.release()
+  }
 
+  private fun startNoise(
+    spectrum: SpectrumData,
+    minVol: Float, period: Float, volumeLimit: Float, ignoreAudioFocus: Boolean,
+    startId: Int
+  ) {
+    // Synchronous updates.
+    sampleShuffler.setAmpWave(minVol, period)
+    sampleShuffler.volumeListener.setVolumeLevel(volumeLimit)
+
+    if (ignoreAudioFocus) {
+      audioManager.abandonAudioFocusRequest(audioFocusRequest)
+    } else {
+      audioManager.requestAudioFocus(audioFocusRequest)
+    }
+
+    // Background updates.
+    sampleGenerator.updateSpectrum(spectrum)
+
+    // If the kernel decides to kill this process, let Android restart it using the most-recent spectrum.
+    // It's important that we call stopSelf() with this startId when a replacement spectrum arrives, or if we're
+    // stopping the service intentionally.
+    lastStartId = startId
+  }
+
+  private fun stopNoise() {
     if (lastStartId != -1) {
       // This condition can be triggered from adb shell:
       // $ am stopservice com.chimbori.catnap/.NoiseService
@@ -155,11 +170,7 @@ class NoiseService : Service() {
     sampleShuffler.stopThread()
     percentHandler.removeMessages(PERCENT_MSG)
     updatePercent(-1)
-
     audioManager.abandonAudioFocusRequest(audioFocusRequest)
-
-    stopForeground(STOP_FOREGROUND_REMOVE)
-    wakeLock.release()
   }
 
   override fun onBind(intent: Intent) = null
