@@ -31,7 +31,9 @@
 
     <service
       android:name=".NoiseService"
+      android:exported="true"
       android:foregroundServiceType="mediaPlayback"/>
+
     <meta-data
       android:name="com.google.android.backup.api_key"
       android:value="AEdPqrEAAAAISXaOEWnqsGHIpO7oONbmE9wULxVx_vswtaPpGA"/>
