@@ -40,6 +40,9 @@ dependencies {
 
   implementation(libs.androidx.appcompat)
   implementation(libs.androidx.core.ktx)
+  implementation(libs.androidx.media3.common)
+  implementation(libs.androidx.media3.session)
+  implementation(libs.androidx.media3.ui)
   implementation(libs.androidx.navigation.fragment)
   implementation(libs.androidx.navigation.ui)
   implementation(libs.kotlinx.serialization.json)
